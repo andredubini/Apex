@@ -1,0 +1,540 @@
+import React, { useState, useContext } from "react";
+import { AuthContext } from "../App";
+import { 
+  LineChart, 
+  Line, 
+  XAxis, 
+  YAxis, 
+  CartesianGrid, 
+  Tooltip, 
+  ResponsiveContainer,
+  BarChart,
+  Bar
+} from "recharts";
+import { 
+  TrendingUp, 
+  Users, 
+  DollarSign, 
+  Activity,
+  Plus,
+  Edit3,
+  Save,
+  LogOut,
+  Calendar,
+  Target,
+  AlertTriangle
+} from "lucide-react";
+
+const AdminDashboard = () => {
+  const { user, logout, sampleTradingData } = useContext(AuthContext);
+  const [activeTab, setActiveTab] = useState("overview");
+  const [isAddingReport, setIsAddingReport] = useState(false);
+  const [newReport, setNewReport] = useState({
+    week: "",
+    startBalance: "",
+    endBalance: "",
+    trades: "",
+    successRate: "",
+    notes: ""
+  });
+
+  // Mock investor data
+  const investors = [
+    { id: 1, name: "John Investor", email: "investor@example.com", balance: 150000, invested: 100000, joinDate: "2024-01-15" },
+    { id: 2, name: "Sarah Miller", email: "sarah@example.com", balance: 275000, invested: 200000, joinDate: "2023-11-20" },
+    { id: 3, name: "Robert Chen", email: "robert@example.com", balance: 425000, invested: 350000, joinDate: "2023-08-10" },
+    { id: 4, name: "Emily Davis", email: "emily@example.com", balance: 185000, invested: 150000, joinDate: "2024-02-05" },
+  ];
+
+  // Calculate admin metrics
+  const totalInvestors = investors.length;
+  const totalAssets = investors.reduce((sum, inv) => sum + inv.balance, 0);
+  const totalInvested = investors.reduce((sum, inv) => sum + inv.invested, 0);
+  const totalProfits = totalAssets - totalInvested;
+  const avgReturn = ((totalProfits / totalInvested) * 100);
+
+  // Recent performance data
+  const recentPerformance = sampleTradingData.slice(-12).map(week => ({
+    week: week.week.replace("Week ", "W"),
+    profit: week.profit,
+    trades: week.trades,
+    successRate: week.successRate,
+    return: week.returnPercentage
+  }));
+
+  const handleLogout = () => {
+    logout();
+  };
+
+  const handleAddReport = () => {
+    if (newReport.week && newReport.startBalance && newReport.endBalance) {
+      const profit = parseFloat(newReport.endBalance) - parseFloat(newReport.startBalance);
+      const returnPercentage = (profit / parseFloat(newReport.startBalance)) * 100;
+      
+      alert(`Weekly report added successfully!\nProfit: $${profit.toLocaleString()}\nReturn: ${returnPercentage.toFixed(2)}%`);
+      
+      setNewReport({
+        week: "",
+        startBalance: "",
+        endBalance: "",
+        trades: "",
+        successRate: "",
+        notes: ""
+      });
+      setIsAddingReport(false);
+    } else {
+      alert("Please fill in all required fields");
+    }
+  };
+
+  const renderOverview = () => (
+    <div className="space-y-6">
+      {/* Admin Metrics Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="bg-slate-800/50 backdrop-blur-md p-6 rounded-xl border border-slate-700">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-slate-300 text-sm">Total Investors</p>
+              <p className="text-2xl font-bold text-white">{totalInvestors}</p>
+            </div>
+            <div className="bg-blue-600 p-3 rounded-full">
+              <Users className="w-6 h-6 text-white" />
+            </div>
+          </div>
+          <div className="mt-4 flex items-center text-green-400">
+            <TrendingUp className="w-4 h-4 mr-1" />
+            <span className="text-sm">+2 this month</span>
+          </div>
+        </div>
+
+        <div className="bg-slate-800/50 backdrop-blur-md p-6 rounded-xl border border-slate-700">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-slate-300 text-sm">Assets Under Management</p>
+              <p className="text-2xl font-bold text-white">${totalAssets.toLocaleString()}</p>
+            </div>
+            <div className="bg-green-600 p-3 rounded-full">
+              <DollarSign className="w-6 h-6 text-white" />
+            </div>
+          </div>
+          <div className="mt-4 flex items-center text-green-400">
+            <TrendingUp className="w-4 h-4 mr-1" />
+            <span className="text-sm">+{avgReturn.toFixed(1)}% Total Return</span>
+          </div>
+        </div>
+
+        <div className="bg-slate-800/50 backdrop-blur-md p-6 rounded-xl border border-slate-700">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-slate-300 text-sm">Total Profits Generated</p>
+              <p className="text-2xl font-bold text-white">${totalProfits.toLocaleString()}</p>
+            </div>
+            <div className="bg-purple-600 p-3 rounded-full">
+              <Target className="w-6 h-6 text-white" />
+            </div>
+          </div>
+          <div className="mt-4 flex items-center text-green-400">
+            <TrendingUp className="w-4 h-4 mr-1" />
+            <span className="text-sm">This Year</span>
+          </div>
+        </div>
+
+        <div className="bg-slate-800/50 backdrop-blur-md p-6 rounded-xl border border-slate-700">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-slate-300 text-sm">Avg Weekly Return</p>
+              <p className="text-2xl font-bold text-white">
+                {(recentPerformance.reduce((sum, week) => sum + week.return, 0) / recentPerformance.length).toFixed(2)}%
+              </p>
+            </div>
+            <div className="bg-orange-600 p-3 rounded-full">
+              <Activity className="w-6 h-6 text-white" />
+            </div>
+          </div>
+          <div className="mt-4 flex items-center text-green-400">
+            <TrendingUp className="w-4 h-4 mr-1" />
+            <span className="text-sm">Last 12 weeks</span>
+          </div>
+        </div>
+      </div>
+
+      {/* Performance Overview Chart */}
+      <div className="bg-slate-800/50 backdrop-blur-md p-6 rounded-xl border border-slate-700">
+        <h3 className="text-xl font-semibold text-white mb-4">Fund Performance Overview</h3>
+        <ResponsiveContainer width="100%" height={400}>
+          <LineChart data={recentPerformance}>
+            <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
+            <XAxis dataKey="week" stroke="#9CA3AF" />
+            <YAxis stroke="#9CA3AF" />
+            <Tooltip 
+              contentStyle={{ 
+                backgroundColor: '#1F2937', 
+                border: '1px solid #374151',
+                borderRadius: '8px',
+                color: '#F3F4F6'
+              }}
+            />
+            <Line 
+              type="monotone" 
+              dataKey="return" 
+              stroke="#3B82F6" 
+              strokeWidth={3}
+              dot={{ fill: '#3B82F6', strokeWidth: 2, r: 4 }}
+              name="Weekly Return %"
+            />
+          </LineChart>
+        </ResponsiveContainer>
+      </div>
+
+      {/* Investor Summary */}
+      <div className="bg-slate-800/50 backdrop-blur-md p-6 rounded-xl border border-slate-700">
+        <h3 className="text-xl font-semibold text-white mb-4">Recent Investor Activity</h3>
+        <div className="space-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="bg-slate-700/50 p-4 rounded-lg">
+              <h4 className="font-semibold text-white mb-2">Top Performing Accounts</h4>
+              <div className="space-y-2">
+                {investors.slice(0, 3).map((investor) => (
+                  <div key={investor.id} className="flex justify-between text-sm">
+                    <span className="text-slate-300">{investor.name}</span>
+                    <span className="text-green-400">
+                      +{(((investor.balance - investor.invested) / investor.invested) * 100).toFixed(1)}%
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </div>
+            
+            <div className="bg-slate-700/50 p-4 rounded-lg">
+              <h4 className="font-semibold text-white mb-2">Recent Deposits</h4>
+              <div className="space-y-2">
+                <div className="flex justify-between text-sm">
+                  <span className="text-slate-300">John Investor</span>
+                  <span className="text-blue-400">+$50,000</span>
+                </div>
+                <div className="flex justify-between text-sm">
+                  <span className="text-slate-300">Sarah Miller</span>
+                  <span className="text-blue-400">+$25,000</span>
+                </div>
+                <div className="flex justify-between text-sm">
+                  <span className="text-slate-300">Robert Chen</span>
+                  <span className="text-blue-400">+$75,000</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+
+  const renderReports = () => (
+    <div className="space-y-6">
+      <div className="bg-slate-800/50 backdrop-blur-md p-6 rounded-xl border border-slate-700">
+        <div className="flex items-center justify-between mb-6">
+          <h3 className="text-xl font-semibold text-white">Weekly Trading Reports Management</h3>
+          <button
+            onClick={() => setIsAddingReport(!isAddingReport)}
+            className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium transition-colors flex items-center"
+          >
+            <Plus className="w-4 h-4 mr-2" />
+            Add Weekly Report
+          </button>
+        </div>
+
+        {/* Add Report Form */}
+        {isAddingReport && (
+          <div className="bg-slate-700/50 p-6 rounded-lg border border-slate-600 mb-6">
+            <h4 className="font-semibold text-white mb-4">Add New Weekly Report</h4>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-slate-300 mb-2">Week Period</label>
+                <input
+                  type="text"
+                  value={newReport.week}
+                  onChange={(e) => setNewReport({...newReport, week: e.target.value})}
+                  placeholder="e.g., Week 53"
+                  className="w-full px-3 py-2 bg-slate-600 border border-slate-500 rounded-lg text-white placeholder-slate-400"
+                />
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium text-slate-300 mb-2">Start Balance</label>
+                <input
+                  type="number"
+                  value={newReport.startBalance}
+                  onChange={(e) => setNewReport({...newReport, startBalance: e.target.value})}
+                  placeholder="100000"
+                  className="w-full px-3 py-2 bg-slate-600 border border-slate-500 rounded-lg text-white placeholder-slate-400"
+                />
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium text-slate-300 mb-2">End Balance</label>
+                <input
+                  type="number"
+                  value={newReport.endBalance}
+                  onChange={(e) => setNewReport({...newReport, endBalance: e.target.value})}
+                  placeholder="102500"
+                  className="w-full px-3 py-2 bg-slate-600 border border-slate-500 rounded-lg text-white placeholder-slate-400"
+                />
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium text-slate-300 mb-2">Number of Trades</label>
+                <input
+                  type="number"
+                  value={newReport.trades}
+                  onChange={(e) => setNewReport({...newReport, trades: e.target.value})}
+                  placeholder="25"
+                  className="w-full px-3 py-2 bg-slate-600 border border-slate-500 rounded-lg text-white placeholder-slate-400"
+                />
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium text-slate-300 mb-2">Success Rate (%)</label>
+                <input
+                  type="number"
+                  value={newReport.successRate}
+                  onChange={(e) => setNewReport({...newReport, successRate: e.target.value})}
+                  placeholder="85.5"
+                  className="w-full px-3 py-2 bg-slate-600 border border-slate-500 rounded-lg text-white placeholder-slate-400"
+                />
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium text-slate-300 mb-2">Notes</label>
+                <input
+                  type="text"
+                  value={newReport.notes}
+                  onChange={(e) => setNewReport({...newReport, notes: e.target.value})}
+                  placeholder="Market conditions, strategy notes..."
+                  className="w-full px-3 py-2 bg-slate-600 border border-slate-500 rounded-lg text-white placeholder-slate-400"
+                />
+              </div>
+            </div>
+            
+            <div className="flex space-x-4 mt-4">
+              <button
+                onClick={handleAddReport}
+                className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-medium transition-colors flex items-center"
+              >
+                <Save className="w-4 h-4 mr-2" />
+                Save Report
+              </button>
+              <button
+                onClick={() => setIsAddingReport(false)}
+                className="bg-slate-600 hover:bg-slate-700 text-white px-4 py-2 rounded-lg font-medium transition-colors"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* Reports List */}
+        <div className="space-y-4">
+          <h4 className="font-semibold text-white">Recent Reports</h4>
+          {sampleTradingData.slice(-8).reverse().map((week) => (
+            <div key={week.id} className="bg-slate-700/50 p-4 rounded-lg border border-slate-600">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h5 className="font-semibold text-white">{week.week} - {week.date}</h5>
+                  <p className="text-slate-300 text-sm">
+                    Start: ${week.startBalance.toLocaleString()} → End: ${week.endBalance.toLocaleString()}
+                  </p>
+                  <p className="text-slate-300 text-sm">
+                    {week.trades} trades • {week.successRate.toFixed(1)}% success rate
+                  </p>
+                </div>
+                <div className="text-right">
+                  <p className="text-green-400 font-semibold text-lg">
+                    +${week.profit.toLocaleString()}
+                  </p>
+                  <p className="text-green-400 text-sm">
+                    +{week.returnPercentage.toFixed(2)}% return
+                  </p>
+                  <button className="text-blue-400 hover:text-blue-300 text-sm mt-1">
+                    <Edit3 className="w-4 h-4 inline mr-1" />
+                    Edit
+                  </button>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Performance Analytics */}
+      <div className="bg-slate-800/50 backdrop-blur-md p-6 rounded-xl border border-slate-700">
+        <h3 className="text-xl font-semibold text-white mb-4">Trading Performance Analytics</h3>
+        <ResponsiveContainer width="100%" height={300}>
+          <BarChart data={recentPerformance.slice(-6)}>
+            <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
+            <XAxis dataKey="week" stroke="#9CA3AF" />
+            <YAxis stroke="#9CA3AF" />
+            <Tooltip 
+              contentStyle={{ 
+                backgroundColor: '#1F2937', 
+                border: '1px solid #374151',
+                borderRadius: '8px',
+                color: '#F3F4F6'
+              }}
+            />
+            <Bar dataKey="trades" fill="#3B82F6" name="Number of Trades" />
+            <Bar dataKey="successRate" fill="#10B981" name="Success Rate %" />
+          </BarChart>
+        </ResponsiveContainer>
+      </div>
+    </div>
+  );
+
+  const renderInvestors = () => (
+    <div className="space-y-6">
+      <div className="bg-slate-800/50 backdrop-blur-md p-6 rounded-xl border border-slate-700">
+        <h3 className="text-xl font-semibold text-white mb-6">Investor Management</h3>
+        
+        <div className="overflow-x-auto">
+          <table className="w-full">
+            <thead>
+              <tr className="border-b border-slate-600">
+                <th className="text-left py-3 px-4 text-slate-300 font-medium">Investor</th>
+                <th className="text-left py-3 px-4 text-slate-300 font-medium">Current Balance</th>
+                <th className="text-left py-3 px-4 text-slate-300 font-medium">Total Invested</th>
+                <th className="text-left py-3 px-4 text-slate-300 font-medium">Total Return</th>
+                <th className="text-left py-3 px-4 text-slate-300 font-medium">Join Date</th>
+                <th className="text-left py-3 px-4 text-slate-300 font-medium">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {investors.map((investor) => {
+                const totalReturn = ((investor.balance - investor.invested) / investor.invested) * 100;
+                return (
+                  <tr key={investor.id} className="border-b border-slate-700 hover:bg-slate-700/25">
+                    <td className="py-4 px-4">
+                      <div>
+                        <p className="text-white font-medium">{investor.name}</p>
+                        <p className="text-slate-400 text-sm">{investor.email}</p>
+                      </div>
+                    </td>
+                    <td className="py-4 px-4 text-white font-semibold">
+                      ${investor.balance.toLocaleString()}
+                    </td>
+                    <td className="py-4 px-4 text-slate-300">
+                      ${investor.invested.toLocaleString()}
+                    </td>
+                    <td className="py-4 px-4">
+                      <span className={`font-semibold ${totalReturn >= 0 ? 'text-green-400' : 'text-red-400'}`}>
+                        {totalReturn >= 0 ? '+' : ''}{totalReturn.toFixed(2)}%
+                      </span>
+                    </td>
+                    <td className="py-4 px-4 text-slate-300">
+                      {new Date(investor.joinDate).toLocaleDateString()}
+                    </td>
+                    <td className="py-4 px-4">
+                      <div className="flex space-x-2">
+                        <button className="text-blue-400 hover:text-blue-300 text-sm">
+                          View Details
+                        </button>
+                        <button className="text-green-400 hover:text-green-300 text-sm">
+                          Send Report
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      {/* Investor Statistics */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="bg-slate-800/50 backdrop-blur-md p-6 rounded-xl border border-slate-700">
+          <h4 className="font-semibold text-white mb-4">New Investors This Month</h4>
+          <div className="text-3xl font-bold text-blue-400 mb-2">2</div>
+          <div className="text-slate-300 text-sm">+25% from last month</div>
+        </div>
+        
+        <div className="bg-slate-800/50 backdrop-blur-md p-6 rounded-xl border border-slate-700">
+          <h4 className="font-semibold text-white mb-4">Average Account Size</h4>
+          <div className="text-3xl font-bold text-green-400 mb-2">
+            ${(totalAssets / totalInvestors).toLocaleString()}
+          </div>
+          <div className="text-slate-300 text-sm">Across {totalInvestors} investors</div>
+        </div>
+        
+        <div className="bg-slate-800/50 backdrop-blur-md p-6 rounded-xl border border-slate-700">
+          <h4 className="font-semibold text-white mb-4">Retention Rate</h4>
+          <div className="text-3xl font-bold text-purple-400 mb-2">98%</div>
+          <div className="text-slate-300 text-sm">12-month retention</div>
+        </div>
+      </div>
+    </div>
+  );
+
+  return (
+    <div className="min-h-screen bg-slate-900">
+      {/* Header */}
+      <header className="bg-slate-800/50 backdrop-blur-md border-b border-slate-700">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-between h-16">
+            <div className="flex items-center">
+              <div className="text-2xl font-bold text-white">
+                <span className="text-blue-400">Apex</span>Capital
+                <span className="ml-2 text-sm bg-orange-600 px-2 py-1 rounded text-white">Admin</span>
+              </div>
+            </div>
+            <div className="flex items-center space-x-4">
+              <AlertTriangle className="w-5 h-5 text-orange-400" />
+              <div className="text-slate-300">
+                <span className="text-sm">Admin: {user.name}</span>
+              </div>
+              <button
+                onClick={handleLogout}
+                className="text-slate-300 hover:text-red-400 transition-colors"
+              >
+                <LogOut className="w-5 h-5" />
+              </button>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      {/* Main Content */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Navigation Tabs */}
+        <div className="mb-8">
+          <nav className="flex space-x-8">
+            {[
+              { id: 'overview', label: 'Overview', icon: TrendingUp },
+              { id: 'reports', label: 'Manage Reports', icon: Activity },
+              { id: 'investors', label: 'Investors', icon: Users }
+            ].map(({ id, label, icon: Icon }) => (
+              <button
+                key={id}
+                onClick={() => setActiveTab(id)}
+                className={`flex items-center px-4 py-2 rounded-lg font-medium transition-colors ${
+                  activeTab === id 
+                    ? 'bg-blue-600 text-white' 
+                    : 'text-slate-300 hover:text-white hover:bg-slate-800'
+                }`}
+              >
+                <Icon className="w-5 h-5 mr-2" />
+                {label}
+              </button>
+            ))}
+          </nav>
+        </div>
+
+        {/* Tab Content */}
+        {activeTab === 'overview' && renderOverview()}
+        {activeTab === 'reports' && renderReports()}
+        {activeTab === 'investors' && renderInvestors()}
+      </div>
+    </div>
+  );
+};
+
+export default AdminDashboard;
