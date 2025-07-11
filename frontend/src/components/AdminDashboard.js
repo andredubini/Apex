@@ -9,7 +9,12 @@ import {
   Tooltip, 
   ResponsiveContainer,
   BarChart,
-  Bar
+  Bar,
+  PieChart,
+  Pie,
+  Cell,
+  AreaChart,
+  Area
 } from "recharts";
 import { 
   TrendingUp, 
@@ -32,7 +37,23 @@ import {
   FileText,
   UserCheck,
   BarChart3,
-  Settings
+  Settings,
+  Shield,
+  MessageSquare,
+  Database,
+  PieChart as PieChartIcon,
+  Filter,
+  Download,
+  Upload,
+  Send,
+  Eye,
+  Edit,
+  Trash2,
+  RefreshCw,
+  Search,
+  Globe,
+  Clock,
+  TrendingDown
 } from "lucide-react";
 
 const AdminDashboard = () => {
