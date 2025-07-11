@@ -715,7 +715,7 @@ const AdminDashboard = () => {
   );
 
   return (
-    <div className={`min-h-screen ${bgClass}`}>
+    <div className={`min-h-screen ${bgClass} pb-20 md:pb-0`}>
       {/* Header */}
       <header className={`${headerBgClass} border-b sticky top-0 z-40`}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -733,11 +733,18 @@ const AdminDashboard = () => {
               >
                 {theme === 'dark' ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
               </button>
-              <button className={`p-2 ${textSecondaryClass} hover:${textClass} transition-colors`}>
-                <Bell className="w-5 h-5" />
-              </button>
+              <div className="relative">
+                <button className={`p-2 ${textSecondaryClass} hover:${textClass} transition-colors`}>
+                  <Bell className="w-5 h-5" />
+                </button>
+                {notifications.filter(n => !n.read).length > 0 && (
+                  <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
+                    {notifications.filter(n => !n.read).length}
+                  </span>
+                )}
+              </div>
               <AlertTriangle className="w-5 h-5 text-orange-400" />
-              <div className={textSecondaryClass}>
+              <div className={`${textSecondaryClass} hidden md:block`}>
                 <span className="text-sm">Admin: {user.name}</span>
               </div>
               <button
@@ -753,8 +760,8 @@ const AdminDashboard = () => {
 
       {/* Main Content */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Navigation Tabs */}
-        <div className="mb-8">
+        {/* Desktop Navigation Tabs */}
+        <div className="mb-8 hidden md:block">
           <nav className="flex space-x-8">
             {[
               { id: 'overview', label: 'Overview', icon: TrendingUp },
@@ -787,6 +794,38 @@ const AdminDashboard = () => {
         {activeTab === 'analytics' && renderAnalytics()}
         {activeTab === 'settings' && renderSettings()}
         {activeTab === 'communications' && renderCommunications()}
+      </div>
+
+      {/* Mobile Bottom Navigation */}
+      <div className={`md:hidden fixed bottom-0 left-0 right-0 ${headerBgClass} border-t z-50`}>
+        <div className="grid grid-cols-6 h-16">
+          {[
+            { id: 'overview', label: 'Overview', icon: TrendingUp },
+            { id: 'reports', label: 'Reports', icon: Activity },
+            { id: 'investors', label: 'Investors', icon: Users },
+            { id: 'analytics', label: 'Analytics', icon: BarChart3 },
+            { id: 'settings', label: 'Settings', icon: Settings },
+            { id: 'communications', label: 'Messages', icon: MessageSquare }
+          ].map(({ id, label, icon: Icon }) => (
+            <button
+              key={id}
+              onClick={() => setActiveTab(id)}
+              className={`flex flex-col items-center justify-center px-1 py-2 transition-colors ${
+                activeTab === id 
+                  ? 'text-blue-400 bg-blue-600/10' 
+                  : `${textSecondaryClass} hover:${textClass} hover:${theme === 'dark' ? 'bg-slate-800' : 'bg-gray-100'}`
+              }`}
+            >
+              <Icon className="w-5 h-5 mb-1" />
+              <span className="text-xs font-medium truncate">{label}</span>
+              {id === 'communications' && notifications.filter(n => !n.read).length > 0 && (
+                <span className="absolute top-1 right-1 bg-red-500 text-white text-xs rounded-full w-4 h-4 flex items-center justify-center">
+                  {notifications.filter(n => !n.read).length}
+                </span>
+              )}
+            </button>
+          ))}
+        </div>
       </div>
     </div>
   );
