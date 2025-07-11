@@ -440,7 +440,7 @@ const LandingPage = () => {
                 <div className="space-y-4">
                   <div className="flex justify-between items-center border-b border-slate-600 pb-3">
                     <span className="text-slate-300">Minimum Investment</span>
-                    <span className="text-white font-semibold">$50,000</span>
+                    <span className="text-white font-semibold">$10,000</span>
                   </div>
                   <div className="flex justify-between items-center border-b border-slate-600 pb-3">
                     <span className="text-slate-300">Lock-up Period</span>
@@ -644,11 +644,11 @@ const LandingPage = () => {
                     Investment Amount
                   </label>
                   <select className="w-full px-4 py-3 bg-slate-800 border border-slate-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent">
+                    <option>$10,000 - $25,000</option>
+                    <option>$25,000 - $50,000</option>
                     <option>$50,000 - $100,000</option>
                     <option>$100,000 - $250,000</option>
-                    <option>$250,000 - $500,000</option>
-                    <option>$500,000 - $1,000,000</option>
-                    <option>$1,000,000+</option>
+                    <option>$250,000+</option>
                   </select>
                 </div>
                 

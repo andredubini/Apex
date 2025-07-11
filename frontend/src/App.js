@@ -12,6 +12,9 @@ import AdminDashboard from "./components/AdminDashboard";
 // Authentication context
 const AuthContext = React.createContext();
 
+// Theme context
+const ThemeContext = React.createContext();
+
 // Sample data for demonstration
 const sampleUsers = [
   {
@@ -80,6 +83,7 @@ const sampleTradingData = generateSampleData();
 function App() {
   const [user, setUser] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [theme, setTheme] = useState('light');
 
   useEffect(() => {
     // Check for existing session
@@ -87,6 +91,11 @@ function App() {
     if (savedUser) {
       setUser(JSON.parse(savedUser));
     }
+    
+    // Check for saved theme
+    const savedTheme = localStorage.getItem('apexTheme') || 'light';
+    setTheme(savedTheme);
+    
     setIsLoading(false);
   }, []);
 
@@ -121,6 +130,12 @@ function App() {
     localStorage.removeItem('apexUser');
   };
 
+  const toggleTheme = () => {
+    const newTheme = theme === 'light' ? 'dark' : 'light';
+    setTheme(newTheme);
+    localStorage.setItem('apexTheme', newTheme);
+  };
+
   if (isLoading) {
     return (
       <div className="min-h-screen bg-slate-900 flex items-center justify-center">
@@ -131,30 +146,32 @@ function App() {
 
   return (
     <AuthContext.Provider value={{ user, login, register, logout, sampleTradingData }}>
-      <Router>
-        <Routes>
-          <Route path="/" element={<LandingPage />} />
-          <Route 
-            path="/login" 
-            element={user ? <Navigate to={user.role === 'admin' ? '/admin' : '/dashboard'} /> : <LoginPage />} 
-          />
-          <Route 
-            path="/register" 
-            element={user ? <Navigate to="/dashboard" /> : <RegisterPage />} 
-          />
-          <Route 
-            path="/dashboard" 
-            element={user && user.role === 'investor' ? <InvestorDashboard /> : <Navigate to="/login" />} 
-          />
-          <Route 
-            path="/admin" 
-            element={user && user.role === 'admin' ? <AdminDashboard /> : <Navigate to="/login" />} 
-          />
-        </Routes>
-      </Router>
+      <ThemeContext.Provider value={{ theme, toggleTheme }}>
+        <Router>
+          <Routes>
+            <Route path="/" element={<LandingPage />} />
+            <Route 
+              path="/login" 
+              element={user ? <Navigate to={user.role === 'admin' ? '/admin' : '/dashboard'} /> : <LoginPage />} 
+            />
+            <Route 
+              path="/register" 
+              element={user ? <Navigate to="/dashboard" /> : <RegisterPage />} 
+            />
+            <Route 
+              path="/dashboard" 
+              element={user && user.role === 'investor' ? <InvestorDashboard /> : <Navigate to="/login" />} 
+            />
+            <Route 
+              path="/admin" 
+              element={user && user.role === 'admin' ? <AdminDashboard /> : <Navigate to="/login" />} 
+            />
+          </Routes>
+        </Router>
+      </ThemeContext.Provider>
     </AuthContext.Provider>
   );
 }
 
-export { AuthContext };
+export { AuthContext, ThemeContext };
 export default App;

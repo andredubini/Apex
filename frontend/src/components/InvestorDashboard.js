@@ -1,5 +1,5 @@
-import React, { useState, useContext } from "react";
-import { AuthContext } from "../App";
+import React, { useState, useContext, useEffect } from "react";
+import { AuthContext, ThemeContext } from "../App";
 import { 
   LineChart, 
   Line, 
@@ -36,11 +36,14 @@ import {
   ArrowDownLeft,
   Wallet,
   BarChart3,
-  User
+  User,
+  Sun,
+  Moon
 } from "lucide-react";
 
 const InvestorDashboard = () => {
   const { user, logout, sampleTradingData } = useContext(AuthContext);
+  const { theme, toggleTheme } = useContext(ThemeContext);
   const [activeTab, setActiveTab] = useState("overview");
   const [showBalance, setShowBalance] = useState(true);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -59,6 +62,20 @@ const InvestorDashboard = () => {
   });
 
   const [showAddBank, setShowAddBank] = useState(false);
+
+  // Hide the Emergent badge on mount
+  useEffect(() => {
+    const emergentBadge = document.getElementById('emergent-badge');
+    if (emergentBadge) {
+      emergentBadge.style.display = 'none';
+    }
+    
+    // Also hide any badge with similar text
+    const badges = document.querySelectorAll('a[href*="emergent"]');
+    badges.forEach(badge => {
+      badge.style.display = 'none';
+    });
+  }, []);
 
   // Calculate performance metrics
   const totalWeeks = sampleTradingData.length;
@@ -143,6 +160,14 @@ const InvestorDashboard = () => {
     { id: 'notifications', label: 'Activity', icon: Bell }
   ];
 
+  // Theme classes
+  const bgClass = theme === 'dark' ? 'bg-slate-900' : 'bg-gray-50';
+  const cardBgClass = theme === 'dark' ? 'bg-slate-800/50' : 'bg-white';
+  const textClass = theme === 'dark' ? 'text-white' : 'text-gray-900';
+  const textSecondaryClass = theme === 'dark' ? 'text-slate-300' : 'text-gray-600';
+  const borderClass = theme === 'dark' ? 'border-slate-700' : 'border-gray-200';
+  const headerBgClass = theme === 'dark' ? 'bg-slate-800/50 border-slate-700' : 'bg-white border-gray-200';
+
   const renderOverview = () => (
     <div className="space-y-6 pb-20 md:pb-6">
       {/* Main Balance Card */}
@@ -183,12 +208,12 @@ const InvestorDashboard = () => {
       <div className="grid grid-cols-2 gap-4">
         <button
           onClick={handleDepositRequest}
-          className="bg-white rounded-xl p-4 shadow-sm border border-gray-100 hover:shadow-md transition-shadow"
+          className={`${cardBgClass} rounded-xl p-4 shadow-sm border ${borderClass} hover:shadow-md transition-shadow`}
         >
           <div className="flex items-center justify-between">
             <div className="text-left">
-              <p className="text-gray-600 text-sm">Add Money</p>
-              <p className="text-gray-900 font-semibold">Deposit</p>
+              <p className={`${textSecondaryClass} text-sm`}>Add Money</p>
+              <p className={`${textClass} font-semibold`}>Deposit</p>
             </div>
             <div className="bg-green-100 p-2 rounded-full">
               <Plus className="w-5 h-5 text-green-600" />
@@ -198,12 +223,12 @@ const InvestorDashboard = () => {
         
         <button
           onClick={handleWithdrawRequest}
-          className="bg-white rounded-xl p-4 shadow-sm border border-gray-100 hover:shadow-md transition-shadow"
+          className={`${cardBgClass} rounded-xl p-4 shadow-sm border ${borderClass} hover:shadow-md transition-shadow`}
         >
           <div className="flex items-center justify-between">
             <div className="text-left">
-              <p className="text-gray-600 text-sm">Withdraw</p>
-              <p className="text-gray-900 font-semibold">Transfer</p>
+              <p className={`${textSecondaryClass} text-sm`}>Withdraw</p>
+              <p className={`${textClass} font-semibold`}>Transfer</p>
             </div>
             <div className="bg-blue-100 p-2 rounded-full">
               <Send className="w-5 h-5 text-blue-600" />
@@ -214,11 +239,11 @@ const InvestorDashboard = () => {
 
       {/* Performance Summary Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-100">
+        <div className={`${cardBgClass} rounded-xl p-4 shadow-sm border ${borderClass}`}>
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-gray-600 text-sm">Invested</p>
-              <p className="text-xl font-bold text-gray-900">${user.totalInvested?.toLocaleString() || "100,000"}</p>
+              <p className={`${textSecondaryClass} text-sm`}>Invested</p>
+              <p className={`text-xl font-bold ${textClass}`}>${user.totalInvested?.toLocaleString() || "100,000"}</p>
             </div>
             <div className="bg-purple-100 p-2 rounded-full">
               <Wallet className="w-5 h-5 text-purple-600" />
@@ -226,23 +251,23 @@ const InvestorDashboard = () => {
           </div>
         </div>
 
-        <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-100">
+        <div className={`${cardBgClass} rounded-xl p-4 shadow-sm border ${borderClass}`}>
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-gray-600 text-sm">Your Profit Share</p>
+              <p className={`${textSecondaryClass} text-sm`}>Your Profit Share</p>
               <p className="text-xl font-bold text-green-600">${profitDistribution.investorShare.toLocaleString()}</p>
             </div>
             <div className="bg-green-100 p-2 rounded-full">
               <TrendingUp className="w-5 h-5 text-green-600" />
             </div>
           </div>
-          <p className="text-xs text-gray-500 mt-1">Tiered Distribution</p>
+          <p className={`text-xs ${textSecondaryClass} mt-1`}>Tiered Distribution</p>
         </div>
 
-        <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-100">
+        <div className={`${cardBgClass} rounded-xl p-4 shadow-sm border ${borderClass}`}>
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-gray-600 text-sm">Annual Return</p>
+              <p className={`${textSecondaryClass} text-sm`}>Annual Return</p>
               <p className="text-xl font-bold text-blue-600">{profitDistribution.annualReturn.toFixed(2)}%</p>
             </div>
             <div className="bg-blue-100 p-2 rounded-full">
@@ -253,41 +278,41 @@ const InvestorDashboard = () => {
       </div>
 
       {/* Profit Distribution Breakdown */}
-      <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
-        <h3 className="text-lg font-semibold text-gray-900 mb-4">Profit Distribution</h3>
+      <div className={`${cardBgClass} rounded-xl p-6 shadow-sm border ${borderClass}`}>
+        <h3 className={`text-lg font-semibold ${textClass} mb-4`}>Profit Distribution</h3>
         <div className="grid grid-cols-2 gap-4 mb-4">
           <div className="text-center">
             <div className="bg-green-50 p-4 rounded-lg">
               <p className="text-2xl font-bold text-green-600">${profitDistribution.investorShare.toLocaleString()}</p>
-              <p className="text-sm text-gray-600">Your Share</p>
+              <p className={`text-sm ${textSecondaryClass}`}>Your Share</p>
             </div>
           </div>
           <div className="text-center">
-            <div className="bg-gray-50 p-4 rounded-lg">
-              <p className="text-2xl font-bold text-gray-600">${profitDistribution.fundShare.toLocaleString()}</p>
-              <p className="text-sm text-gray-600">Fund Share</p>
+            <div className={theme === 'dark' ? 'bg-slate-700 p-4 rounded-lg' : 'bg-gray-50 p-4 rounded-lg'}>
+              <p className={`text-2xl font-bold ${textSecondaryClass}`}>${profitDistribution.fundShare.toLocaleString()}</p>
+              <p className={`text-sm ${textSecondaryClass}`}>Fund Share</p>
             </div>
           </div>
         </div>
-        <p className="text-xs text-gray-500 text-center">
+        <p className={`text-xs ${textSecondaryClass} text-center`}>
           Distribution: 0-4% (80/20), 4-8% (70/30), 8-12% (60/40), 12%+ (50/50)
         </p>
       </div>
 
       {/* Performance Chart */}
-      <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
-        <h3 className="text-lg font-semibold text-gray-900 mb-4">Performance (12 Weeks)</h3>
+      <div className={`${cardBgClass} rounded-xl p-6 shadow-sm border ${borderClass}`}>
+        <h3 className={`text-lg font-semibold ${textClass} mb-4`}>Performance (12 Weeks)</h3>
         <ResponsiveContainer width="100%" height={300}>
           <LineChart data={recentPerformance}>
-            <CartesianGrid strokeDasharray="3 3" stroke="#F3F4F6" />
-            <XAxis dataKey="week" stroke="#9CA3AF" fontSize={12} />
-            <YAxis stroke="#9CA3AF" fontSize={12} />
+            <CartesianGrid strokeDasharray="3 3" stroke={theme === 'dark' ? '#374151' : '#F3F4F6'} />
+            <XAxis dataKey="week" stroke={theme === 'dark' ? '#9CA3AF' : '#6B7280'} fontSize={12} />
+            <YAxis stroke={theme === 'dark' ? '#9CA3AF' : '#6B7280'} fontSize={12} />
             <Tooltip 
               contentStyle={{ 
-                backgroundColor: 'white', 
-                border: '1px solid #E5E7EB',
+                backgroundColor: theme === 'dark' ? '#1F2937' : 'white', 
+                border: `1px solid ${theme === 'dark' ? '#374151' : '#E5E7EB'}`,
                 borderRadius: '8px',
-                color: '#111827',
+                color: theme === 'dark' ? '#F3F4F6' : '#111827',
                 fontSize: '12px'
               }}
             />
@@ -303,8 +328,8 @@ const InvestorDashboard = () => {
       </div>
 
       {/* Portfolio Allocation */}
-      <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
-        <h3 className="text-lg font-semibold text-gray-900 mb-4">Portfolio Allocation</h3>
+      <div className={`${cardBgClass} rounded-xl p-6 shadow-sm border ${borderClass}`}>
+        <h3 className={`text-lg font-semibold ${textClass} mb-4`}>Portfolio Allocation</h3>
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           <ResponsiveContainer width="100%" height={200}>
             <PieChart>
@@ -331,9 +356,9 @@ const InvestorDashboard = () => {
                     className="w-3 h-3 rounded-full" 
                     style={{ backgroundColor: item.color }}
                   ></div>
-                  <span className="text-sm text-gray-600">{item.name}</span>
+                  <span className={`text-sm ${textSecondaryClass}`}>{item.name}</span>
                 </div>
-                <span className="text-sm font-medium text-gray-900">{item.value}%</span>
+                <span className={`text-sm font-medium ${textClass}`}>{item.value}%</span>
               </div>
             ))}
           </div>
@@ -344,24 +369,24 @@ const InvestorDashboard = () => {
 
   const renderReports = () => (
     <div className="space-y-4 pb-20 md:pb-6">
-      <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
-        <h3 className="text-lg font-semibold text-gray-900 mb-4">Weekly Reports</h3>
+      <div className={`${cardBgClass} rounded-xl p-6 shadow-sm border ${borderClass}`}>
+        <h3 className={`text-lg font-semibold ${textClass} mb-4`}>Weekly Reports</h3>
         <div className="space-y-3">
           {sampleTradingData.slice(-8).reverse().map((week) => (
-            <div key={week.id} className="bg-gray-50 rounded-lg p-4">
+            <div key={week.id} className={theme === 'dark' ? 'bg-slate-700/50 rounded-lg p-4' : 'bg-gray-50 rounded-lg p-4'}>
               <div className="flex items-center justify-between">
                 <div>
-                  <h4 className="font-medium text-gray-900">{week.week}</h4>
-                  <p className="text-sm text-gray-600">
+                  <h4 className={`font-medium ${textClass}`}>{week.week}</h4>
+                  <p className={`text-sm ${textSecondaryClass}`}>
                     {week.trades} trades • {week.successRate.toFixed(1)}% success
                   </p>
-                  <p className="text-xs text-gray-500">{week.date}</p>
+                  <p className={`text-xs ${textSecondaryClass}`}>{week.date}</p>
                 </div>
                 <div className="text-right">
                   <p className="text-lg font-semibold text-green-600">
                     +${week.profit.toLocaleString()}
                   </p>
-                  <p className="text-sm text-gray-600">
+                  <p className={`text-sm ${textSecondaryClass}`}>
                     {week.returnPercentage.toFixed(2)}%
                   </p>
                 </div>
@@ -401,9 +426,9 @@ const InvestorDashboard = () => {
       </div>
 
       {/* Bank Details */}
-      <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
+      <div className={`${cardBgClass} rounded-xl p-6 shadow-sm border ${borderClass}`}>
         <div className="flex items-center justify-between mb-4">
-          <h3 className="text-lg font-semibold text-gray-900">Bank Account</h3>
+          <h3 className={`text-lg font-semibold ${textClass}`}>Bank Account</h3>
           <button
             onClick={() => setShowAddBank(!showAddBank)}
             className="text-blue-600 text-sm font-medium"
@@ -415,16 +440,16 @@ const InvestorDashboard = () => {
         {!showAddBank ? (
           <div className="space-y-3">
             <div className="flex items-center justify-between">
-              <span className="text-gray-600">Bank</span>
-              <span className="font-medium text-gray-900">{bankDetails.bankName}</span>
+              <span className={textSecondaryClass}>Bank</span>
+              <span className={`font-medium ${textClass}`}>{bankDetails.bankName}</span>
             </div>
             <div className="flex items-center justify-between">
-              <span className="text-gray-600">Account</span>
-              <span className="font-medium text-gray-900">{bankDetails.accountNumber}</span>
+              <span className={textSecondaryClass}>Account</span>
+              <span className={`font-medium ${textClass}`}>{bankDetails.accountNumber}</span>
             </div>
             <div className="flex items-center justify-between">
-              <span className="text-gray-600">Type</span>
-              <span className="font-medium text-gray-900">{bankDetails.accountType}</span>
+              <span className={textSecondaryClass}>Type</span>
+              <span className={`font-medium ${textClass}`}>{bankDetails.accountType}</span>
             </div>
           </div>
         ) : (
@@ -434,14 +459,14 @@ const InvestorDashboard = () => {
               placeholder="Bank Name"
               value={bankDetails.bankName}
               onChange={(e) => setBankDetails({...bankDetails, bankName: e.target.value})}
-              className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className={`w-full px-4 py-3 border ${borderClass} rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${theme === 'dark' ? 'bg-slate-700 text-white' : 'bg-white text-gray-900'}`}
             />
             <input
               type="text"
               placeholder="Account Number"
               value={bankDetails.accountNumber}
               onChange={(e) => setBankDetails({...bankDetails, accountNumber: e.target.value})}
-              className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className={`w-full px-4 py-3 border ${borderClass} rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${theme === 'dark' ? 'bg-slate-700 text-white' : 'bg-white text-gray-900'}`}
             />
             <button
               onClick={() => setShowAddBank(false)}
@@ -454,8 +479,8 @@ const InvestorDashboard = () => {
       </div>
 
       {/* Recent Transactions */}
-      <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
-        <h3 className="text-lg font-semibold text-gray-900 mb-4">Recent Activity</h3>
+      <div className={`${cardBgClass} rounded-xl p-6 shadow-sm border ${borderClass}`}>
+        <h3 className={`text-lg font-semibold ${textClass} mb-4`}>Recent Activity</h3>
         <div className="space-y-3">
           <div className="flex items-center justify-between p-3 bg-green-50 rounded-lg">
             <div className="flex items-center space-x-3">
@@ -463,8 +488,8 @@ const InvestorDashboard = () => {
                 <TrendingUp className="w-4 h-4 text-green-700" />
               </div>
               <div>
-                <p className="font-medium text-gray-900">Weekly Profit</p>
-                <p className="text-sm text-gray-600">Jan 15, 2025</p>
+                <p className={`font-medium ${textClass}`}>Weekly Profit</p>
+                <p className={`text-sm ${textSecondaryClass}`}>Jan 15, 2025</p>
               </div>
             </div>
             <p className="font-semibold text-green-600">+$2,450</p>
@@ -476,8 +501,8 @@ const InvestorDashboard = () => {
                 <ArrowDownLeft className="w-4 h-4 text-blue-700" />
               </div>
               <div>
-                <p className="font-medium text-gray-900">Deposit</p>
-                <p className="text-sm text-gray-600">Jan 10, 2025</p>
+                <p className={`font-medium ${textClass}`}>Deposit</p>
+                <p className={`text-sm ${textSecondaryClass}`}>Jan 10, 2025</p>
               </div>
             </div>
             <p className="font-semibold text-blue-600">+$50,000</p>
@@ -489,8 +514,8 @@ const InvestorDashboard = () => {
                 <ArrowUpRight className="w-4 h-4 text-orange-700" />
               </div>
               <div>
-                <p className="font-medium text-gray-900">Withdrawal</p>
-                <p className="text-sm text-gray-600">Jan 1, 2025</p>
+                <p className={`font-medium ${textClass}`}>Withdrawal</p>
+                <p className={`text-sm ${textSecondaryClass}`}>Jan 1, 2025</p>
               </div>
             </div>
             <p className="font-semibold text-orange-600">-$5,000</p>
@@ -502,19 +527,19 @@ const InvestorDashboard = () => {
 
   const renderNotifications = () => (
     <div className="space-y-4 pb-20 md:pb-6">
-      <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
-        <h3 className="text-lg font-semibold text-gray-900 mb-4">Activity</h3>
+      <div className={`${cardBgClass} rounded-xl p-6 shadow-sm border ${borderClass}`}>
+        <h3 className={`text-lg font-semibold ${textClass} mb-4`}>Activity</h3>
         <div className="space-y-3">
           {notifications.map((notification) => (
-            <div key={notification.id} className="bg-gray-50 rounded-lg p-4">
+            <div key={notification.id} className={theme === 'dark' ? 'bg-slate-700/50 rounded-lg p-4' : 'bg-gray-50 rounded-lg p-4'}>
               <div className="flex items-start space-x-3">
                 <div className={`w-2 h-2 rounded-full mt-2 ${
                   notification.type === 'profit' ? 'bg-green-500' :
                   notification.type === 'deposit' ? 'bg-blue-500' : 'bg-orange-500'
                 }`}></div>
                 <div className="flex-1">
-                  <p className="text-gray-900 font-medium">{notification.message}</p>
-                  <p className="text-sm text-gray-600 mt-1">{notification.time}</p>
+                  <p className={`${textClass} font-medium`}>{notification.message}</p>
+                  <p className={`text-sm ${textSecondaryClass} mt-1`}>{notification.time}</p>
                 </div>
               </div>
             </div>
@@ -525,9 +550,9 @@ const InvestorDashboard = () => {
   );
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className={`min-h-screen ${bgClass}`}>
       {/* Header */}
-      <header className="bg-white border-b border-gray-200 sticky top-0 z-40">
+      <header className={`${headerBgClass} border-b sticky top-0 z-40`}>
         <div className="max-w-md mx-auto px-4 py-4 md:max-w-7xl md:px-6 lg:px-8">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-3">
@@ -535,17 +560,23 @@ const InvestorDashboard = () => {
                 <User className="w-6 h-6 text-white" />
               </div>
               <div>
-                <p className="text-sm text-gray-600">Welcome back</p>
-                <p className="font-semibold text-gray-900">{user.name}</p>
+                <p className={`text-sm ${textSecondaryClass}`}>Welcome back</p>
+                <p className={`font-semibold ${textClass}`}>{user.name}</p>
               </div>
             </div>
             <div className="flex items-center space-x-4">
-              <button className="p-2 text-gray-600 hover:text-gray-900 transition-colors">
+              <button 
+                onClick={toggleTheme}
+                className={`p-2 ${textSecondaryClass} hover:${textClass} transition-colors`}
+              >
+                {theme === 'dark' ? <Sun className="w-6 h-6" /> : <Moon className="w-6 h-6" />}
+              </button>
+              <button className={`p-2 ${textSecondaryClass} hover:${textClass} transition-colors`}>
                 <Bell className="w-6 h-6" />
               </button>
               <button
                 onClick={handleLogout}
-                className="p-2 text-gray-600 hover:text-red-600 transition-colors"
+                className={`p-2 ${textSecondaryClass} hover:text-red-600 transition-colors`}
               >
                 <LogOut className="w-6 h-6" />
               </button>
@@ -564,7 +595,7 @@ const InvestorDashboard = () => {
       </main>
 
       {/* Bottom Navigation - Mobile */}
-      <nav className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 md:hidden">
+      <nav className={`fixed bottom-0 left-0 right-0 ${cardBgClass} border-t ${borderClass} md:hidden`}>
         <div className="grid grid-cols-4 py-2">
           {navItems.map(({ id, label, icon: Icon }) => (
             <button
@@ -573,7 +604,7 @@ const InvestorDashboard = () => {
               className={`flex flex-col items-center py-2 px-1 transition-colors ${
                 activeTab === id 
                   ? 'text-blue-600' 
-                  : 'text-gray-600'
+                  : textSecondaryClass
               }`}
             >
               <Icon className="w-6 h-6 mb-1" />
@@ -584,7 +615,7 @@ const InvestorDashboard = () => {
       </nav>
 
       {/* Desktop Sidebar Navigation */}
-      <aside className="hidden md:block fixed left-6 top-24 bottom-6 w-64 bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+      <aside className={`hidden md:block fixed left-6 top-24 bottom-6 w-64 ${cardBgClass} rounded-xl shadow-sm border ${borderClass} p-6`}>
         <nav className="space-y-2">
           {navItems.map(({ id, label, icon: Icon }) => (
             <button
@@ -593,7 +624,7 @@ const InvestorDashboard = () => {
               className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg text-left transition-colors ${
                 activeTab === id 
                   ? 'bg-blue-600 text-white' 
-                  : 'text-gray-600 hover:bg-gray-100'
+                  : `${textSecondaryClass} hover:${theme === 'dark' ? 'bg-slate-700' : 'bg-gray-100'}`
               }`}
             >
               <Icon className="w-5 h-5" />
@@ -602,12 +633,12 @@ const InvestorDashboard = () => {
           ))}
         </nav>
         
-        <div className="mt-8 pt-8 border-t border-gray-200">
+        <div className={`mt-8 pt-8 border-t ${borderClass}`}>
           <div className="flex items-center space-x-3 px-4 py-3">
             <div className="bg-blue-100 p-2 rounded-full">
               <Settings className="w-4 h-4 text-blue-600" />
             </div>
-            <span className="text-gray-600 font-medium">Settings</span>
+            <span className={`${textSecondaryClass} font-medium`}>Settings</span>
           </div>
         </div>
       </aside>
