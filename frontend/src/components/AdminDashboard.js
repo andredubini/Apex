@@ -118,11 +118,11 @@ const AdminDashboard = () => {
     <div className="space-y-6">
       {/* Admin Metrics Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <div className="bg-slate-800/50 backdrop-blur-md p-6 rounded-xl border border-slate-700">
+        <div className={`${cardBgClass} backdrop-blur-md p-6 rounded-xl border ${borderClass} shadow-sm`}>
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-slate-300 text-sm">Total Investors</p>
-              <p className="text-2xl font-bold text-white">{totalInvestors}</p>
+              <p className={`${textSecondaryClass} text-sm`}>Total Investors</p>
+              <p className={`text-2xl font-bold ${textClass}`}>{totalInvestors}</p>
             </div>
             <div className="bg-blue-600 p-3 rounded-full">
               <Users className="w-6 h-6 text-white" />
@@ -134,11 +134,11 @@ const AdminDashboard = () => {
           </div>
         </div>
 
-        <div className="bg-slate-800/50 backdrop-blur-md p-6 rounded-xl border border-slate-700">
+        <div className={`${cardBgClass} backdrop-blur-md p-6 rounded-xl border ${borderClass} shadow-sm`}>
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-slate-300 text-sm">Assets Under Management</p>
-              <p className="text-2xl font-bold text-white">${totalAssets.toLocaleString()}</p>
+              <p className={`${textSecondaryClass} text-sm`}>Assets Under Management</p>
+              <p className={`text-2xl font-bold ${textClass}`}>${totalAssets.toLocaleString()}</p>
             </div>
             <div className="bg-green-600 p-3 rounded-full">
               <DollarSign className="w-6 h-6 text-white" />
@@ -150,11 +150,11 @@ const AdminDashboard = () => {
           </div>
         </div>
 
-        <div className="bg-slate-800/50 backdrop-blur-md p-6 rounded-xl border border-slate-700">
+        <div className={`${cardBgClass} backdrop-blur-md p-6 rounded-xl border ${borderClass} shadow-sm`}>
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-slate-300 text-sm">Total Profits Generated</p>
-              <p className="text-2xl font-bold text-white">${totalProfits.toLocaleString()}</p>
+              <p className={`${textSecondaryClass} text-sm`}>Total Profits Generated</p>
+              <p className={`text-2xl font-bold ${textClass}`}>${totalProfits.toLocaleString()}</p>
             </div>
             <div className="bg-purple-600 p-3 rounded-full">
               <Target className="w-6 h-6 text-white" />
@@ -166,11 +166,11 @@ const AdminDashboard = () => {
           </div>
         </div>
 
-        <div className="bg-slate-800/50 backdrop-blur-md p-6 rounded-xl border border-slate-700">
+        <div className={`${cardBgClass} backdrop-blur-md p-6 rounded-xl border ${borderClass} shadow-sm`}>
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-slate-300 text-sm">Avg Weekly Return</p>
-              <p className="text-2xl font-bold text-white">
+              <p className={`${textSecondaryClass} text-sm`}>Avg Weekly Return</p>
+              <p className={`text-2xl font-bold ${textClass}`}>
                 {(recentPerformance.reduce((sum, week) => sum + week.return, 0) / recentPerformance.length).toFixed(2)}%
               </p>
             </div>
@@ -186,19 +186,19 @@ const AdminDashboard = () => {
       </div>
 
       {/* Performance Overview Chart */}
-      <div className="bg-slate-800/50 backdrop-blur-md p-6 rounded-xl border border-slate-700">
-        <h3 className="text-xl font-semibold text-white mb-4">Fund Performance Overview</h3>
+      <div className={`${cardBgClass} backdrop-blur-md p-6 rounded-xl border ${borderClass} shadow-sm`}>
+        <h3 className={`text-xl font-semibold ${textClass} mb-4`}>Fund Performance Overview</h3>
         <ResponsiveContainer width="100%" height={400}>
           <LineChart data={recentPerformance}>
-            <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
-            <XAxis dataKey="week" stroke="#9CA3AF" />
-            <YAxis stroke="#9CA3AF" />
+            <CartesianGrid strokeDasharray="3 3" stroke={theme === 'dark' ? '#374151' : '#F3F4F6'} />
+            <XAxis dataKey="week" stroke={theme === 'dark' ? '#9CA3AF' : '#6B7280'} />
+            <YAxis stroke={theme === 'dark' ? '#9CA3AF' : '#6B7280'} />
             <Tooltip 
               contentStyle={{ 
-                backgroundColor: '#1F2937', 
-                border: '1px solid #374151',
+                backgroundColor: theme === 'dark' ? '#1F2937' : 'white', 
+                border: `1px solid ${theme === 'dark' ? '#374151' : '#E5E7EB'}`,
                 borderRadius: '8px',
-                color: '#F3F4F6'
+                color: theme === 'dark' ? '#F3F4F6' : '#111827'
               }}
             />
             <Line 
@@ -214,16 +214,16 @@ const AdminDashboard = () => {
       </div>
 
       {/* Investor Summary */}
-      <div className="bg-slate-800/50 backdrop-blur-md p-6 rounded-xl border border-slate-700">
-        <h3 className="text-xl font-semibold text-white mb-4">Recent Investor Activity</h3>
+      <div className={`${cardBgClass} backdrop-blur-md p-6 rounded-xl border ${borderClass} shadow-sm`}>
+        <h3 className={`text-xl font-semibold ${textClass} mb-4`}>Recent Investor Activity</h3>
         <div className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="bg-slate-700/50 p-4 rounded-lg">
-              <h4 className="font-semibold text-white mb-2">Top Performing Accounts</h4>
+            <div className={theme === 'dark' ? 'bg-slate-700/50 p-4 rounded-lg' : 'bg-gray-50 p-4 rounded-lg'}>
+              <h4 className={`font-semibold ${textClass} mb-2`}>Top Performing Accounts</h4>
               <div className="space-y-2">
                 {investors.slice(0, 3).map((investor) => (
                   <div key={investor.id} className="flex justify-between text-sm">
-                    <span className="text-slate-300">{investor.name}</span>
+                    <span className={textSecondaryClass}>{investor.name}</span>
                     <span className="text-green-400">
                       +{(((investor.balance - investor.invested) / investor.invested) * 100).toFixed(1)}%
                     </span>
@@ -232,20 +232,20 @@ const AdminDashboard = () => {
               </div>
             </div>
             
-            <div className="bg-slate-700/50 p-4 rounded-lg">
-              <h4 className="font-semibold text-white mb-2">Recent Deposits</h4>
+            <div className={theme === 'dark' ? 'bg-slate-700/50 p-4 rounded-lg' : 'bg-gray-50 p-4 rounded-lg'}>
+              <h4 className={`font-semibold ${textClass} mb-2`}>Recent Deposits</h4>
               <div className="space-y-2">
                 <div className="flex justify-between text-sm">
-                  <span className="text-slate-300">John Investor</span>
+                  <span className={textSecondaryClass}>John Investor</span>
                   <span className="text-blue-400">+$50,000</span>
                 </div>
                 <div className="flex justify-between text-sm">
-                  <span className="text-slate-300">Sarah Miller</span>
+                  <span className={textSecondaryClass}>Sarah Miller</span>
                   <span className="text-blue-400">+$25,000</span>
                 </div>
                 <div className="flex justify-between text-sm">
-                  <span className="text-slate-300">Robert Chen</span>
-                  <span className="text-blue-400">+$75,000</span>
+                  <span className={textSecondaryClass}>Michael Johnson</span>
+                  <span className="text-blue-400">+$10,000</span>
                 </div>
               </div>
             </div>
