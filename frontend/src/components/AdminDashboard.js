@@ -39,6 +39,7 @@ const AdminDashboard = () => {
   const { user, logout, sampleTradingData } = useContext(AuthContext);
   const { theme, toggleTheme } = useContext(ThemeContext);
   const [activeTab, setActiveTab] = useState("overview");
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [isAddingReport, setIsAddingReport] = useState(false);
   const [newReport, setNewReport] = useState({
     week: "",
