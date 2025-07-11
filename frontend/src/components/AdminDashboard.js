@@ -511,6 +511,35 @@ const AdminDashboard = () => {
 
   const renderInvestors = () => (
     <div className="space-y-6">
+      {/* Search and Filter Bar */}
+      <div className={`${cardBgClass} backdrop-blur-md p-4 rounded-xl border ${borderClass} shadow-sm`}>
+        <div className="flex flex-col sm:flex-row gap-4 items-center justify-between">
+          <div className="relative flex-1 max-w-md">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 w-4 h-4" />
+            <input
+              type="text"
+              placeholder="Search investors..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className={`w-full pl-10 pr-4 py-2 border ${borderClass} rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${theme === 'dark' ? 'bg-slate-600 text-white placeholder-slate-400' : 'bg-white text-gray-900 placeholder-gray-400'}`}
+            />
+          </div>
+          <div className="flex gap-2">
+            <button
+              onClick={() => handleExportData('investors')}
+              className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-medium transition-colors flex items-center"
+            >
+              <Download className="w-4 h-4 mr-2" />
+              Export
+            </button>
+            <button className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium transition-colors flex items-center">
+              <Plus className="w-4 h-4 mr-2" />
+              Add Investor
+            </button>
+          </div>
+        </div>
+      </div>
+
       <div className={`${cardBgClass} backdrop-blur-md p-6 rounded-xl border ${borderClass} shadow-sm`}>
         <h3 className={`text-xl font-semibold ${textClass} mb-6`}>Investor Management</h3>
         
@@ -519,15 +548,16 @@ const AdminDashboard = () => {
             <thead>
               <tr className={`border-b ${borderClass}`}>
                 <th className={`text-left py-3 px-4 ${textSecondaryClass} font-medium`}>Investor</th>
-                <th className={`text-left py-3 px-4 ${textSecondaryClass} font-medium`}>Current Balance</th>
-                <th className={`text-left py-3 px-4 ${textSecondaryClass} font-medium`}>Total Invested</th>
-                <th className={`text-left py-3 px-4 ${textSecondaryClass} font-medium`}>Total Return</th>
-                <th className={`text-left py-3 px-4 ${textSecondaryClass} font-medium`}>Join Date</th>
+                <th className={`text-left py-3 px-4 ${textSecondaryClass} font-medium`}>Balance</th>
+                <th className={`text-left py-3 px-4 ${textSecondaryClass} font-medium`}>Invested</th>
+                <th className={`text-left py-3 px-4 ${textSecondaryClass} font-medium`}>Return</th>
+                <th className={`text-left py-3 px-4 ${textSecondaryClass} font-medium`}>Risk Profile</th>
+                <th className={`text-left py-3 px-4 ${textSecondaryClass} font-medium`}>Status</th>
                 <th className={`text-left py-3 px-4 ${textSecondaryClass} font-medium`}>Actions</th>
               </tr>
             </thead>
             <tbody>
-              {investors.map((investor) => {
+              {filteredInvestors.map((investor) => {
                 const totalReturn = ((investor.balance - investor.invested) / investor.invested) * 100;
                 return (
                   <tr key={investor.id} className={`border-b ${borderClass} hover:${theme === 'dark' ? 'bg-slate-700/25' : 'bg-gray-50/50'}`}>
@@ -535,6 +565,7 @@ const AdminDashboard = () => {
                       <div>
                         <p className={`${textClass} font-medium`}>{investor.name}</p>
                         <p className={`${textSecondaryClass} text-sm`}>{investor.email}</p>
+                        <p className={`${textSecondaryClass} text-sm`}>{investor.phone}</p>
                       </div>
                     </td>
                     <td className={`py-4 px-4 ${textClass} font-semibold`}>
@@ -548,16 +579,37 @@ const AdminDashboard = () => {
                         {totalReturn >= 0 ? '+' : ''}{totalReturn.toFixed(2)}%
                       </span>
                     </td>
-                    <td className={`py-4 px-4 ${textSecondaryClass}`}>
-                      {new Date(investor.joinDate).toLocaleDateString()}
+                    <td className="py-4 px-4">
+                      <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                        investor.riskProfile === 'conservative' ? 'bg-green-100 text-green-800' :
+                        investor.riskProfile === 'moderate' ? 'bg-yellow-100 text-yellow-800' :
+                        'bg-red-100 text-red-800'
+                      }`}>
+                        {investor.riskProfile}
+                      </span>
+                    </td>
+                    <td className="py-4 px-4">
+                      <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                        investor.status === 'active' ? 'bg-green-100 text-green-800' :
+                        investor.status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
+                        'bg-red-100 text-red-800'
+                      }`}>
+                        {investor.status}
+                      </span>
                     </td>
                     <td className="py-4 px-4">
                       <div className="flex space-x-2">
-                        <button className="text-blue-400 hover:text-blue-300 text-sm">
-                          View Details
+                        <button 
+                          onClick={() => setSelectedInvestor(investor)}
+                          className="text-blue-400 hover:text-blue-300 text-sm"
+                        >
+                          <Eye className="w-4 h-4" />
                         </button>
                         <button className="text-green-400 hover:text-green-300 text-sm">
-                          Send Report
+                          <Send className="w-4 h-4" />
+                        </button>
+                        <button className="text-orange-400 hover:text-orange-300 text-sm">
+                          <Edit className="w-4 h-4" />
                         </button>
                       </div>
                     </td>
@@ -569,26 +621,94 @@ const AdminDashboard = () => {
         </div>
       </div>
 
+      {/* Investor Details Modal */}
+      {selectedInvestor && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className={`${cardBgClass} p-6 rounded-xl border ${borderClass} shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto`}>
+            <div className="flex justify-between items-center mb-4">
+              <h3 className={`text-xl font-semibold ${textClass}`}>Investor Details</h3>
+              <button
+                onClick={() => setSelectedInvestor(null)}
+                className={`${textSecondaryClass} hover:${textClass}`}
+              >
+                <X className="w-6 h-6" />
+              </button>
+            </div>
+            
+            <div className="space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className={`block text-sm font-medium ${textSecondaryClass} mb-1`}>Name</label>
+                  <div className={`${textClass} font-medium`}>{selectedInvestor.name}</div>
+                </div>
+                <div>
+                  <label className={`block text-sm font-medium ${textSecondaryClass} mb-1`}>Email</label>
+                  <div className={`${textClass}`}>{selectedInvestor.email}</div>
+                </div>
+                <div>
+                  <label className={`block text-sm font-medium ${textSecondaryClass} mb-1`}>Phone</label>
+                  <div className={`${textClass}`}>{selectedInvestor.phone}</div>
+                </div>
+                <div>
+                  <label className={`block text-sm font-medium ${textSecondaryClass} mb-1`}>Join Date</label>
+                  <div className={`${textClass}`}>{new Date(selectedInvestor.joinDate).toLocaleDateString()}</div>
+                </div>
+                <div>
+                  <label className={`block text-sm font-medium ${textSecondaryClass} mb-1`}>Current Balance</label>
+                  <div className={`${textClass} font-semibold`}>${selectedInvestor.balance.toLocaleString()}</div>
+                </div>
+                <div>
+                  <label className={`block text-sm font-medium ${textSecondaryClass} mb-1`}>Total Invested</label>
+                  <div className={`${textClass} font-semibold`}>${selectedInvestor.invested.toLocaleString()}</div>
+                </div>
+              </div>
+              
+              <div className="flex gap-4 pt-4">
+                <button
+                  onClick={() => handleSendNotification(selectedInvestor.id, 'Custom message')}
+                  className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium transition-colors flex items-center"
+                >
+                  <Send className="w-4 h-4 mr-2" />
+                  Send Message
+                </button>
+                <button className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-medium transition-colors flex items-center">
+                  <FileText className="w-4 h-4 mr-2" />
+                  Generate Report
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Investor Statistics */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <div className={`${cardBgClass} backdrop-blur-md p-6 rounded-xl border ${borderClass} shadow-sm`}>
-          <h4 className={`font-semibold ${textClass} mb-4`}>New Investors This Month</h4>
+          <h4 className={`font-semibold ${textClass} mb-4`}>New Investors</h4>
           <div className="text-3xl font-bold text-blue-400 mb-2">3</div>
-          <div className={`${textSecondaryClass} text-sm`}>+50% from last month</div>
+          <div className={`${textSecondaryClass} text-sm`}>This month</div>
         </div>
         
         <div className={`${cardBgClass} backdrop-blur-md p-6 rounded-xl border ${borderClass} shadow-sm`}>
-          <h4 className={`font-semibold ${textClass} mb-4`}>Average Account Size</h4>
+          <h4 className={`font-semibold ${textClass} mb-4`}>Average Account</h4>
           <div className="text-3xl font-bold text-green-400 mb-2">
             ${(totalAssets / totalInvestors).toLocaleString()}
           </div>
-          <div className={`${textSecondaryClass} text-sm`}>Across {totalInvestors} investors</div>
+          <div className={`${textSecondaryClass} text-sm`}>Per investor</div>
         </div>
         
         <div className={`${cardBgClass} backdrop-blur-md p-6 rounded-xl border ${borderClass} shadow-sm`}>
           <h4 className={`font-semibold ${textClass} mb-4`}>Retention Rate</h4>
           <div className="text-3xl font-bold text-purple-400 mb-2">98%</div>
-          <div className={`${textSecondaryClass} text-sm`}>12-month retention</div>
+          <div className={`${textSecondaryClass} text-sm`}>12-month</div>
+        </div>
+
+        <div className={`${cardBgClass} backdrop-blur-md p-6 rounded-xl border ${borderClass} shadow-sm`}>
+          <h4 className={`font-semibold ${textClass} mb-4`}>Active Investors</h4>
+          <div className="text-3xl font-bold text-orange-400 mb-2">
+            {investors.filter(inv => inv.status === 'active').length}
+          </div>
+          <div className={`${textSecondaryClass} text-sm`}>Currently active</div>
         </div>
       </div>
     </div>
