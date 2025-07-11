@@ -56,12 +56,13 @@ const AdminDashboard = () => {
     });
   }, []);
 
-  // Mock investor data
+  // Mock investor data - updated minimum investment references
   const investors = [
     { id: 1, name: "John Investor", email: "investor@example.com", balance: 150000, invested: 100000, joinDate: "2024-01-15" },
     { id: 2, name: "Sarah Miller", email: "sarah@example.com", balance: 275000, invested: 200000, joinDate: "2023-11-20" },
     { id: 3, name: "Robert Chen", email: "robert@example.com", balance: 425000, invested: 350000, joinDate: "2023-08-10" },
     { id: 4, name: "Emily Davis", email: "emily@example.com", balance: 185000, invested: 150000, joinDate: "2024-02-05" },
+    { id: 5, name: "Michael Johnson", email: "michael@example.com", balance: 15000, invested: 10000, joinDate: "2024-03-01" },
   ];
 
   // Calculate admin metrics
