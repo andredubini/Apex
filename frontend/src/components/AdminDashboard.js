@@ -1,5 +1,5 @@
-import React, { useState, useContext } from "react";
-import { AuthContext } from "../App";
+import React, { useState, useContext, useEffect } from "react";
+import { AuthContext, ThemeContext } from "../App";
 import { 
   LineChart, 
   Line, 
@@ -22,7 +22,10 @@ import {
   LogOut,
   Calendar,
   Target,
-  AlertTriangle
+  AlertTriangle,
+  Sun,
+  Moon,
+  Bell
 } from "lucide-react";
 
 const AdminDashboard = () => {
