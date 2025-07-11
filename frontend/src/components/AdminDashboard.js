@@ -25,7 +25,14 @@ import {
   AlertTriangle,
   Sun,
   Moon,
-  Bell
+  Bell,
+  Menu,
+  X,
+  Home,
+  FileText,
+  UserCheck,
+  BarChart3,
+  Settings
 } from "lucide-react";
 
 const AdminDashboard = () => {
