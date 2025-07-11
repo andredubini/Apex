@@ -418,36 +418,36 @@ const AdminDashboard = () => {
 
   const renderInvestors = () => (
     <div className="space-y-6">
-      <div className="bg-slate-800/50 backdrop-blur-md p-6 rounded-xl border border-slate-700">
-        <h3 className="text-xl font-semibold text-white mb-6">Investor Management</h3>
+      <div className={`${cardBgClass} backdrop-blur-md p-6 rounded-xl border ${borderClass} shadow-sm`}>
+        <h3 className={`text-xl font-semibold ${textClass} mb-6`}>Investor Management</h3>
         
         <div className="overflow-x-auto">
           <table className="w-full">
             <thead>
-              <tr className="border-b border-slate-600">
-                <th className="text-left py-3 px-4 text-slate-300 font-medium">Investor</th>
-                <th className="text-left py-3 px-4 text-slate-300 font-medium">Current Balance</th>
-                <th className="text-left py-3 px-4 text-slate-300 font-medium">Total Invested</th>
-                <th className="text-left py-3 px-4 text-slate-300 font-medium">Total Return</th>
-                <th className="text-left py-3 px-4 text-slate-300 font-medium">Join Date</th>
-                <th className="text-left py-3 px-4 text-slate-300 font-medium">Actions</th>
+              <tr className={`border-b ${borderClass}`}>
+                <th className={`text-left py-3 px-4 ${textSecondaryClass} font-medium`}>Investor</th>
+                <th className={`text-left py-3 px-4 ${textSecondaryClass} font-medium`}>Current Balance</th>
+                <th className={`text-left py-3 px-4 ${textSecondaryClass} font-medium`}>Total Invested</th>
+                <th className={`text-left py-3 px-4 ${textSecondaryClass} font-medium`}>Total Return</th>
+                <th className={`text-left py-3 px-4 ${textSecondaryClass} font-medium`}>Join Date</th>
+                <th className={`text-left py-3 px-4 ${textSecondaryClass} font-medium`}>Actions</th>
               </tr>
             </thead>
             <tbody>
               {investors.map((investor) => {
                 const totalReturn = ((investor.balance - investor.invested) / investor.invested) * 100;
                 return (
-                  <tr key={investor.id} className="border-b border-slate-700 hover:bg-slate-700/25">
+                  <tr key={investor.id} className={`border-b ${borderClass} hover:${theme === 'dark' ? 'bg-slate-700/25' : 'bg-gray-50/50'}`}>
                     <td className="py-4 px-4">
                       <div>
-                        <p className="text-white font-medium">{investor.name}</p>
-                        <p className="text-slate-400 text-sm">{investor.email}</p>
+                        <p className={`${textClass} font-medium`}>{investor.name}</p>
+                        <p className={`${textSecondaryClass} text-sm`}>{investor.email}</p>
                       </div>
                     </td>
-                    <td className="py-4 px-4 text-white font-semibold">
+                    <td className={`py-4 px-4 ${textClass} font-semibold`}>
                       ${investor.balance.toLocaleString()}
                     </td>
-                    <td className="py-4 px-4 text-slate-300">
+                    <td className={`py-4 px-4 ${textSecondaryClass}`}>
                       ${investor.invested.toLocaleString()}
                     </td>
                     <td className="py-4 px-4">
@@ -455,7 +455,7 @@ const AdminDashboard = () => {
                         {totalReturn >= 0 ? '+' : ''}{totalReturn.toFixed(2)}%
                       </span>
                     </td>
-                    <td className="py-4 px-4 text-slate-300">
+                    <td className={`py-4 px-4 ${textSecondaryClass}`}>
                       {new Date(investor.joinDate).toLocaleDateString()}
                     </td>
                     <td className="py-4 px-4">
@@ -478,24 +478,24 @@ const AdminDashboard = () => {
 
       {/* Investor Statistics */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        <div className="bg-slate-800/50 backdrop-blur-md p-6 rounded-xl border border-slate-700">
-          <h4 className="font-semibold text-white mb-4">New Investors This Month</h4>
-          <div className="text-3xl font-bold text-blue-400 mb-2">2</div>
-          <div className="text-slate-300 text-sm">+25% from last month</div>
+        <div className={`${cardBgClass} backdrop-blur-md p-6 rounded-xl border ${borderClass} shadow-sm`}>
+          <h4 className={`font-semibold ${textClass} mb-4`}>New Investors This Month</h4>
+          <div className="text-3xl font-bold text-blue-400 mb-2">3</div>
+          <div className={`${textSecondaryClass} text-sm`}>+50% from last month</div>
         </div>
         
-        <div className="bg-slate-800/50 backdrop-blur-md p-6 rounded-xl border border-slate-700">
-          <h4 className="font-semibold text-white mb-4">Average Account Size</h4>
+        <div className={`${cardBgClass} backdrop-blur-md p-6 rounded-xl border ${borderClass} shadow-sm`}>
+          <h4 className={`font-semibold ${textClass} mb-4`}>Average Account Size</h4>
           <div className="text-3xl font-bold text-green-400 mb-2">
             ${(totalAssets / totalInvestors).toLocaleString()}
           </div>
-          <div className="text-slate-300 text-sm">Across {totalInvestors} investors</div>
+          <div className={`${textSecondaryClass} text-sm`}>Across {totalInvestors} investors</div>
         </div>
         
-        <div className="bg-slate-800/50 backdrop-blur-md p-6 rounded-xl border border-slate-700">
-          <h4 className="font-semibold text-white mb-4">Retention Rate</h4>
+        <div className={`${cardBgClass} backdrop-blur-md p-6 rounded-xl border ${borderClass} shadow-sm`}>
+          <h4 className={`font-semibold ${textClass} mb-4`}>Retention Rate</h4>
           <div className="text-3xl font-bold text-purple-400 mb-2">98%</div>
-          <div className="text-slate-300 text-sm">12-month retention</div>
+          <div className={`${textSecondaryClass} text-sm`}>12-month retention</div>
         </div>
       </div>
     </div>
