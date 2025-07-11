@@ -285,19 +285,28 @@ const LandingPage = () => {
               </div>
               
               <div className="bg-slate-800/50 backdrop-blur-md p-8 rounded-2xl border border-slate-700">
-                <h3 className="text-2xl font-bold text-white mb-4">Risk Management</h3>
+                <h3 className="text-2xl font-bold text-white mb-4">Multi-Level Risk Management</h3>
                 <p className="text-slate-300 leading-relaxed mb-4">
-                  Our robust risk management framework ensures capital preservation while pursuing growth opportunities.
+                  We use a sophisticated multi-level risk system that protects your capital at every stage. 
+                  Thanks to our advanced risk controls, investors never risk more than 1% during any single trading period.
                 </p>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
                   <div className="bg-slate-900/50 p-4 rounded-lg">
-                    <div className="text-2xl font-bold text-blue-400">20%</div>
-                    <div className="text-sm text-slate-300">Maximum Risk Exposure</div>
+                    <div className="text-2xl font-bold text-blue-400">1%</div>
+                    <div className="text-sm text-slate-300">Maximum Risk Per Trade</div>
                   </div>
                   <div className="bg-slate-900/50 p-4 rounded-lg">
-                    <div className="text-2xl font-bold text-blue-400">20+</div>
-                    <div className="text-sm text-slate-300">Portfolio Diversification</div>
+                    <div className="text-2xl font-bold text-blue-400">Weekly</div>
+                    <div className="text-sm text-slate-300">Transparent Reporting</div>
                   </div>
+                </div>
+                <div className="bg-slate-900/50 p-4 rounded-lg">
+                  <h4 className="text-lg font-semibold text-white mb-2">Weekly Loss Monitoring</h4>
+                  <p className="text-slate-300 text-sm">
+                    Through our comprehensive weekly reporting system, you can monitor any losses in real-time 
+                    and have the ability to stop capital operations at any time. This ensures complete transparency 
+                    and gives you full control over your investment decisions.
+                  </p>
                 </div>
               </div>
             </div>
