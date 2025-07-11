@@ -502,25 +502,34 @@ const AdminDashboard = () => {
   );
 
   return (
-    <div className="min-h-screen bg-slate-900">
+    <div className={`min-h-screen ${bgClass}`}>
       {/* Header */}
-      <header className="bg-slate-800/50 backdrop-blur-md border-b border-slate-700">
+      <header className={`${headerBgClass} border-b sticky top-0 z-40`}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             <div className="flex items-center">
-              <div className="text-2xl font-bold text-white">
+              <div className={`text-2xl font-bold ${textClass}`}>
                 <span className="text-blue-400">Apex</span>Capital
                 <span className="ml-2 text-sm bg-orange-600 px-2 py-1 rounded text-white">Admin</span>
               </div>
             </div>
             <div className="flex items-center space-x-4">
+              <button 
+                onClick={toggleTheme}
+                className={`p-2 ${textSecondaryClass} hover:${textClass} transition-colors`}
+              >
+                {theme === 'dark' ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
+              </button>
+              <button className={`p-2 ${textSecondaryClass} hover:${textClass} transition-colors`}>
+                <Bell className="w-5 h-5" />
+              </button>
               <AlertTriangle className="w-5 h-5 text-orange-400" />
-              <div className="text-slate-300">
+              <div className={textSecondaryClass}>
                 <span className="text-sm">Admin: {user.name}</span>
               </div>
               <button
                 onClick={handleLogout}
-                className="text-slate-300 hover:text-red-400 transition-colors"
+                className={`${textSecondaryClass} hover:text-red-400 transition-colors`}
               >
                 <LogOut className="w-5 h-5" />
               </button>
@@ -545,7 +554,7 @@ const AdminDashboard = () => {
                 className={`flex items-center px-4 py-2 rounded-lg font-medium transition-colors ${
                   activeTab === id 
                     ? 'bg-blue-600 text-white' 
-                    : 'text-slate-300 hover:text-white hover:bg-slate-800'
+                    : `${textSecondaryClass} hover:${textClass} hover:${theme === 'dark' ? 'bg-slate-800' : 'bg-gray-100'}`
                 }`}
               >
                 <Icon className="w-5 h-5 mr-2" />
