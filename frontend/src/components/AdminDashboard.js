@@ -30,6 +30,7 @@ import {
 
 const AdminDashboard = () => {
   const { user, logout, sampleTradingData } = useContext(AuthContext);
+  const { theme, toggleTheme } = useContext(ThemeContext);
   const [activeTab, setActiveTab] = useState("overview");
   const [isAddingReport, setIsAddingReport] = useState(false);
   const [newReport, setNewReport] = useState({
@@ -40,6 +41,20 @@ const AdminDashboard = () => {
     successRate: "",
     notes: ""
   });
+
+  // Hide the Emergent badge on mount
+  useEffect(() => {
+    const emergentBadge = document.getElementById('emergent-badge');
+    if (emergentBadge) {
+      emergentBadge.style.display = 'none';
+    }
+    
+    // Also hide any badge with similar text
+    const badges = document.querySelectorAll('a[href*="emergent"]');
+    badges.forEach(badge => {
+      badge.style.display = 'none';
+    });
+  }, []);
 
   // Mock investor data
   const investors = [
