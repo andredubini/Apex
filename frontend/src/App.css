@@ -249,6 +249,20 @@ body {
   }
 }
 
+/* Hide Emergent badge completely */
+#emergent-badge,
+a[href*="emergent"],
+a[href*="app.emergent.sh"],
+*[id*="emergent"],
+*[class*="emergent"] {
+  display: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+  position: absolute !important;
+  top: -9999px !important;
+  left: -9999px !important;
+}
+
 /* Reduced motion support */
 @media (prefers-reduced-motion: reduce) {
   * {
