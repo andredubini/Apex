@@ -152,7 +152,7 @@ const LandingPage = () => {
           </h1>
           <p className="text-xl md:text-2xl text-slate-300 mb-8 max-w-3xl mx-auto leading-relaxed">
             Delaware-registered hedge fund specializing in US stock market intraday trading. 
-            Maximize your returns with our proven strategies and risk management expertise.
+            Track your capital management progress weekly in your personal dashboard.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link
@@ -213,6 +213,14 @@ const LandingPage = () => {
                   transparency, security, and professional-grade execution.
                 </p>
               </div>
+
+              <div className="bg-slate-900/50 backdrop-blur-md p-8 rounded-2xl border border-slate-700">
+                <h3 className="text-2xl font-bold text-white mb-4">Weekly Progress Tracking</h3>
+                <p className="text-slate-300 leading-relaxed">
+                  Monitor your capital management progress in real-time through your personal investor dashboard. 
+                  Receive detailed weekly reports, performance analytics, and complete transparency on your investments.
+                </p>
+              </div>
             </div>
             
             <div className="relative">
@@ -240,8 +248,8 @@ const LandingPage = () => {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
             <div className="relative">
               <img 
-                src="https://images.pexels.com/photos/9169180/pexels-photo-9169180.jpeg" 
-                alt="Trading interface" 
+                src="https://images.unsplash.com/photo-1643962578875-90e5e275d449?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NTY2NzF8MHwxfHNlYXJjaHwxfHx0cmFkaW5nJTIwaW50ZXJmYWNlfGVufDB8fHxibHVlfDE3NTIyNDQzNTF8MA&ixlib=rb-4.1.0&q=85" 
+                alt="Professional trading interface" 
                 className="w-full h-auto rounded-2xl shadow-2xl border border-slate-700"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-slate-900/50 to-transparent rounded-2xl"></div>
@@ -327,10 +335,10 @@ const LandingPage = () => {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
                 </svg>
               </div>
-              <h3 className="text-2xl font-bold text-white mb-4">Profit-Based Fees Only</h3>
+              <h3 className="text-2xl font-bold text-white mb-4">Tiered Profit Distribution</h3>
               <p className="text-slate-300 leading-relaxed">
-                Our fees are solely based on the profits we generate for you. This aligns our interests 
-                with yours, ensuring we're motivated to maximize your returns.
+                Our progressive profit-sharing model benefits you: First 4% annually (80/20 split), 
+                second 4% (70/30), next 4% (60/40), above 12% (50/50). Automated calculations in your dashboard.
               </p>
             </div>
 
@@ -346,6 +354,51 @@ const LandingPage = () => {
                 Full capital withdrawal is available with a simple three-month notice period.
               </p>
             </div>
+          </div>
+
+          {/* Profit Distribution Details */}
+          <div className="mt-16 bg-slate-900/50 backdrop-blur-md p-8 rounded-2xl border border-slate-700">
+            <h3 className="text-2xl font-bold text-white mb-6 text-center">Profit Distribution Formula</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              <div className="text-center">
+                <div className="bg-gradient-to-r from-green-500 to-green-600 p-4 rounded-lg mb-3">
+                  <div className="text-2xl font-bold text-white">0-4%</div>
+                  <div className="text-sm text-green-100">Annual Profit</div>
+                </div>
+                <div className="text-white font-semibold">80/20 Split</div>
+                <div className="text-slate-300 text-sm">Investor/Fund</div>
+              </div>
+              
+              <div className="text-center">
+                <div className="bg-gradient-to-r from-blue-500 to-blue-600 p-4 rounded-lg mb-3">
+                  <div className="text-2xl font-bold text-white">4-8%</div>
+                  <div className="text-sm text-blue-100">Annual Profit</div>
+                </div>
+                <div className="text-white font-semibold">70/30 Split</div>
+                <div className="text-slate-300 text-sm">Investor/Fund</div>
+              </div>
+              
+              <div className="text-center">
+                <div className="bg-gradient-to-r from-purple-500 to-purple-600 p-4 rounded-lg mb-3">
+                  <div className="text-2xl font-bold text-white">8-12%</div>
+                  <div className="text-sm text-purple-100">Annual Profit</div>
+                </div>
+                <div className="text-white font-semibold">60/40 Split</div>
+                <div className="text-slate-300 text-sm">Investor/Fund</div>
+              </div>
+              
+              <div className="text-center">
+                <div className="bg-gradient-to-r from-orange-500 to-orange-600 p-4 rounded-lg mb-3">
+                  <div className="text-2xl font-bold text-white">12%+</div>
+                  <div className="text-sm text-orange-100">Annual Profit</div>
+                </div>
+                <div className="text-white font-semibold">50/50 Split</div>
+                <div className="text-slate-300 text-sm">Investor/Fund</div>
+              </div>
+            </div>
+            <p className="text-slate-300 text-center mt-6">
+              All profit distributions are calculated automatically in your personal dashboard and processed monthly.
+            </p>
           </div>
 
           <div className="mt-16 relative">
@@ -376,7 +429,7 @@ const LandingPage = () => {
           <div className="text-center mb-16">
             <h2 className="text-4xl md:text-5xl font-bold text-white mb-6">For Investors</h2>
             <p className="text-xl text-slate-300 max-w-3xl mx-auto">
-              Transparent investment terms and comprehensive reporting for your peace of mind
+              Transparent investment terms and comprehensive weekly reporting for your peace of mind
             </p>
           </div>
 
@@ -399,41 +452,41 @@ const LandingPage = () => {
                   </div>
                   <div className="flex justify-between items-center border-b border-slate-600 pb-3">
                     <span className="text-slate-300">Performance Fee</span>
-                    <span className="text-white font-semibold">20% of profits</span>
+                    <span className="text-white font-semibold">Tiered Structure</span>
                   </div>
                   <div className="flex justify-between items-center">
                     <span className="text-slate-300">Reporting Frequency</span>
-                    <span className="text-white font-semibold">Monthly</span>
+                    <span className="text-white font-semibold">Weekly</span>
                   </div>
                 </div>
               </div>
               
               <div className="bg-slate-800/50 backdrop-blur-md p-8 rounded-2xl border border-slate-700">
-                <h3 className="text-2xl font-bold text-white mb-6">Transparency & Reporting</h3>
+                <h3 className="text-2xl font-bold text-white mb-6">Personal Dashboard Features</h3>
                 <ul className="space-y-3 text-slate-300">
                   <li className="flex items-start">
                     <svg className="w-5 h-5 text-blue-400 mr-3 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
                       <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                     </svg>
-                    Monthly performance reports with detailed breakdown
+                    Weekly performance reports with detailed breakdown
                   </li>
                   <li className="flex items-start">
                     <svg className="w-5 h-5 text-blue-400 mr-3 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
                       <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                     </svg>
-                    Real-time portfolio access through secure portal
+                    Real-time portfolio tracking with visual charts
                   </li>
                   <li className="flex items-start">
                     <svg className="w-5 h-5 text-blue-400 mr-3 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
                       <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                     </svg>
-                    Quarterly strategy updates and market outlook
+                    Automated profit distribution calculations
                   </li>
                   <li className="flex items-start">
                     <svg className="w-5 h-5 text-blue-400 mr-3 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
                       <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                     </svg>
-                    Annual audited financial statements
+                    Banking integration for deposits and withdrawals
                   </li>
                   <li className="flex items-start">
                     <svg className="w-5 h-5 text-blue-400 mr-3 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
@@ -481,9 +534,9 @@ const LandingPage = () => {
                 <div className="flex items-start">
                   <div className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center text-white font-bold text-sm mr-4 mt-1">4</div>
                   <div>
-                    <h4 className="text-lg font-semibold text-white mb-2">Capital Deployment</h4>
+                    <h4 className="text-lg font-semibold text-white mb-2">Personal Dashboard Access</h4>
                     <p className="text-slate-300 text-sm">
-                      Your capital is deployed according to our proven strategy within 48 hours.
+                      Receive secure access to your personal dashboard for weekly progress monitoring.
                     </p>
                   </div>
                 </div>
@@ -493,7 +546,7 @@ const LandingPage = () => {
                   <div>
                     <h4 className="text-lg font-semibold text-white mb-2">Ongoing Management</h4>
                     <p className="text-slate-300 text-sm">
-                      Receive regular reports and maintain access to your investment performance.
+                      Capital deployment begins within 48 hours with weekly reports and real-time tracking.
                     </p>
                   </div>
                 </div>

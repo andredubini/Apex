@@ -25,13 +25,16 @@ import {
   CreditCard,
   Download,
   Eye,
-  EyeOff
+  EyeOff,
+  Menu,
+  X
 } from "lucide-react";
 
 const InvestorDashboard = () => {
   const { user, logout, sampleTradingData } = useContext(AuthContext);
   const [activeTab, setActiveTab] = useState("overview");
   const [showBalance, setShowBalance] = useState(true);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [notifications, setNotifications] = useState([
     { id: 1, type: "profit", message: "Weekly profit of $2,450 added to your account", time: "2 hours ago" },
     { id: 2, type: "deposit", message: "Deposit of $50,000 processed successfully", time: "1 day ago" },
@@ -54,6 +57,46 @@ const InvestorDashboard = () => {
   const firstWeek = sampleTradingData[0];
   const totalReturn = ((latestWeek.endBalance - firstWeek.startBalance) / firstWeek.startBalance) * 100;
   const avgWeeklyReturn = totalReturn / totalWeeks;
+
+  // Calculate profit distribution based on annual return
+  const calculateProfitDistribution = (totalProfit, initialInvestment) => {
+    const annualReturn = (totalProfit / initialInvestment) * 100;
+    let investorShare = 0;
+    let fundShare = 0;
+    
+    if (annualReturn <= 4) {
+      // 0-4%: 80/20 split
+      investorShare = totalProfit * 0.8;
+      fundShare = totalProfit * 0.2;
+    } else if (annualReturn <= 8) {
+      // First 4% at 80/20, next 4% at 70/30
+      const first4Percent = initialInvestment * 0.04;
+      const remainder = totalProfit - first4Percent;
+      investorShare = (first4Percent * 0.8) + (remainder * 0.7);
+      fundShare = (first4Percent * 0.2) + (remainder * 0.3);
+    } else if (annualReturn <= 12) {
+      // First 4% at 80/20, second 4% at 70/30, next 4% at 60/40
+      const first4Percent = initialInvestment * 0.04;
+      const second4Percent = initialInvestment * 0.04;
+      const remainder = totalProfit - first4Percent - second4Percent;
+      investorShare = (first4Percent * 0.8) + (second4Percent * 0.7) + (remainder * 0.6);
+      fundShare = (first4Percent * 0.2) + (second4Percent * 0.3) + (remainder * 0.4);
+    } else {
+      // First 4% at 80/20, second 4% at 70/30, third 4% at 60/40, rest at 50/50
+      const first4Percent = initialInvestment * 0.04;
+      const second4Percent = initialInvestment * 0.04;
+      const third4Percent = initialInvestment * 0.04;
+      const remainder = totalProfit - first4Percent - second4Percent - third4Percent;
+      investorShare = (first4Percent * 0.8) + (second4Percent * 0.7) + (third4Percent * 0.6) + (remainder * 0.5);
+      fundShare = (first4Percent * 0.2) + (second4Percent * 0.3) + (third4Percent * 0.4) + (remainder * 0.5);
+    }
+    
+    return { investorShare, fundShare, annualReturn };
+  };
+
+  const initialInvestment = user.totalInvested || 100000;
+  const totalProfit = latestWeek.endBalance - firstWeek.startBalance;
+  const profitDistribution = calculateProfitDistribution(totalProfit, initialInvestment);
 
   // Portfolio allocation data
   const portfolioData = [
@@ -83,6 +126,13 @@ const InvestorDashboard = () => {
   const handleDepositRequest = () => {
     alert("Deposit request submitted. Please follow the instructions sent to your email.");
   };
+
+  const navItems = [
+    { id: 'overview', label: 'Overview', icon: TrendingUp },
+    { id: 'reports', label: 'Reports', icon: Activity },
+    { id: 'transactions', label: 'Banking', icon: CreditCard },
+    { id: 'notifications', label: 'Notifications', icon: Bell }
+  ];
 
   const renderOverview = () => (
     <div className="space-y-6">
@@ -127,9 +177,9 @@ const InvestorDashboard = () => {
         <div className="bg-slate-800/50 backdrop-blur-md p-6 rounded-xl border border-slate-700">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-slate-300 text-sm">Total Profits</p>
+              <p className="text-slate-300 text-sm">Your Profit Share</p>
               <p className="text-2xl font-bold text-white">
-                ${(latestWeek.endBalance - firstWeek.startBalance).toLocaleString()}
+                ${profitDistribution.investorShare.toLocaleString()}
               </p>
             </div>
             <div className="bg-green-600 p-3 rounded-full">
@@ -138,7 +188,7 @@ const InvestorDashboard = () => {
           </div>
           <div className="mt-4 flex items-center text-green-400">
             <TrendingUp className="w-4 h-4 mr-1" />
-            <span className="text-sm">+{avgWeeklyReturn.toFixed(2)}% Avg Weekly</span>
+            <span className="text-sm">Tiered Distribution</span>
           </div>
         </div>
 
@@ -159,6 +209,36 @@ const InvestorDashboard = () => {
             <span className="text-sm">+{latestWeek.returnPercentage.toFixed(2)}% Return</span>
           </div>
         </div>
+      </div>
+
+      {/* Profit Distribution Details */}
+      <div className="bg-slate-800/50 backdrop-blur-md p-6 rounded-xl border border-slate-700">
+        <h3 className="text-xl font-semibold text-white mb-4">Your Profit Distribution Breakdown</h3>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="text-center">
+            <div className="bg-green-600 p-4 rounded-lg mb-3">
+              <div className="text-2xl font-bold text-white">${profitDistribution.investorShare.toLocaleString()}</div>
+              <div className="text-sm text-green-100">Your Share</div>
+            </div>
+          </div>
+          
+          <div className="text-center">
+            <div className="bg-blue-600 p-4 rounded-lg mb-3">
+              <div className="text-2xl font-bold text-white">${profitDistribution.fundShare.toLocaleString()}</div>
+              <div className="text-sm text-blue-100">Fund Share</div>
+            </div>
+          </div>
+          
+          <div className="text-center">
+            <div className="bg-purple-600 p-4 rounded-lg mb-3">
+              <div className="text-2xl font-bold text-white">{profitDistribution.annualReturn.toFixed(2)}%</div>
+              <div className="text-sm text-purple-100">Annual Return</div>
+            </div>
+          </div>
+        </div>
+        <p className="text-slate-300 text-center mt-4 text-sm">
+          Distribution calculated automatically based on tiered structure: 0-4% (80/20), 4-8% (70/30), 8-12% (60/40), 12%+ (50/50)
+        </p>
       </div>
 
       {/* Performance Chart */}
@@ -448,22 +528,50 @@ const InvestorDashboard = () => {
               >
                 <LogOut className="w-5 h-5" />
               </button>
+              
+              {/* Mobile Menu Button */}
+              <button
+                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+                className="md:hidden text-slate-300 hover:text-white transition-colors"
+              >
+                {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+              </button>
             </div>
           </div>
         </div>
       </header>
 
+      {/* Mobile Navigation Overlay */}
+      {mobileMenuOpen && (
+        <div className="md:hidden fixed inset-0 z-50 bg-slate-900/95 backdrop-blur-md">
+          <div className="flex flex-col items-center justify-center h-full space-y-8">
+            {navItems.map(({ id, label, icon: Icon }) => (
+              <button
+                key={id}
+                onClick={() => {
+                  setActiveTab(id);
+                  setMobileMenuOpen(false);
+                }}
+                className={`flex items-center px-6 py-4 rounded-lg font-medium transition-colors text-lg ${
+                  activeTab === id 
+                    ? 'bg-blue-600 text-white' 
+                    : 'text-slate-300 hover:text-white hover:bg-slate-800'
+                }`}
+              >
+                <Icon className="w-6 h-6 mr-3" />
+                {label}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+
       {/* Main Content */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Navigation Tabs */}
-        <div className="mb-8">
+        {/* Navigation Tabs - Desktop */}
+        <div className="mb-8 hidden md:block">
           <nav className="flex space-x-8">
-            {[
-              { id: 'overview', label: 'Overview', icon: TrendingUp },
-              { id: 'reports', label: 'Reports', icon: Activity },
-              { id: 'transactions', label: 'Banking', icon: CreditCard },
-              { id: 'notifications', label: 'Notifications', icon: Bell }
-            ].map(({ id, label, icon: Icon }) => (
+            {navItems.map(({ id, label, icon: Icon }) => (
               <button
                 key={id}
                 onClick={() => setActiveTab(id)}
@@ -478,6 +586,15 @@ const InvestorDashboard = () => {
               </button>
             ))}
           </nav>
+        </div>
+
+        {/* Mobile Tab Indicator */}
+        <div className="mb-8 md:hidden">
+          <div className="text-center">
+            <h2 className="text-2xl font-bold text-white">
+              {navItems.find(item => item.id === activeTab)?.label}
+            </h2>
+          </div>
         </div>
 
         {/* Tab Content */}
