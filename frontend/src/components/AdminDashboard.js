@@ -171,6 +171,42 @@ const AdminDashboard = () => {
     }
   };
 
+  const handleUpdateFundSettings = (newSettings) => {
+    setFundSettings(newSettings);
+    alert('Fund settings updated successfully!');
+  };
+
+  const handleSendNotification = (investorId, message) => {
+    alert(`Notification sent to investor ${investorId}: ${message}`);
+  };
+
+  const handleExportData = (dataType) => {
+    alert(`Exporting ${dataType} data...`);
+  };
+
+  const markNotificationAsRead = (notificationId) => {
+    setNotifications(prev => 
+      prev.map(notif => 
+        notif.id === notificationId ? { ...notif, read: true } : notif
+      )
+    );
+  };
+
+  // Risk analysis data
+  const riskAnalysisData = [
+    { name: 'Conservative', value: 2, color: '#10B981' },
+    { name: 'Moderate', value: 3, color: '#F59E0B' },
+    { name: 'Aggressive', value: 2, color: '#EF4444' }
+  ];
+
+  // Performance comparison data
+  const performanceData = sampleTradingData.slice(-12).map(week => ({
+    week: week.week.replace("Week ", "W"),
+    ourFund: week.returnPercentage,
+    sp500: (Math.random() * 1.5 + 0.2), // Mock S&P 500 data
+    benchmark: (Math.random() * 1.2 + 0.3) // Mock benchmark data
+  }));
+
   const renderOverview = () => (
     <div className="space-y-6">
       {/* Admin Metrics Cards */}
