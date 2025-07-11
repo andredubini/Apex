@@ -257,9 +257,9 @@ const AdminDashboard = () => {
 
   const renderReports = () => (
     <div className="space-y-6">
-      <div className="bg-slate-800/50 backdrop-blur-md p-6 rounded-xl border border-slate-700">
+      <div className={`${cardBgClass} backdrop-blur-md p-6 rounded-xl border ${borderClass} shadow-sm`}>
         <div className="flex items-center justify-between mb-6">
-          <h3 className="text-xl font-semibold text-white">Weekly Trading Reports Management</h3>
+          <h3 className={`text-xl font-semibold ${textClass}`}>Weekly Trading Reports Management</h3>
           <button
             onClick={() => setIsAddingReport(!isAddingReport)}
             className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium transition-colors flex items-center"
@@ -271,72 +271,72 @@ const AdminDashboard = () => {
 
         {/* Add Report Form */}
         {isAddingReport && (
-          <div className="bg-slate-700/50 p-6 rounded-lg border border-slate-600 mb-6">
-            <h4 className="font-semibold text-white mb-4">Add New Weekly Report</h4>
+          <div className={`${theme === 'dark' ? 'bg-slate-700/50' : 'bg-gray-50'} p-6 rounded-lg border ${borderClass} mb-6`}>
+            <h4 className={`font-semibold ${textClass} mb-4`}>Add New Weekly Report</h4>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-slate-300 mb-2">Week Period</label>
+                <label className={`block text-sm font-medium ${textSecondaryClass} mb-2`}>Week Period</label>
                 <input
                   type="text"
                   value={newReport.week}
                   onChange={(e) => setNewReport({...newReport, week: e.target.value})}
                   placeholder="e.g., Week 53"
-                  className="w-full px-3 py-2 bg-slate-600 border border-slate-500 rounded-lg text-white placeholder-slate-400"
+                  className={`w-full px-3 py-2 border ${borderClass} rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${theme === 'dark' ? 'bg-slate-600 text-white placeholder-slate-400' : 'bg-white text-gray-900 placeholder-gray-400'}`}
                 />
               </div>
               
               <div>
-                <label className="block text-sm font-medium text-slate-300 mb-2">Start Balance</label>
+                <label className={`block text-sm font-medium ${textSecondaryClass} mb-2`}>Start Balance</label>
                 <input
                   type="number"
                   value={newReport.startBalance}
                   onChange={(e) => setNewReport({...newReport, startBalance: e.target.value})}
                   placeholder="100000"
-                  className="w-full px-3 py-2 bg-slate-600 border border-slate-500 rounded-lg text-white placeholder-slate-400"
+                  className={`w-full px-3 py-2 border ${borderClass} rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${theme === 'dark' ? 'bg-slate-600 text-white placeholder-slate-400' : 'bg-white text-gray-900 placeholder-gray-400'}`}
                 />
               </div>
               
               <div>
-                <label className="block text-sm font-medium text-slate-300 mb-2">End Balance</label>
+                <label className={`block text-sm font-medium ${textSecondaryClass} mb-2`}>End Balance</label>
                 <input
                   type="number"
                   value={newReport.endBalance}
                   onChange={(e) => setNewReport({...newReport, endBalance: e.target.value})}
                   placeholder="102500"
-                  className="w-full px-3 py-2 bg-slate-600 border border-slate-500 rounded-lg text-white placeholder-slate-400"
+                  className={`w-full px-3 py-2 border ${borderClass} rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${theme === 'dark' ? 'bg-slate-600 text-white placeholder-slate-400' : 'bg-white text-gray-900 placeholder-gray-400'}`}
                 />
               </div>
               
               <div>
-                <label className="block text-sm font-medium text-slate-300 mb-2">Number of Trades</label>
+                <label className={`block text-sm font-medium ${textSecondaryClass} mb-2`}>Number of Trades</label>
                 <input
                   type="number"
                   value={newReport.trades}
                   onChange={(e) => setNewReport({...newReport, trades: e.target.value})}
                   placeholder="25"
-                  className="w-full px-3 py-2 bg-slate-600 border border-slate-500 rounded-lg text-white placeholder-slate-400"
+                  className={`w-full px-3 py-2 border ${borderClass} rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${theme === 'dark' ? 'bg-slate-600 text-white placeholder-slate-400' : 'bg-white text-gray-900 placeholder-gray-400'}`}
                 />
               </div>
               
               <div>
-                <label className="block text-sm font-medium text-slate-300 mb-2">Success Rate (%)</label>
+                <label className={`block text-sm font-medium ${textSecondaryClass} mb-2`}>Success Rate (%)</label>
                 <input
                   type="number"
                   value={newReport.successRate}
                   onChange={(e) => setNewReport({...newReport, successRate: e.target.value})}
                   placeholder="85.5"
-                  className="w-full px-3 py-2 bg-slate-600 border border-slate-500 rounded-lg text-white placeholder-slate-400"
+                  className={`w-full px-3 py-2 border ${borderClass} rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${theme === 'dark' ? 'bg-slate-600 text-white placeholder-slate-400' : 'bg-white text-gray-900 placeholder-gray-400'}`}
                 />
               </div>
               
               <div>
-                <label className="block text-sm font-medium text-slate-300 mb-2">Notes</label>
+                <label className={`block text-sm font-medium ${textSecondaryClass} mb-2`}>Notes</label>
                 <input
                   type="text"
                   value={newReport.notes}
                   onChange={(e) => setNewReport({...newReport, notes: e.target.value})}
                   placeholder="Market conditions, strategy notes..."
-                  className="w-full px-3 py-2 bg-slate-600 border border-slate-500 rounded-lg text-white placeholder-slate-400"
+                  className={`w-full px-3 py-2 border ${borderClass} rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${theme === 'dark' ? 'bg-slate-600 text-white placeholder-slate-400' : 'bg-white text-gray-900 placeholder-gray-400'}`}
                 />
               </div>
             </div>
@@ -351,7 +351,7 @@ const AdminDashboard = () => {
               </button>
               <button
                 onClick={() => setIsAddingReport(false)}
-                className="bg-slate-600 hover:bg-slate-700 text-white px-4 py-2 rounded-lg font-medium transition-colors"
+                className={`${theme === 'dark' ? 'bg-slate-600 hover:bg-slate-700' : 'bg-gray-600 hover:bg-gray-700'} text-white px-4 py-2 rounded-lg font-medium transition-colors`}
               >
                 Cancel
               </button>
@@ -361,16 +361,16 @@ const AdminDashboard = () => {
 
         {/* Reports List */}
         <div className="space-y-4">
-          <h4 className="font-semibold text-white">Recent Reports</h4>
+          <h4 className={`font-semibold ${textClass}`}>Recent Reports</h4>
           {sampleTradingData.slice(-8).reverse().map((week) => (
-            <div key={week.id} className="bg-slate-700/50 p-4 rounded-lg border border-slate-600">
+            <div key={week.id} className={`${theme === 'dark' ? 'bg-slate-700/50' : 'bg-gray-50'} p-4 rounded-lg border ${borderClass}`}>
               <div className="flex items-center justify-between">
                 <div>
-                  <h5 className="font-semibold text-white">{week.week} - {week.date}</h5>
-                  <p className="text-slate-300 text-sm">
+                  <h5 className={`font-semibold ${textClass}`}>{week.week} - {week.date}</h5>
+                  <p className={`${textSecondaryClass} text-sm`}>
                     Start: ${week.startBalance.toLocaleString()} → End: ${week.endBalance.toLocaleString()}
                   </p>
-                  <p className="text-slate-300 text-sm">
+                  <p className={`${textSecondaryClass} text-sm`}>
                     {week.trades} trades • {week.successRate.toFixed(1)}% success rate
                   </p>
                 </div>
@@ -393,19 +393,19 @@ const AdminDashboard = () => {
       </div>
 
       {/* Performance Analytics */}
-      <div className="bg-slate-800/50 backdrop-blur-md p-6 rounded-xl border border-slate-700">
-        <h3 className="text-xl font-semibold text-white mb-4">Trading Performance Analytics</h3>
+      <div className={`${cardBgClass} backdrop-blur-md p-6 rounded-xl border ${borderClass} shadow-sm`}>
+        <h3 className={`text-xl font-semibold ${textClass} mb-4`}>Trading Performance Analytics</h3>
         <ResponsiveContainer width="100%" height={300}>
           <BarChart data={recentPerformance.slice(-6)}>
-            <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
-            <XAxis dataKey="week" stroke="#9CA3AF" />
-            <YAxis stroke="#9CA3AF" />
+            <CartesianGrid strokeDasharray="3 3" stroke={theme === 'dark' ? '#374151' : '#F3F4F6'} />
+            <XAxis dataKey="week" stroke={theme === 'dark' ? '#9CA3AF' : '#6B7280'} />
+            <YAxis stroke={theme === 'dark' ? '#9CA3AF' : '#6B7280'} />
             <Tooltip 
               contentStyle={{ 
-                backgroundColor: '#1F2937', 
-                border: '1px solid #374151',
+                backgroundColor: theme === 'dark' ? '#1F2937' : 'white', 
+                border: `1px solid ${theme === 'dark' ? '#374151' : '#E5E7EB'}`,
                 borderRadius: '8px',
-                color: '#F3F4F6'
+                color: theme === 'dark' ? '#F3F4F6' : '#111827'
               }}
             />
             <Bar dataKey="trades" fill="#3B82F6" name="Number of Trades" />
