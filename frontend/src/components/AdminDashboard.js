@@ -62,6 +62,18 @@ const AdminDashboard = () => {
   const [activeTab, setActiveTab] = useState("overview");
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [isAddingReport, setIsAddingReport] = useState(false);
+  const [selectedInvestor, setSelectedInvestor] = useState(null);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [notifications, setNotifications] = useState([]);
+  const [fundSettings, setFundSettings] = useState({
+    minimumInvestment: 10000,
+    managementFee: 0,
+    performanceFee: 20,
+    riskLimit: 1,
+    tradingHours: "09:30-16:00",
+    autoRebalance: true,
+    weeklyReporting: true
+  });
   const [newReport, setNewReport] = useState({
     week: "",
     startBalance: "",
@@ -83,6 +95,14 @@ const AdminDashboard = () => {
     badges.forEach(badge => {
       badge.style.display = 'none';
     });
+
+    // Initialize notifications
+    setNotifications([
+      { id: 1, type: 'deposit', message: 'New deposit of $50,000 from John Investor', time: '2 hours ago', read: false },
+      { id: 2, type: 'alert', message: 'Weekly report generation completed', time: '1 day ago', read: false },
+      { id: 3, type: 'system', message: 'System backup completed successfully', time: '2 days ago', read: true },
+      { id: 4, type: 'withdrawal', message: 'Withdrawal request from Sarah Miller - $25,000', time: '3 days ago', read: false }
+    ]);
   }, []);
 
   // Mock investor data - updated minimum investment references
