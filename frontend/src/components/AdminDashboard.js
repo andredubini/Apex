@@ -85,6 +85,14 @@ const AdminDashboard = () => {
     logout();
   };
 
+  // Theme classes
+  const bgClass = theme === 'dark' ? 'bg-slate-900' : 'bg-gray-50';
+  const cardBgClass = theme === 'dark' ? 'bg-slate-800/50' : 'bg-white';
+  const textClass = theme === 'dark' ? 'text-white' : 'text-gray-900';
+  const textSecondaryClass = theme === 'dark' ? 'text-slate-300' : 'text-gray-600';
+  const borderClass = theme === 'dark' ? 'border-slate-700' : 'border-gray-200';
+  const headerBgClass = theme === 'dark' ? 'bg-slate-800/50 border-slate-700' : 'bg-white border-gray-200';
+
   const handleAddReport = () => {
     if (newReport.week && newReport.startBalance && newReport.endBalance) {
       const profit = parseFloat(newReport.endBalance) - parseFloat(newReport.startBalance);
