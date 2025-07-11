@@ -107,12 +107,20 @@ const AdminDashboard = () => {
 
   // Mock investor data - updated minimum investment references
   const investors = [
-    { id: 1, name: "John Investor", email: "investor@example.com", balance: 150000, invested: 100000, joinDate: "2024-01-15" },
-    { id: 2, name: "Sarah Miller", email: "sarah@example.com", balance: 275000, invested: 200000, joinDate: "2023-11-20" },
-    { id: 3, name: "Robert Chen", email: "robert@example.com", balance: 425000, invested: 350000, joinDate: "2023-08-10" },
-    { id: 4, name: "Emily Davis", email: "emily@example.com", balance: 185000, invested: 150000, joinDate: "2024-02-05" },
-    { id: 5, name: "Michael Johnson", email: "michael@example.com", balance: 15000, invested: 10000, joinDate: "2024-03-01" },
+    { id: 1, name: "John Investor", email: "investor@example.com", balance: 150000, invested: 100000, joinDate: "2024-01-15", phone: "+1-555-0123", status: "active", riskProfile: "moderate" },
+    { id: 2, name: "Sarah Miller", email: "sarah@example.com", balance: 275000, invested: 200000, joinDate: "2023-11-20", phone: "+1-555-0124", status: "active", riskProfile: "aggressive" },
+    { id: 3, name: "Robert Chen", email: "robert@example.com", balance: 425000, invested: 350000, joinDate: "2023-08-10", phone: "+1-555-0125", status: "active", riskProfile: "conservative" },
+    { id: 4, name: "Emily Davis", email: "emily@example.com", balance: 185000, invested: 150000, joinDate: "2024-02-05", phone: "+1-555-0126", status: "pending", riskProfile: "moderate" },
+    { id: 5, name: "Michael Johnson", email: "michael@example.com", balance: 15000, invested: 10000, joinDate: "2024-03-01", phone: "+1-555-0127", status: "active", riskProfile: "moderate" },
+    { id: 6, name: "Lisa Park", email: "lisa@example.com", balance: 320000, invested: 250000, joinDate: "2023-12-15", phone: "+1-555-0128", status: "active", riskProfile: "aggressive" },
+    { id: 7, name: "David Wilson", email: "david@example.com", balance: 95000, invested: 80000, joinDate: "2024-01-28", phone: "+1-555-0129", status: "inactive", riskProfile: "conservative" }
   ];
+
+  // Filter investors based on search
+  const filteredInvestors = investors.filter(investor => 
+    investor.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    investor.email.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
   // Calculate admin metrics
   const totalInvestors = investors.length;
