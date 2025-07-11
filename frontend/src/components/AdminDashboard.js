@@ -192,6 +192,366 @@ const AdminDashboard = () => {
     );
   };
 
+  const renderAnalytics = () => (
+    <div className="space-y-6">
+      {/* Risk Analysis */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div className={`${cardBgClass} backdrop-blur-md p-6 rounded-xl border ${borderClass} shadow-sm`}>
+          <h3 className={`text-xl font-semibold ${textClass} mb-4`}>Risk Profile Distribution</h3>
+          <ResponsiveContainer width="100%" height={300}>
+            <PieChart>
+              <Pie
+                data={riskAnalysisData}
+                cx="50%"
+                cy="50%"
+                labelLine={false}
+                label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+                outerRadius={80}
+                fill="#8884d8"
+                dataKey="value"
+              >
+                {riskAnalysisData.map((entry, index) => (
+                  <Cell key={`cell-${index}`} fill={entry.color} />
+                ))}
+              </Pie>
+              <Tooltip />
+            </PieChart>
+          </ResponsiveContainer>
+        </div>
+
+        <div className={`${cardBgClass} backdrop-blur-md p-6 rounded-xl border ${borderClass} shadow-sm`}>
+          <h3 className={`text-xl font-semibold ${textClass} mb-4`}>Performance vs Benchmarks</h3>
+          <ResponsiveContainer width="100%" height={300}>
+            <LineChart data={performanceData}>
+              <CartesianGrid strokeDasharray="3 3" stroke={theme === 'dark' ? '#374151' : '#F3F4F6'} />
+              <XAxis dataKey="week" stroke={theme === 'dark' ? '#9CA3AF' : '#6B7280'} />
+              <YAxis stroke={theme === 'dark' ? '#9CA3AF' : '#6B7280'} />
+              <Tooltip 
+                contentStyle={{ 
+                  backgroundColor: theme === 'dark' ? '#1F2937' : 'white', 
+                  border: `1px solid ${theme === 'dark' ? '#374151' : '#E5E7EB'}`,
+                  borderRadius: '8px',
+                  color: theme === 'dark' ? '#F3F4F6' : '#111827'
+                }}
+              />
+              <Line type="monotone" dataKey="ourFund" stroke="#3B82F6" strokeWidth={3} name="Our Fund" />
+              <Line type="monotone" dataKey="sp500" stroke="#10B981" strokeWidth={2} name="S&P 500" />
+              <Line type="monotone" dataKey="benchmark" stroke="#F59E0B" strokeWidth={2} name="Benchmark" />
+            </LineChart>
+          </ResponsiveContainer>
+        </div>
+      </div>
+
+      {/* Advanced Analytics */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className={`${cardBgClass} backdrop-blur-md p-6 rounded-xl border ${borderClass} shadow-sm`}>
+          <h4 className={`font-semibold ${textClass} mb-4`}>Sharpe Ratio</h4>
+          <div className="text-3xl font-bold text-blue-400 mb-2">1.85</div>
+          <div className={`${textSecondaryClass} text-sm`}>Risk-adjusted return</div>
+        </div>
+        
+        <div className={`${cardBgClass} backdrop-blur-md p-6 rounded-xl border ${borderClass} shadow-sm`}>
+          <h4 className={`font-semibold ${textClass} mb-4`}>Max Drawdown</h4>
+          <div className="text-3xl font-bold text-red-400 mb-2">-2.1%</div>
+          <div className={`${textSecondaryClass} text-sm`}>Historical maximum loss</div>
+        </div>
+        
+        <div className={`${cardBgClass} backdrop-blur-md p-6 rounded-xl border ${borderClass} shadow-sm`}>
+          <h4 className={`font-semibold ${textClass} mb-4`}>Volatility</h4>
+          <div className="text-3xl font-bold text-orange-400 mb-2">8.2%</div>
+          <div className={`${textSecondaryClass} text-sm`}>Annual volatility</div>
+        </div>
+
+        <div className={`${cardBgClass} backdrop-blur-md p-6 rounded-xl border ${borderClass} shadow-sm`}>
+          <h4 className={`font-semibold ${textClass} mb-4`}>Alpha</h4>
+          <div className="text-3xl font-bold text-green-400 mb-2">+3.2%</div>
+          <div className={`${textSecondaryClass} text-sm`}>Excess return vs benchmark</div>
+        </div>
+      </div>
+
+      {/* Detailed Performance Area Chart */}
+      <div className={`${cardBgClass} backdrop-blur-md p-6 rounded-xl border ${borderClass} shadow-sm`}>
+        <h3 className={`text-xl font-semibold ${textClass} mb-4`}>Cumulative Performance</h3>
+        <ResponsiveContainer width="100%" height={400}>
+          <AreaChart data={recentPerformance}>
+            <CartesianGrid strokeDasharray="3 3" stroke={theme === 'dark' ? '#374151' : '#F3F4F6'} />
+            <XAxis dataKey="week" stroke={theme === 'dark' ? '#9CA3AF' : '#6B7280'} />
+            <YAxis stroke={theme === 'dark' ? '#9CA3AF' : '#6B7280'} />
+            <Tooltip 
+              contentStyle={{ 
+                backgroundColor: theme === 'dark' ? '#1F2937' : 'white', 
+                border: `1px solid ${theme === 'dark' ? '#374151' : '#E5E7EB'}`,
+                borderRadius: '8px',
+                color: theme === 'dark' ? '#F3F4F6' : '#111827'
+              }}
+            />
+            <Area
+              type="monotone"
+              dataKey="profit"
+              stroke="#3B82F6"
+              fill="#3B82F6"
+              fillOpacity={0.3}
+              name="Weekly Profit"
+            />
+          </AreaChart>
+        </ResponsiveContainer>
+      </div>
+    </div>
+  );
+
+  const renderSettings = () => (
+    <div className="space-y-6">
+      {/* Fund Settings */}
+      <div className={`${cardBgClass} backdrop-blur-md p-6 rounded-xl border ${borderClass} shadow-sm`}>
+        <h3 className={`text-xl font-semibold ${textClass} mb-6`}>Fund Configuration</h3>
+        
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div>
+            <label className={`block text-sm font-medium ${textSecondaryClass} mb-2`}>
+              Minimum Investment ($)
+            </label>
+            <input
+              type="number"
+              value={fundSettings.minimumInvestment}
+              onChange={(e) => setFundSettings({...fundSettings, minimumInvestment: parseInt(e.target.value)})}
+              className={`w-full px-3 py-2 border ${borderClass} rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${theme === 'dark' ? 'bg-slate-600 text-white' : 'bg-white text-gray-900'}`}
+            />
+          </div>
+          
+          <div>
+            <label className={`block text-sm font-medium ${textSecondaryClass} mb-2`}>
+              Management Fee (%)
+            </label>
+            <input
+              type="number"
+              step="0.1"
+              value={fundSettings.managementFee}
+              onChange={(e) => setFundSettings({...fundSettings, managementFee: parseFloat(e.target.value)})}
+              className={`w-full px-3 py-2 border ${borderClass} rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${theme === 'dark' ? 'bg-slate-600 text-white' : 'bg-white text-gray-900'}`}
+            />
+          </div>
+          
+          <div>
+            <label className={`block text-sm font-medium ${textSecondaryClass} mb-2`}>
+              Performance Fee (%)
+            </label>
+            <input
+              type="number"
+              step="0.1"
+              value={fundSettings.performanceFee}
+              onChange={(e) => setFundSettings({...fundSettings, performanceFee: parseFloat(e.target.value)})}
+              className={`w-full px-3 py-2 border ${borderClass} rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${theme === 'dark' ? 'bg-slate-600 text-white' : 'bg-white text-gray-900'}`}
+            />
+          </div>
+          
+          <div>
+            <label className={`block text-sm font-medium ${textSecondaryClass} mb-2`}>
+              Maximum Risk Per Trade (%)
+            </label>
+            <input
+              type="number"
+              step="0.1"
+              value={fundSettings.riskLimit}
+              onChange={(e) => setFundSettings({...fundSettings, riskLimit: parseFloat(e.target.value)})}
+              className={`w-full px-3 py-2 border ${borderClass} rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${theme === 'dark' ? 'bg-slate-600 text-white' : 'bg-white text-gray-900'}`}
+            />
+          </div>
+          
+          <div>
+            <label className={`block text-sm font-medium ${textSecondaryClass} mb-2`}>
+              Trading Hours
+            </label>
+            <input
+              type="text"
+              value={fundSettings.tradingHours}
+              onChange={(e) => setFundSettings({...fundSettings, tradingHours: e.target.value})}
+              className={`w-full px-3 py-2 border ${borderClass} rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${theme === 'dark' ? 'bg-slate-600 text-white' : 'bg-white text-gray-900'}`}
+            />
+          </div>
+          
+          <div className="flex items-center space-x-3">
+            <input
+              type="checkbox"
+              id="autoRebalance"
+              checked={fundSettings.autoRebalance}
+              onChange={(e) => setFundSettings({...fundSettings, autoRebalance: e.target.checked})}
+              className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500"
+            />
+            <label htmlFor="autoRebalance" className={`text-sm font-medium ${textSecondaryClass}`}>
+              Auto Rebalancing
+            </label>
+          </div>
+        </div>
+        
+        <div className="mt-6">
+          <button
+            onClick={() => handleUpdateFundSettings(fundSettings)}
+            className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg font-medium transition-colors flex items-center"
+          >
+            <Save className="w-4 h-4 mr-2" />
+            Update Settings
+          </button>
+        </div>
+      </div>
+
+      {/* Risk Management Settings */}
+      <div className={`${cardBgClass} backdrop-blur-md p-6 rounded-xl border ${borderClass} shadow-sm`}>
+        <h3 className={`text-xl font-semibold ${textClass} mb-6`}>Risk Management</h3>
+        
+        <div className="space-y-4">
+          <div className="flex items-center justify-between p-4 bg-green-50 dark:bg-green-900/20 rounded-lg">
+            <div>
+              <h4 className={`font-medium ${textClass}`}>Multi-Level Risk System</h4>
+              <p className={`text-sm ${textSecondaryClass}`}>Active monitoring with 1% maximum risk per trade</p>
+            </div>
+            <div className="flex items-center space-x-2">
+              <span className="w-3 h-3 bg-green-500 rounded-full"></span>
+              <span className="text-green-500 font-medium">Active</span>
+            </div>
+          </div>
+          
+          <div className="flex items-center justify-between p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
+            <div>
+              <h4 className={`font-medium ${textClass}`}>Weekly Risk Reports</h4>
+              <p className={`text-sm ${textSecondaryClass}`}>Automated loss monitoring and investor notifications</p>
+            </div>
+            <div className="flex items-center space-x-2">
+              <span className="w-3 h-3 bg-blue-500 rounded-full"></span>
+              <span className="text-blue-500 font-medium">Enabled</span>
+            </div>
+          </div>
+          
+          <div className="flex items-center justify-between p-4 bg-orange-50 dark:bg-orange-900/20 rounded-lg">
+            <div>
+              <h4 className={`font-medium ${textClass}`}>Stop-Loss Automation</h4>
+              <p className={`text-sm ${textSecondaryClass}`}>Automatic position closure at predefined levels</p>
+            </div>
+            <div className="flex items-center space-x-2">
+              <span className="w-3 h-3 bg-orange-500 rounded-full"></span>
+              <span className="text-orange-500 font-medium">Configured</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* System Health */}
+      <div className={`${cardBgClass} backdrop-blur-md p-6 rounded-xl border ${borderClass} shadow-sm`}>
+        <h3 className={`text-xl font-semibold ${textClass} mb-6`}>System Health</h3>
+        
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="text-center">
+            <div className="text-3xl font-bold text-green-400 mb-2">99.9%</div>
+            <div className={`text-sm ${textSecondaryClass}`}>Uptime</div>
+          </div>
+          <div className="text-center">
+            <div className="text-3xl font-bold text-blue-400 mb-2">1.2s</div>
+            <div className={`text-sm ${textSecondaryClass}`}>Avg Response Time</div>
+          </div>
+          <div className="text-center">
+            <div className="text-3xl font-bold text-purple-400 mb-2">256-bit</div>
+            <div className={`text-sm ${textSecondaryClass}`}>SSL Encryption</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+
+  const renderCommunications = () => (
+    <div className="space-y-6">
+      {/* Notifications Panel */}
+      <div className={`${cardBgClass} backdrop-blur-md p-6 rounded-xl border ${borderClass} shadow-sm`}>
+        <div className="flex items-center justify-between mb-6">
+          <h3 className={`text-xl font-semibold ${textClass}`}>Notifications</h3>
+          <button className="text-blue-400 hover:text-blue-300 text-sm">
+            Mark All Read
+          </button>
+        </div>
+        
+        <div className="space-y-4">
+          {notifications.map((notification) => (
+            <div key={notification.id} className={`p-4 rounded-lg border ${borderClass} ${notification.read ? 'opacity-60' : ''} ${theme === 'dark' ? 'bg-slate-700/50' : 'bg-gray-50'}`}>
+              <div className="flex items-start justify-between">
+                <div className="flex-1">
+                  <div className="flex items-center space-x-2 mb-1">
+                    <span className={`w-2 h-2 rounded-full ${
+                      notification.type === 'deposit' ? 'bg-green-400' :
+                      notification.type === 'withdrawal' ? 'bg-red-400' :
+                      notification.type === 'alert' ? 'bg-yellow-400' :
+                      'bg-blue-400'
+                    }`}></span>
+                    <span className={`text-sm font-medium ${textClass}`}>
+                      {notification.type.toUpperCase()}
+                    </span>
+                  </div>
+                  <p className={`${textSecondaryClass} text-sm`}>{notification.message}</p>
+                  <p className={`${textSecondaryClass} text-xs mt-1`}>{notification.time}</p>
+                </div>
+                <button
+                  onClick={() => markNotificationAsRead(notification.id)}
+                  className="text-blue-400 hover:text-blue-300 text-sm ml-4"
+                >
+                  {notification.read ? 'Read' : 'Mark Read'}
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Message Center */}
+      <div className={`${cardBgClass} backdrop-blur-md p-6 rounded-xl border ${borderClass} shadow-sm`}>
+        <h3 className={`text-xl font-semibold ${textClass} mb-6`}>Message Center</h3>
+        
+        <div className="space-y-4">
+          <div>
+            <label className={`block text-sm font-medium ${textSecondaryClass} mb-2`}>
+              Send to
+            </label>
+            <select className={`w-full px-3 py-2 border ${borderClass} rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${theme === 'dark' ? 'bg-slate-600 text-white' : 'bg-white text-gray-900'}`}>
+              <option>All Investors</option>
+              <option>Active Investors Only</option>
+              <option>Specific Investor</option>
+            </select>
+          </div>
+          
+          <div>
+            <label className={`block text-sm font-medium ${textSecondaryClass} mb-2`}>
+              Message Type
+            </label>
+            <select className={`w-full px-3 py-2 border ${borderClass} rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${theme === 'dark' ? 'bg-slate-600 text-white' : 'bg-white text-gray-900'}`}>
+              <option>Weekly Report</option>
+              <option>Performance Update</option>
+              <option>Important Notice</option>
+              <option>Custom Message</option>
+            </select>
+          </div>
+          
+          <div>
+            <label className={`block text-sm font-medium ${textSecondaryClass} mb-2`}>
+              Message
+            </label>
+            <textarea
+              rows={4}
+              className={`w-full px-3 py-2 border ${borderClass} rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${theme === 'dark' ? 'bg-slate-600 text-white placeholder-slate-400' : 'bg-white text-gray-900 placeholder-gray-400'}`}
+              placeholder="Enter your message..."
+            ></textarea>
+          </div>
+          
+          <div className="flex space-x-4">
+            <button className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg font-medium transition-colors flex items-center">
+              <Send className="w-4 h-4 mr-2" />
+              Send Message
+            </button>
+            <button className="bg-gray-600 hover:bg-gray-700 text-white px-6 py-2 rounded-lg font-medium transition-colors flex items-center">
+              <Save className="w-4 h-4 mr-2" />
+              Save Draft
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+
   // Risk analysis data
   const riskAnalysisData = [
     { name: 'Conservative', value: 2, color: '#10B981' },
