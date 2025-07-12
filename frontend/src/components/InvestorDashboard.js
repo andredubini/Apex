@@ -960,6 +960,7 @@ const InvestorDashboard = () => {
         {activeTab === 'reports' && renderReports()}
         {activeTab === 'transactions' && renderTransactions()}
         {activeTab === 'notifications' && renderNotifications()}
+        {activeTab === 'settings' && renderSettings()}
       </main>
 
       {/* Bottom Navigation - Mobile */}
