@@ -166,4 +166,10 @@ Make the admin's personal account more expansive, with more options for viewing 
                 ✅ Fully responsive design for all mobile devices
                 ✅ FIXED: Resolved rendering errors in last three sections (Analytics, Settings, Communications)
                 ✅ All sections now working properly with proper function declarations
+                ✅ ADDED: Comprehensive Settings section for InvestorDashboard with:
+                   - Profile Information management (name, email, phone, address, tax ID)
+                   - Investment Preferences (risk tolerance, investment goals)
+                   - Security & Notifications settings (2FA, notifications toggles)
+                   - Account Actions (download statements, tax documents, support contact, account closure)
+                ✅ Mobile-responsive navigation updated to 5 tabs
                 ✅ Services verified and running properly"
