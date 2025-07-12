@@ -568,6 +568,355 @@ const InvestorDashboard = () => {
     </div>
   );
 
+  const renderSettings = () => (
+    <div className="space-y-6 pb-20 md:pb-6">
+      {/* Profile Settings */}
+      <div className={`${cardBgClass} rounded-xl p-6 shadow-sm border ${borderClass}`}>
+        <h3 className={`text-lg font-semibold ${textClass} mb-6`}>Profile Information</h3>
+        
+        <div className="space-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label className={`block text-sm font-medium ${textSecondaryClass} mb-2`}>
+                Full Name
+              </label>
+              <input
+                type="text"
+                value={userProfile.name}
+                onChange={(e) => setUserProfile({...userProfile, name: e.target.value})}
+                className={`w-full px-4 py-3 border ${borderClass} rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${theme === 'dark' ? 'bg-slate-700 text-white' : 'bg-white text-gray-900'}`}
+              />
+            </div>
+            
+            <div>
+              <label className={`block text-sm font-medium ${textSecondaryClass} mb-2`}>
+                Email Address
+              </label>
+              <input
+                type="email"
+                value={userProfile.email}
+                onChange={(e) => setUserProfile({...userProfile, email: e.target.value})}
+                className={`w-full px-4 py-3 border ${borderClass} rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${theme === 'dark' ? 'bg-slate-700 text-white' : 'bg-white text-gray-900'}`}
+              />
+            </div>
+            
+            <div>
+              <label className={`block text-sm font-medium ${textSecondaryClass} mb-2`}>
+                Phone Number
+              </label>
+              <input
+                type="tel"
+                value={userProfile.phone}
+                onChange={(e) => setUserProfile({...userProfile, phone: e.target.value})}
+                className={`w-full px-4 py-3 border ${borderClass} rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${theme === 'dark' ? 'bg-slate-700 text-white' : 'bg-white text-gray-900'}`}
+              />
+            </div>
+            
+            <div>
+              <label className={`block text-sm font-medium ${textSecondaryClass} mb-2`}>
+                Date of Birth
+              </label>
+              <input
+                type="date"
+                value={userProfile.dateOfBirth}
+                onChange={(e) => setUserProfile({...userProfile, dateOfBirth: e.target.value})}
+                className={`w-full px-4 py-3 border ${borderClass} rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${theme === 'dark' ? 'bg-slate-700 text-white' : 'bg-white text-gray-900'}`}
+              />
+            </div>
+          </div>
+          
+          <div>
+            <label className={`block text-sm font-medium ${textSecondaryClass} mb-2`}>
+              Address
+            </label>
+            <textarea
+              rows={3}
+              value={userProfile.address}
+              onChange={(e) => setUserProfile({...userProfile, address: e.target.value})}
+              className={`w-full px-4 py-3 border ${borderClass} rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${theme === 'dark' ? 'bg-slate-700 text-white' : 'bg-white text-gray-900'}`}
+            />
+          </div>
+
+          <div>
+            <label className={`block text-sm font-medium ${textSecondaryClass} mb-2`}>
+              Tax ID
+            </label>
+            <input
+              type="text"
+              value={userProfile.taxId}
+              onChange={(e) => setUserProfile({...userProfile, taxId: e.target.value})}
+              className={`w-full px-4 py-3 border ${borderClass} rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${theme === 'dark' ? 'bg-slate-700 text-white' : 'bg-white text-gray-900'}`}
+            />
+          </div>
+          
+          <button
+            onClick={() => alert('Profile updated successfully!')}
+            className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-medium transition-colors"
+          >
+            Update Profile
+          </button>
+        </div>
+      </div>
+
+      {/* Investment Preferences */}
+      <div className={`${cardBgClass} rounded-xl p-6 shadow-sm border ${borderClass}`}>
+        <h3 className={`text-lg font-semibold ${textClass} mb-6`}>Investment Preferences</h3>
+        
+        <div className="space-y-4">
+          <div>
+            <label className={`block text-sm font-medium ${textSecondaryClass} mb-2`}>
+              Risk Tolerance
+            </label>
+            <select
+              value={userProfile.riskTolerance}
+              onChange={(e) => setUserProfile({...userProfile, riskTolerance: e.target.value})}
+              className={`w-full px-4 py-3 border ${borderClass} rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${theme === 'dark' ? 'bg-slate-700 text-white' : 'bg-white text-gray-900'}`}
+            >
+              <option value="conservative">Conservative - Lower risk, steady returns</option>
+              <option value="moderate">Moderate - Balanced risk and returns</option>
+              <option value="aggressive">Aggressive - Higher risk, higher potential returns</option>
+            </select>
+          </div>
+          
+          <div>
+            <label className={`block text-sm font-medium ${textSecondaryClass} mb-2`}>
+              Investment Goals
+            </label>
+            <select
+              value={userProfile.investmentGoals}
+              onChange={(e) => setUserProfile({...userProfile, investmentGoals: e.target.value})}
+              className={`w-full px-4 py-3 border ${borderClass} rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${theme === 'dark' ? 'bg-slate-700 text-white' : 'bg-white text-gray-900'}`}
+            >
+              <option value="short-term">Short-term Growth (1-2 years)</option>
+              <option value="medium-term">Medium-term Growth (3-5 years)</option>
+              <option value="long-term-growth">Long-term Growth (5+ years)</option>
+              <option value="retirement">Retirement Planning</option>
+              <option value="income">Income Generation</option>
+            </select>
+          </div>
+
+          <div className={`p-4 ${theme === 'dark' ? 'bg-slate-700/50' : 'bg-blue-50'} rounded-lg`}>
+            <h4 className={`font-medium ${textClass} mb-2`}>Current Risk Settings</h4>
+            <div className="space-y-2 text-sm">
+              <div className="flex justify-between">
+                <span className={textSecondaryClass}>Maximum Risk per Trade:</span>
+                <span className="text-blue-600 font-medium">1%</span>
+              </div>
+              <div className="flex justify-between">
+                <span className={textSecondaryClass}>Portfolio Diversification:</span>
+                <span className="text-green-600 font-medium">Active</span>
+              </div>
+              <div className="flex justify-between">
+                <span className={textSecondaryClass}>Stop-loss Protection:</span>
+                <span className="text-green-600 font-medium">Enabled</span>
+              </div>
+            </div>
+          </div>
+          
+          <button
+            onClick={() => alert('Investment preferences updated!')}
+            className="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg font-medium transition-colors"
+          >
+            Update Preferences
+          </button>
+        </div>
+      </div>
+
+      {/* Security Settings */}
+      <div className={`${cardBgClass} rounded-xl p-6 shadow-sm border ${borderClass}`}>
+        <h3 className={`text-lg font-semibold ${textClass} mb-6`}>Security & Notifications</h3>
+        
+        <div className="space-y-6">
+          {/* Security Options */}
+          <div>
+            <h4 className={`font-medium ${textClass} mb-4`}>Security</h4>
+            <div className="space-y-3">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className={`font-medium ${textClass}`}>Two-Factor Authentication</p>
+                  <p className={`text-sm ${textSecondaryClass}`}>Add an extra layer of security</p>
+                </div>
+                <button
+                  onClick={() => setSecuritySettings({...securitySettings, twoFactorEnabled: !securitySettings.twoFactorEnabled})}
+                  className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
+                    securitySettings.twoFactorEnabled ? 'bg-blue-600' : 'bg-gray-300'
+                  }`}
+                >
+                  <span
+                    className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                      securitySettings.twoFactorEnabled ? 'translate-x-6' : 'translate-x-1'
+                    }`}
+                  />
+                </button>
+              </div>
+              
+              <div className="flex items-center justify-between pt-3 border-t border-gray-200">
+                <div>
+                  <p className={`font-medium ${textClass}`}>Change Password</p>
+                  <p className={`text-sm ${textSecondaryClass}`}>Update your login password</p>
+                </div>
+                <button
+                  onClick={() => alert('Password change form would open here')}
+                  className="text-blue-600 hover:text-blue-700 font-medium text-sm"
+                >
+                  Change
+                </button>
+              </div>
+            </div>
+          </div>
+
+          {/* Notification Preferences */}
+          <div>
+            <h4 className={`font-medium ${textClass} mb-4`}>Notifications</h4>
+            <div className="space-y-3">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className={`font-medium ${textClass}`}>Email Notifications</p>
+                  <p className={`text-sm ${textSecondaryClass}`}>Trading updates and reports</p>
+                </div>
+                <button
+                  onClick={() => setSecuritySettings({...securitySettings, emailNotifications: !securitySettings.emailNotifications})}
+                  className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
+                    securitySettings.emailNotifications ? 'bg-blue-600' : 'bg-gray-300'
+                  }`}
+                >
+                  <span
+                    className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                      securitySettings.emailNotifications ? 'translate-x-6' : 'translate-x-1'
+                    }`}
+                  />
+                </button>
+              </div>
+
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className={`font-medium ${textClass}`}>SMS Notifications</p>
+                  <p className={`text-sm ${textSecondaryClass}`}>Important alerts via text</p>
+                </div>
+                <button
+                  onClick={() => setSecuritySettings({...securitySettings, smsNotifications: !securitySettings.smsNotifications})}
+                  className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
+                    securitySettings.smsNotifications ? 'bg-blue-600' : 'bg-gray-300'
+                  }`}
+                >
+                  <span
+                    className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                      securitySettings.smsNotifications ? 'translate-x-6' : 'translate-x-1'
+                    }`}
+                  />
+                </button>
+              </div>
+
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className={`font-medium ${textClass}`}>Push Notifications</p>
+                  <p className={`text-sm ${textSecondaryClass}`}>Real-time app notifications</p>
+                </div>
+                <button
+                  onClick={() => setSecuritySettings({...securitySettings, pushNotifications: !securitySettings.pushNotifications})}
+                  className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
+                    securitySettings.pushNotifications ? 'bg-blue-600' : 'bg-gray-300'
+                  }`}
+                >
+                  <span
+                    className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                      securitySettings.pushNotifications ? 'translate-x-6' : 'translate-x-1'
+                    }`}
+                  />
+                </button>
+              </div>
+
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className={`font-medium ${textClass}`}>Weekly Reports</p>
+                  <p className={`text-sm ${textSecondaryClass}`}>Performance summaries</p>
+                </div>
+                <button
+                  onClick={() => setSecuritySettings({...securitySettings, weeklyReports: !securitySettings.weeklyReports})}
+                  className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
+                    securitySettings.weeklyReports ? 'bg-blue-600' : 'bg-gray-300'
+                  }`}
+                >
+                  <span
+                    className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                      securitySettings.weeklyReports ? 'translate-x-6' : 'translate-x-1'
+                    }`}
+                  />
+                </button>
+              </div>
+
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className={`font-medium ${textClass}`}>Monthly Statements</p>
+                  <p className={`text-sm ${textSecondaryClass}`}>Detailed account statements</p>
+                </div>
+                <button
+                  onClick={() => setSecuritySettings({...securitySettings, monthlyStatements: !securitySettings.monthlyStatements})}
+                  className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
+                    securitySettings.monthlyStatements ? 'bg-blue-600' : 'bg-gray-300'
+                  }`}
+                >
+                  <span
+                    className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                      securitySettings.monthlyStatements ? 'translate-x-6' : 'translate-x-1'
+                    }`}
+                  />
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Account Actions */}
+      <div className={`${cardBgClass} rounded-xl p-6 shadow-sm border ${borderClass}`}>
+        <h3 className={`text-lg font-semibold ${textClass} mb-6`}>Account Actions</h3>
+        
+        <div className="space-y-4">
+          <button
+            onClick={() => alert('Statement generated and sent to your email')}
+            className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 px-4 rounded-lg font-medium transition-colors flex items-center justify-center space-x-2"
+          >
+            <Download className="w-5 h-5" />
+            <span>Download Account Statement</span>
+          </button>
+          
+          <button
+            onClick={() => alert('Tax documents will be emailed to you')}
+            className="w-full bg-green-600 hover:bg-green-700 text-white py-3 px-4 rounded-lg font-medium transition-colors flex items-center justify-center space-x-2"
+          >
+            <FileText className="w-5 h-5" />
+            <span>Request Tax Documents</span>
+          </button>
+          
+          <button
+            onClick={() => alert('Support team will contact you within 24 hours')}
+            className="w-full bg-purple-600 hover:bg-purple-700 text-white py-3 px-4 rounded-lg font-medium transition-colors flex items-center justify-center space-x-2"
+          >
+            <User className="w-5 h-5" />
+            <span>Contact Support</span>
+          </button>
+          
+          <div className="pt-4 border-t border-gray-200">
+            <button
+              onClick={() => {
+                if (confirm('Are you sure you want to close your account? This action cannot be undone.')) {
+                  alert('Account closure request submitted. You will be contacted for verification.');
+                }
+              }}
+              className="w-full bg-red-600 hover:bg-red-700 text-white py-3 px-4 rounded-lg font-medium transition-colors"
+            >
+              Close Account
+            </button>
+            <p className={`text-xs ${textSecondaryClass} mt-2 text-center`}>
+              Account closure requires identity verification and may take 3-5 business days
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+
   return (
     <div className={`min-h-screen ${bgClass}`}>
       {/* Header */}
