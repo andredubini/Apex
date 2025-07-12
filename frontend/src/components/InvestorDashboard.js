@@ -1001,15 +1001,6 @@ const InvestorDashboard = () => {
             </button>
           ))}
         </nav>
-        
-        <div className={`mt-8 pt-8 border-t ${borderClass}`}>
-          <div className="flex items-center space-x-3 px-4 py-3">
-            <div className="bg-blue-100 p-2 rounded-full">
-              <Settings className="w-4 h-4 text-blue-600" />
-            </div>
-            <span className={`${textSecondaryClass} font-medium`}>Settings</span>
-          </div>
-        </div>
       </aside>
 
       {/* Desktop Content Adjustment */}
