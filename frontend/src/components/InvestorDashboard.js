@@ -47,6 +47,24 @@ const InvestorDashboard = () => {
   const [activeTab, setActiveTab] = useState("overview");
   const [showBalance, setShowBalance] = useState(true);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [userProfile, setUserProfile] = useState({
+    name: user.name || "John Investor",
+    email: user.email || "investor@example.com",
+    phone: "+1 (555) 123-4567",
+    address: "123 Investment Ave, New York, NY 10001",
+    dateOfBirth: "1985-06-15",
+    taxId: "***-**-1234",
+    riskTolerance: "moderate",
+    investmentGoals: "long-term-growth"
+  });
+  const [securitySettings, setSecuritySettings] = useState({
+    twoFactorEnabled: true,
+    emailNotifications: true,
+    smsNotifications: false,
+    pushNotifications: true,
+    weeklyReports: true,
+    monthlyStatements: true
+  });
   const [notifications, setNotifications] = useState([
     { id: 1, type: "profit", message: "Weekly profit of $2,450 added to your account", time: "2 hours ago" },
     { id: 2, type: "deposit", message: "Deposit of $50,000 processed successfully", time: "1 day ago" },
