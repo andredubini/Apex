@@ -130,7 +130,7 @@ class CarryOverLoss(BaseModel):
 # Add your routes to the router instead of directly to app
 @api_router.get("/")
 async def root():
-    return {"message": "Hello World"}
+    return {"message": "Apex Capital Management API"}
 
 @api_router.post("/status", response_model=StatusCheck)
 async def create_status_check(input: StatusCheckCreate):
@@ -143,6 +143,316 @@ async def create_status_check(input: StatusCheckCreate):
 async def get_status_checks():
     status_checks = await db.status_checks.find().to_list(1000)
     return [StatusCheck(**status_check) for status_check in status_checks]
+
+# Investor Management Endpoints
+@api_router.post("/investors", response_model=Investor)
+async def create_investor(investor: InvestorCreate):
+    investor_dict = investor.dict()
+    investor_obj = Investor(**investor_dict)
+    investor_obj.current_balance = investor_obj.initial_investment
+    investor_obj.total_invested = investor_obj.initial_investment
+    investor_obj.join_date = datetime.now(timezone.utc)
+    
+    await db.investors.insert_one(investor_obj.dict())
+    return investor_obj
+
+@api_router.get("/investors", response_model=List[Investor])
+async def get_investors():
+    investors = await db.investors.find().to_list(1000)
+    return [Investor(**investor) for investor in investors]
+
+@api_router.get("/investors/{investor_id}", response_model=Investor)
+async def get_investor(investor_id: str):
+    investor = await db.investors.find_one({"id": investor_id})
+    if not investor:
+        raise HTTPException(status_code=404, detail="Investor not found")
+    return Investor(**investor)
+
+# Trading Performance Endpoints
+@api_router.post("/trading-periods", response_model=TradingPeriod)
+async def create_trading_period(period: TradingPeriodCreate):
+    period_dict = period.dict()
+    
+    # Calculate success rate
+    success_rate = (period_dict["successful_trades"] / period_dict["total_trades"]) * 100 if period_dict["total_trades"] > 0 else 0
+    
+    # Calculate net profit (example: deduct 2% management costs)
+    net_profit = period_dict["gross_profit"] * 0.98
+    
+    period_obj = TradingPeriod(
+        **period_dict,
+        net_profit=net_profit,
+        success_rate=success_rate
+    )
+    
+    await db.trading_periods.insert_one(period_obj.dict())
+    return period_obj
+
+@api_router.get("/trading-periods", response_model=List[TradingPeriod])
+async def get_trading_periods():
+    periods = await db.trading_periods.find().sort("period_start", -1).to_list(1000)
+    return [TradingPeriod(**period) for period in periods]
+
+# Payment History Endpoints
+@api_router.get("/profit-distributions", response_model=List[MonthlyProfitDistribution])
+async def get_profit_distributions():
+    distributions = await db.monthly_distributions.find().sort("year", -1).sort("month", -1).to_list(1000)
+    return [MonthlyProfitDistribution(**dist) for dist in distributions]
+
+@api_router.get("/investor-payments/{investor_id}", response_model=List[InvestorPayment])
+async def get_investor_payments(investor_id: str):
+    payments = await db.investor_payments.find({"investor_id": investor_id}).sort("year", -1).sort("month", -1).to_list(1000)
+    return [InvestorPayment(**payment) for payment in payments]
+
+@api_router.post("/manual-profit-distribution")
+async def trigger_manual_profit_distribution():
+    """Manually trigger profit distribution for testing purposes"""
+    try:
+        await process_monthly_profit_distribution()
+        return {"message": "Profit distribution processed successfully"}
+    except Exception as e:
+        logger.error(f"Manual profit distribution failed: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+# Profit Calculation Functions
+def calculate_investor_profit_share(annual_return_percentage: float, investor_balance: float) -> dict:
+    """Calculate profit distribution based on tiered structure"""
+    total_profit = investor_balance * (annual_return_percentage / 100)
+    
+    tier_1_amount = 0.0  # 0-4% (80/20)
+    tier_2_amount = 0.0  # 4-8% (70/30)
+    tier_3_amount = 0.0  # 8-12% (60/40)
+    tier_4_amount = 0.0  # 12%+ (50/50)
+    
+    remaining_return = annual_return_percentage
+    
+    # Tier 1: 0-4% (Investor gets 80%)
+    if remaining_return > 0:
+        tier_1_rate = min(remaining_return, 4.0)
+        tier_1_profit = investor_balance * (tier_1_rate / 100)
+        tier_1_amount = tier_1_profit * 0.8
+        remaining_return -= tier_1_rate
+    
+    # Tier 2: 4-8% (Investor gets 70%)
+    if remaining_return > 0:
+        tier_2_rate = min(remaining_return, 4.0)
+        tier_2_profit = investor_balance * (tier_2_rate / 100)
+        tier_2_amount = tier_2_profit * 0.7
+        remaining_return -= tier_2_rate
+    
+    # Tier 3: 8-12% (Investor gets 60%)
+    if remaining_return > 0:
+        tier_3_rate = min(remaining_return, 4.0)
+        tier_3_profit = investor_balance * (tier_3_rate / 100)
+        tier_3_amount = tier_3_profit * 0.6
+        remaining_return -= tier_3_rate
+    
+    # Tier 4: 12%+ (Investor gets 50%)
+    if remaining_return > 0:
+        tier_4_profit = investor_balance * (remaining_return / 100)
+        tier_4_amount = tier_4_profit * 0.5
+    
+    total_investor_share = tier_1_amount + tier_2_amount + tier_3_amount + tier_4_amount
+    
+    return {
+        "tier_1_amount": tier_1_amount,
+        "tier_2_amount": tier_2_amount,
+        "tier_3_amount": tier_3_amount,
+        "tier_4_amount": tier_4_amount,
+        "total_payment": total_investor_share,
+        "gross_profit_share": total_profit
+    }
+
+async def get_current_carry_over_loss() -> float:
+    """Get total carry-over loss from previous months"""
+    carry_over_losses = await db.carry_over_losses.find({"is_cleared": False}).to_list(1000)
+    return sum(loss["remaining_amount"] for loss in carry_over_losses)
+
+async def clear_carry_over_losses(amount_to_clear: float):
+    """Clear carry-over losses up to the specified amount"""
+    carry_over_losses = await db.carry_over_losses.find({"is_cleared": False}).sort("created_at", 1).to_list(1000)
+    
+    remaining_to_clear = amount_to_clear
+    
+    for loss in carry_over_losses:
+        if remaining_to_clear <= 0:
+            break
+            
+        if loss["remaining_amount"] <= remaining_to_clear:
+            # Clear this loss completely
+            await db.carry_over_losses.update_one(
+                {"id": loss["id"]},
+                {
+                    "$set": {
+                        "remaining_amount": 0.0,
+                        "is_cleared": True,
+                        "cleared_at": datetime.now(timezone.utc)
+                    }
+                }
+            )
+            remaining_to_clear -= loss["remaining_amount"]
+        else:
+            # Partially clear this loss
+            new_remaining = loss["remaining_amount"] - remaining_to_clear
+            await db.carry_over_losses.update_one(
+                {"id": loss["id"]},
+                {"$set": {"remaining_amount": new_remaining}}
+            )
+            remaining_to_clear = 0
+
+async def add_carry_over_loss(year: int, month: int, loss_amount: float):
+    """Add a new carry-over loss"""
+    carry_over_loss = CarryOverLoss(
+        year=year,
+        month=month,
+        loss_amount=abs(loss_amount),
+        remaining_amount=abs(loss_amount)
+    )
+    await db.carry_over_losses.insert_one(carry_over_loss.dict())
+
+async def process_monthly_profit_distribution():
+    """Main function to process monthly profit distribution"""
+    logger.info("Starting monthly profit distribution process...")
+    
+    now = datetime.now(timezone.utc)
+    current_year = now.year
+    current_month = now.month
+    
+    try:
+        # Get previous month's trading performance
+        prev_month = current_month - 1 if current_month > 1 else 12
+        prev_year = current_year if current_month > 1 else current_year - 1
+        
+        # Calculate total performance for the period (simplified - using sample data)
+        # In real implementation, this would aggregate actual trading data
+        investors = await db.investors.find({"status": "active"}).to_list(1000)
+        
+        if not investors:
+            logger.info("No active investors found")
+            return
+        
+        total_capital = sum(investor["current_balance"] for investor in investors)
+        
+        # Sample monthly return (in real system, this would come from actual trading data)
+        # For demonstration, assuming 2.5% monthly return
+        monthly_return_rate = 2.5  # This should be calculated from actual trading performance
+        gross_profit = total_capital * (monthly_return_rate / 100)
+        
+        # Get carry-over losses
+        carry_over_loss = await get_current_carry_over_loss()
+        
+        # Calculate net distributable amount
+        net_distributable_amount = gross_profit - carry_over_loss
+        
+        # Create monthly distribution record
+        distribution = MonthlyProfitDistribution(
+            year=prev_year,
+            month=prev_month,
+            total_gross_profit=gross_profit,
+            total_net_profit=gross_profit,
+            carried_over_loss=carry_over_loss,
+            net_distributable_amount=net_distributable_amount,
+            fund_share=0.0,
+            total_investor_share=0.0,
+            status="processing"
+        )
+        
+        if net_distributable_amount <= 0:
+            # Add to carry-over losses
+            if gross_profit < 0:
+                await add_carry_over_loss(prev_year, prev_month, abs(gross_profit))
+            
+            distribution.status = "no_distribution"
+            await db.monthly_distributions.insert_one(distribution.dict())
+            logger.info(f"No distribution for {prev_year}-{prev_month:02d}: Net amount = {net_distributable_amount}")
+            return
+        
+        # Clear carry-over losses if we have positive profit
+        if carry_over_loss > 0 and gross_profit > 0:
+            await clear_carry_over_losses(min(gross_profit, carry_over_loss))
+        
+        # Process individual investor payments
+        total_investor_payments = 0.0
+        total_fund_share = 0.0
+        
+        for investor in investors:
+            # Calculate annual return rate (simplified)
+            annual_return_rate = monthly_return_rate * 12  # Simplified calculation
+            
+            # Calculate profit share for this investor
+            profit_details = calculate_investor_profit_share(annual_return_rate, investor["current_balance"])
+            
+            # Create payment record
+            payment = InvestorPayment(
+                investor_id=investor["id"],
+                distribution_id=distribution.id,
+                year=prev_year,
+                month=prev_month,
+                investor_balance=investor["current_balance"],
+                gross_profit_share=profit_details["gross_profit_share"],
+                tier_1_amount=profit_details["tier_1_amount"],
+                tier_2_amount=profit_details["tier_2_amount"],
+                tier_3_amount=profit_details["tier_3_amount"],
+                tier_4_amount=profit_details["tier_4_amount"],
+                total_payment=profit_details["total_payment"],
+                payment_status="paid",
+                payment_reference=f"PROFIT-{prev_year}{prev_month:02d}-{investor['id'][:8]}",
+                processed_at=now
+            )
+            
+            # In real implementation, integrate with payment gateway here
+            await process_payment_to_investor(payment)
+            
+            await db.investor_payments.insert_one(payment.dict())
+            
+            total_investor_payments += payment.total_payment
+            total_fund_share += (profit_details["gross_profit_share"] - profit_details["total_payment"])
+            
+            # Update investor balance
+            new_balance = investor["current_balance"] + payment.total_payment
+            await db.investors.update_one(
+                {"id": investor["id"]},
+                {
+                    "$set": {
+                        "current_balance": new_balance,
+                        "updated_at": now
+                    }
+                }
+            )
+            
+            logger.info(f"Processed payment for investor {investor['name']}: ${payment.total_payment:.2f}")
+        
+        # Update distribution record
+        distribution.total_investor_share = total_investor_payments
+        distribution.fund_share = total_fund_share
+        distribution.status = "completed"
+        distribution.processed_at = now
+        
+        await db.monthly_distributions.insert_one(distribution.dict())
+        
+        logger.info(f"Monthly profit distribution completed for {prev_year}-{prev_month:02d}")
+        logger.info(f"Total distributed: ${total_investor_payments:.2f}")
+        logger.info(f"Fund share: ${total_fund_share:.2f}")
+        
+    except Exception as e:
+        logger.error(f"Error in monthly profit distribution: {e}")
+        raise
+
+async def process_payment_to_investor(payment: InvestorPayment):
+    """Process actual payment to investor (placeholder for payment gateway integration)"""
+    # This is where you would integrate with a real payment system
+    # For now, we'll just log the payment
+    logger.info(f"Processing payment: {payment.payment_reference} - ${payment.total_payment:.2f}")
+    
+    # Simulate payment processing
+    await asyncio.sleep(0.1)
+    
+    # In real implementation:
+    # - Integrate with bank transfer APIs
+    # - Send payment confirmations
+    # - Handle payment failures and retries
+    
+    return True
 
 # Include the router in the main app
 app.include_router(api_router)
