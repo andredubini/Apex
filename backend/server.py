@@ -39,6 +39,94 @@ class StatusCheck(BaseModel):
 class StatusCheckCreate(BaseModel):
     client_name: str
 
+# Investor Model
+class Investor(BaseModel):
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    name: str
+    email: str
+    phone: str = ""
+    initial_investment: float
+    current_balance: float
+    total_invested: float
+    join_date: datetime
+    status: str = "active"  # active, inactive, suspended
+    risk_profile: str = "moderate"  # conservative, moderate, aggressive
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+
+class InvestorCreate(BaseModel):
+    name: str
+    email: str
+    phone: str = ""
+    initial_investment: float
+    risk_profile: str = "moderate"
+
+# Trading Performance Model
+class TradingPeriod(BaseModel):
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    period_start: datetime
+    period_end: datetime
+    total_capital: float
+    gross_profit: float
+    net_profit: float
+    total_trades: int
+    successful_trades: int
+    success_rate: float
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+
+class TradingPeriodCreate(BaseModel):
+    period_start: datetime
+    period_end: datetime
+    total_capital: float
+    gross_profit: float
+    total_trades: int
+    successful_trades: int
+
+# Monthly Profit Distribution Model
+class MonthlyProfitDistribution(BaseModel):
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    year: int
+    month: int
+    total_gross_profit: float
+    total_net_profit: float
+    carried_over_loss: float = 0.0
+    net_distributable_amount: float
+    fund_share: float
+    total_investor_share: float
+    status: str = "pending"  # pending, processed, failed
+    processed_at: Optional[datetime] = None
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+
+# Individual Investor Payment Model
+class InvestorPayment(BaseModel):
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    investor_id: str
+    distribution_id: str
+    year: int
+    month: int
+    investor_balance: float
+    gross_profit_share: float
+    tier_1_amount: float = 0.0  # 0-4% (80/20)
+    tier_2_amount: float = 0.0  # 4-8% (70/30)
+    tier_3_amount: float = 0.0  # 8-12% (60/40)
+    tier_4_amount: float = 0.0  # 12%+ (50/50)
+    total_payment: float
+    payment_status: str = "pending"  # pending, paid, failed
+    payment_reference: str = ""
+    processed_at: Optional[datetime] = None
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+
+# Carry Over Loss Tracking
+class CarryOverLoss(BaseModel):
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    year: int
+    month: int
+    loss_amount: float
+    remaining_amount: float
+    is_cleared: bool = False
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    cleared_at: Optional[datetime] = None
+
 # Add your routes to the router instead of directly to app
 @api_router.get("/")
 async def root():
