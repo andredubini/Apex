@@ -148,11 +148,11 @@ async def get_status_checks():
 @api_router.post("/investors", response_model=Investor)
 async def create_investor(investor: InvestorCreate):
     investor_dict = investor.dict()
-    investor_obj = Investor(**investor_dict)
-    investor_obj.current_balance = investor_obj.initial_investment
-    investor_obj.total_invested = investor_obj.initial_investment
-    investor_obj.join_date = datetime.now(timezone.utc)
+    investor_dict['current_balance'] = investor_dict['initial_investment']
+    investor_dict['total_invested'] = investor_dict['initial_investment']
+    investor_dict['join_date'] = datetime.now(timezone.utc)
     
+    investor_obj = Investor(**investor_dict)
     await db.investors.insert_one(investor_obj.dict())
     return investor_obj
 
