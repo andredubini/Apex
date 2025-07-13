@@ -868,7 +868,79 @@ const InvestorDashboard = () => {
         </div>
       </div>
 
-      {/* Account Actions */}
+      {/* Profit Sharing History */}
+      <div className={`${cardBgClass} rounded-xl p-6 shadow-sm border ${borderClass}`}>
+        <h3 className={`text-lg font-semibold ${textClass} mb-4`}>Monthly Profit Distributions</h3>
+        
+        <div className="space-y-4">
+          {/* Sample data - in real app this would come from API */}
+          {[
+            { month: "January 2024", amount: 1250.50, status: "Paid", date: "2024-02-01", reference: "PROFIT-202401-ABC123" },
+            { month: "February 2024", amount: 2100.75, status: "Paid", date: "2024-03-01", reference: "PROFIT-202402-ABC123" },
+            { month: "March 2024", amount: 0, status: "No Distribution", date: "2024-04-01", reference: "N/A", note: "Loss carried forward" },
+            { month: "April 2024", amount: 3250.25, status: "Paid", date: "2024-05-01", reference: "PROFIT-202404-ABC123" },
+          ].map((distribution, index) => (
+            <div key={index} className={`p-4 rounded-lg border ${borderClass} ${theme === 'dark' ? 'bg-slate-700/50' : 'bg-gray-50'}`}>
+              <div className="flex items-center justify-between">
+                <div>
+                  <h4 className={`font-medium ${textClass}`}>{distribution.month}</h4>
+                  <p className={`text-sm ${textSecondaryClass}`}>
+                    Processed: {distribution.date}
+                    {distribution.reference !== "N/A" && (
+                      <span className="ml-2">• Ref: {distribution.reference}</span>
+                    )}
+                  </p>
+                  {distribution.note && (
+                    <p className={`text-sm text-orange-500 mt-1`}>{distribution.note}</p>
+                  )}
+                </div>
+                <div className="text-right">
+                  <div className={`text-lg font-bold ${
+                    distribution.amount > 0 ? 'text-green-500' : 
+                    distribution.status === 'No Distribution' ? 'text-orange-500' : 'text-gray-500'
+                  }`}>
+                    {distribution.amount > 0 ? `+$${distribution.amount.toLocaleString()}` : 
+                     distribution.status === 'No Distribution' ? 'No Distribution' : '$0.00'}
+                  </div>
+                  <span className={`text-xs px-2 py-1 rounded-full ${
+                    distribution.status === 'Paid' ? 'bg-green-100 text-green-800' :
+                    distribution.status === 'No Distribution' ? 'bg-orange-100 text-orange-800' :
+                    'bg-gray-100 text-gray-800'
+                  }`}>
+                    {distribution.status}
+                  </span>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+        
+        <div className={`mt-6 p-4 ${theme === 'dark' ? 'bg-blue-900/20' : 'bg-blue-50'} rounded-lg`}>
+          <h4 className={`font-medium ${textClass} mb-2`}>How Profit Sharing Works</h4>
+          <div className="space-y-2 text-sm">
+            <div className="flex justify-between">
+              <span className={textSecondaryClass}>0-4% Annual Return:</span>
+              <span className="text-green-600 font-medium">You get 80%</span>
+            </div>
+            <div className="flex justify-between">
+              <span className={textSecondaryClass}>4-8% Annual Return:</span>
+              <span className="text-green-600 font-medium">You get 70%</span>
+            </div>
+            <div className="flex justify-between">
+              <span className={textSecondaryClass}>8-12% Annual Return:</span>
+              <span className="text-green-600 font-medium">You get 60%</span>
+            </div>
+            <div className="flex justify-between">
+              <span className={textSecondaryClass}>12%+ Annual Return:</span>
+              <span className="text-green-600 font-medium">You get 50%</span>
+            </div>
+          </div>
+          <p className={`text-xs ${textSecondaryClass} mt-3`}>
+            * Profit distributions are processed automatically at 9:00 AM on the 1st of each month. 
+            Losses are carried forward to subsequent months.
+          </p>
+        </div>
+      </div>
       <div className={`${cardBgClass} rounded-xl p-6 shadow-sm border ${borderClass}`}>
         <h3 className={`text-lg font-semibold ${textClass} mb-6`}>Account Actions</h3>
         
