@@ -434,7 +434,128 @@ const AdminDashboard = () => {
         </div>
       </div>
 
-      {/* System Health */}
+      {/* Profit Distribution Management */}
+      <div className={`${cardBgClass} backdrop-blur-md p-6 rounded-xl border ${borderClass} shadow-sm`}>
+        <h3 className={`text-xl font-semibold ${textClass} mb-6`}>Automated Profit Distribution</h3>
+        
+        <div className="space-y-6">
+          {/* Next Distribution Info */}
+          <div className={`p-4 ${theme === 'dark' ? 'bg-blue-900/20' : 'bg-blue-50'} rounded-lg`}>
+            <h4 className={`font-medium ${textClass} mb-2`}>Next Scheduled Distribution</h4>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+              <div>
+                <span className={textSecondaryClass}>Date:</span>
+                <div className="font-medium text-blue-600">January 1, 2025 at 9:00 AM</div>
+              </div>
+              <div>
+                <span className={textSecondaryClass}>Frequency:</span>
+                <div className={`font-medium ${textClass}`}>Monthly (1st of each month)</div>
+              </div>
+              <div>
+                <span className={textSecondaryClass}>Status:</span>
+                <div className="font-medium text-green-600">Active & Scheduled</div>
+              </div>
+            </div>
+          </div>
+
+          {/* Distribution History */}
+          <div>
+            <h4 className={`font-medium ${textClass} mb-4`}>Recent Distributions</h4>
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead>
+                  <tr className={`border-b ${borderClass}`}>
+                    <th className={`text-left py-2 px-3 ${textSecondaryClass} font-medium`}>Period</th>
+                    <th className={`text-left py-2 px-3 ${textSecondaryClass} font-medium`}>Gross Profit</th>
+                    <th className={`text-left py-2 px-3 ${textSecondaryClass} font-medium`}>Carry Over</th>
+                    <th className={`text-left py-2 px-3 ${textSecondaryClass} font-medium`}>Distributed</th>
+                    <th className={`text-left py-2 px-3 ${textSecondaryClass} font-medium`}>Fund Share</th>
+                    <th className={`text-left py-2 px-3 ${textSecondaryClass} font-medium`}>Status</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {[
+                    { period: "Dec 2024", grossProfit: 45000, carryOver: 0, distributed: 28500, fundShare: 16500, status: "Completed" },
+                    { period: "Nov 2024", grossProfit: 32000, carryOver: 0, distributed: 20800, fundShare: 11200, status: "Completed" },
+                    { period: "Oct 2024", grossProfit: -15000, carryOver: 15000, distributed: 0, fundShare: 0, status: "No Distribution" },
+                    { period: "Sep 2024", grossProfit: 38000, carryOver: 0, distributed: 24700, fundShare: 13300, status: "Completed" },
+                  ].map((dist, index) => (
+                    <tr key={index} className={`border-b ${borderClass} hover:${theme === 'dark' ? 'bg-slate-700/25' : 'bg-gray-50/50'}`}>
+                      <td className={`py-3 px-3 ${textClass} font-medium`}>{dist.period}</td>
+                      <td className={`py-3 px-3 ${dist.grossProfit >= 0 ? 'text-green-500' : 'text-red-500'} font-medium`}>
+                        ${dist.grossProfit.toLocaleString()}
+                      </td>
+                      <td className={`py-3 px-3 ${textSecondaryClass}`}>
+                        {dist.carryOver > 0 ? `$${dist.carryOver.toLocaleString()}` : '-'}
+                      </td>
+                      <td className={`py-3 px-3 text-green-500 font-medium`}>
+                        ${dist.distributed.toLocaleString()}
+                      </td>
+                      <td className={`py-3 px-3 text-blue-500 font-medium`}>
+                        ${dist.fundShare.toLocaleString()}
+                      </td>
+                      <td className="py-3 px-3">
+                        <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                          dist.status === 'Completed' ? 'bg-green-100 text-green-800' :
+                          dist.status === 'No Distribution' ? 'bg-orange-100 text-orange-800' :
+                          'bg-gray-100 text-gray-800'
+                        }`}>
+                          {dist.status}
+                        </span>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          {/* Distribution Controls */}
+          <div className="flex flex-col sm:flex-row gap-4">
+            <button
+              onClick={() => alert('Manual profit distribution triggered. This will process payments for all active investors based on current month performance.')}
+              className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-medium transition-colors flex items-center justify-center"
+            >
+              <DollarSign className="w-5 h-5 mr-2" />
+              Trigger Manual Distribution
+            </button>
+            
+            <button
+              onClick={() => alert('Distribution settings and profit-sharing tiers can be configured here.')}
+              className="bg-gray-600 hover:bg-gray-700 text-white px-6 py-3 rounded-lg font-medium transition-colors flex items-center justify-center"
+            >
+              <Settings className="w-5 h-5 mr-2" />
+              Configure Settings
+            </button>
+          </div>
+
+          {/* System Status */}
+          <div className={`p-4 ${theme === 'dark' ? 'bg-green-900/20' : 'bg-green-50'} rounded-lg`}>
+            <h4 className={`font-medium ${textClass} mb-2`}>System Status</h4>
+            <div className="space-y-2 text-sm">
+              <div className="flex items-center justify-between">
+                <span className={textSecondaryClass}>Scheduler Status:</span>
+                <span className="text-green-600 font-medium flex items-center">
+                  <span className="w-2 h-2 bg-green-500 rounded-full mr-2"></span>
+                  Running
+                </span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className={textSecondaryClass}>Next Execution:</span>
+                <span className={`font-medium ${textClass}`}>January 1, 2025 09:00 UTC</span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className={textSecondaryClass}>Profit Sharing Model:</span>
+                <span className={`font-medium ${textClass}`}>Multi-tier (80/70/60/50%)</span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className={textSecondaryClass}>Carry-over Losses:</span>
+                <span className={`font-medium ${textClass}`}>$0 (All cleared)</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
       <div className={`${cardBgClass} backdrop-blur-md p-6 rounded-xl border ${borderClass} shadow-sm`}>
         <h3 className={`text-xl font-semibold ${textClass} mb-6`}>System Health</h3>
         
