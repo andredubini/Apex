@@ -279,7 +279,13 @@ Please thoroughly test the profit calculation logic, database operations, and en
 
 ## test_plan:
   current_focus:
-    - "Enhanced Admin Dashboard with Mobile Navigation"
+    - "API Health Endpoints"
+    - "Investor Management APIs"
+    - "Profit Distribution System"
+    - "Trading Performance APIs"
+    - "Database Operations Verification"
+    - "APScheduler and Automated Processing"
+    - "Tiered Profit Sharing Logic"
   stuck_tasks: []
   test_all: false
   test_priority: "high_first"
