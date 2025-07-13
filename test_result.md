@@ -103,7 +103,37 @@
 #====================================================================================================
 
 ## user_problem_statement: 
-Make the admin's personal account more expansive, with more options for viewing information and the ability to adjust it. Place section buttons at the bottom of the screen, as it is usually the case in mobile applications. Take into account adaptation for different mobile devices.
+Test the newly implemented automated profit-sharing payment system in the hedge fund backend:
+
+1. Test API Health:
+   - GET /api/ (root endpoint)
+   - GET /api/status (basic functionality)
+
+2. Test Investor Management APIs:
+   - GET /api/investors (should show sample investors created on startup)
+   - POST /api/investors (create a new test investor)
+   - GET /api/investors/{investor_id} (retrieve specific investor)
+
+3. Test Profit Distribution System:
+   - POST /api/manual-profit-distribution (trigger manual profit distribution for testing)
+   - GET /api/profit-distributions (view profit distribution history)
+   - GET /api/investor-payments/{investor_id} (view investor payment history)
+
+4. Test Trading Performance APIs:
+   - POST /api/trading-periods (create trading period with sample data)
+   - GET /api/trading-periods (retrieve trading periods)
+
+5. Verify Database Operations:
+   - Confirm sample investors are created in MongoDB
+   - Verify profit distribution calculations work correctly
+   - Test carry-over loss functionality
+   - Verify tiered profit sharing (80/20, 70/30, 60/40, 50/50)
+
+6. Test Scheduler:
+   - Verify APScheduler is running
+   - Confirm monthly job is scheduled for 9:00 AM on 1st of each month
+
+Please thoroughly test the profit calculation logic, database operations, and ensure all endpoints work correctly. Focus on the core functionality of the automated payment system.
 
 ## frontend:
   - task: "Enhanced Admin Dashboard with Mobile Navigation"
