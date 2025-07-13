@@ -472,6 +472,78 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
+# Initialize scheduler
+scheduler = AsyncIOScheduler()
+
+@app.on_event("startup")
+async def startup_event():
+    """Initialize scheduler on startup"""
+    # Schedule monthly profit distribution for 9:00 AM on the 1st of every month
+    scheduler.add_job(
+        process_monthly_profit_distribution,
+        CronTrigger(day=1, hour=9, minute=0),
+        id="monthly_profit_distribution",
+        replace_existing=True,
+        coalesce=True,
+        max_instances=1
+    )
+    
+    scheduler.start()
+    logger.info("Scheduler started - Monthly profit distribution scheduled for 9:00 AM on 1st of each month")
+    
+    # Create sample data for testing
+    await create_sample_data()
+
 @app.on_event("shutdown")
 async def shutdown_db_client():
+    scheduler.shutdown()
     client.close()
+
+async def create_sample_data():
+    """Create sample investors and trading data for testing"""
+    try:
+        # Check if sample data already exists
+        existing_investors = await db.investors.count_documents({})
+        if existing_investors > 0:
+            logger.info("Sample data already exists")
+            return
+        
+        # Create sample investors
+        sample_investors = [
+            {
+                "name": "John Investor",
+                "email": "investor@example.com",
+                "phone": "+1-555-0123",
+                "initial_investment": 100000.0,
+                "risk_profile": "moderate"
+            },
+            {
+                "name": "Sarah Miller",
+                "email": "sarah@example.com",
+                "phone": "+1-555-0124",
+                "initial_investment": 200000.0,
+                "risk_profile": "aggressive"
+            },
+            {
+                "name": "Robert Chen",
+                "email": "robert@example.com",
+                "phone": "+1-555-0125",
+                "initial_investment": 350000.0,
+                "risk_profile": "conservative"
+            }
+        ]
+        
+        for investor_data in sample_investors:
+            investor = Investor(
+                **investor_data,
+                current_balance=investor_data["initial_investment"],
+                total_invested=investor_data["initial_investment"],
+                join_date=datetime.now(timezone.utc),
+                status="active"
+            )
+            await db.investors.insert_one(investor.dict())
+        
+        logger.info("Sample data created successfully")
+        
+    except Exception as e:
+        logger.error(f"Error creating sample data: {e}")
