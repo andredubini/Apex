@@ -18,7 +18,7 @@ const LandingPage = () => {
   // Handle scroll for active nav highlighting
   useEffect(() => {
     const handleScroll = () => {
-      const sections = ["home", "about", "strategy", "advantages", "investors", "contact"];
+      const sections = ["home", "about", "strategy", "advantages", "investors", "for-traders", "contact"];
       const scrollPosition = window.scrollY + 100;
 
       sections.forEach((section) => {
