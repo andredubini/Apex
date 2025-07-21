@@ -566,7 +566,7 @@ const LandingPage = () => {
       </section>
 
       {/* For Traders Section */}
-      <section className="py-20 bg-gradient-to-r from-slate-900 to-slate-800">
+      <section id="for-traders" className="py-20 bg-gradient-to-r from-slate-900 to-slate-800">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <div className="inline-block px-6 py-3 bg-green-600/20 rounded-full border border-green-400/30 mb-6">
