@@ -120,7 +120,11 @@ const LandingPage = () => {
                   key={item.id}
                   onClick={() => scrollToSection(item.id)}
                   className={`block w-full text-left px-3 py-2 rounded-md text-base font-medium transition-colors duration-200 ${
-                    activeNavItem === item.id
+                    item.id === "for-traders"
+                      ? activeNavItem === item.id
+                        ? "text-green-300 bg-slate-800 font-medium"
+                        : "text-green-400 hover:text-green-300 font-medium"
+                      : activeNavItem === item.id
                       ? "text-blue-400 bg-slate-800"
                       : "text-slate-300 hover:text-white hover:bg-slate-800"
                   }`}
