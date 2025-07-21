@@ -565,6 +565,160 @@ const LandingPage = () => {
         </div>
       </section>
 
+      {/* For Traders Section */}
+      <section className="py-20 bg-gradient-to-r from-slate-900 to-slate-800">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-16">
+            <div className="inline-block px-6 py-3 bg-green-600/20 rounded-full border border-green-400/30 mb-6">
+              <span className="text-green-400 font-semibold text-lg">For Traders</span>
+            </div>
+            <h2 className="text-4xl md:text-5xl font-bold text-white mb-6">
+              Join Our Trading Team
+            </h2>
+            <p className="text-xl text-slate-300 max-w-4xl mx-auto">
+              We invite experienced traders to cooperate and become part of our professional team 
+              managing institutional capital with cutting-edge technology and proven strategies.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+            <div className="space-y-8">
+              <div className="bg-slate-800/50 backdrop-blur-md p-8 rounded-2xl border border-slate-700">
+                <h3 className="text-2xl font-bold text-white mb-6">What We Offer</h3>
+                <div className="space-y-4">
+                  <div className="flex items-start">
+                    <div className="w-6 h-6 bg-green-500 rounded-full flex items-center justify-center mr-4 mt-1">
+                      <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                      </svg>
+                    </div>
+                    <div>
+                      <h4 className="text-lg font-semibold text-white">Institutional Capital Access</h4>
+                      <p className="text-slate-300">Trade with substantial capital allocation and institutional-grade infrastructure</p>
+                    </div>
+                  </div>
+                  
+                  <div className="flex items-start">
+                    <div className="w-6 h-6 bg-green-500 rounded-full flex items-center justify-center mr-4 mt-1">
+                      <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                      </svg>
+                    </div>
+                    <div>
+                      <h4 className="text-lg font-semibold text-white">Performance-Based Compensation</h4>
+                      <p className="text-slate-300">Competitive profit sharing with transparent performance metrics</p>
+                    </div>
+                  </div>
+                  
+                  <div className="flex items-start">
+                    <div className="w-6 h-6 bg-green-500 rounded-full flex items-center justify-center mr-4 mt-1">
+                      <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                      </svg>
+                    </div>
+                    <div>
+                      <h4 className="text-lg font-semibold text-white">Advanced Trading Technology</h4>
+                      <p className="text-slate-300">Access to premium trading platforms, data feeds, and analytical tools</p>
+                    </div>
+                  </div>
+                  
+                  <div className="flex items-start">
+                    <div className="w-6 h-6 bg-green-500 rounded-full flex items-center justify-center mr-4 mt-1">
+                      <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                      </svg>
+                    </div>
+                    <div>
+                      <h4 className="text-lg font-semibold text-white">Professional Development</h4>
+                      <p className="text-slate-300">Continuous learning and skill enhancement in collaborative environment</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="space-y-8">
+              <div className="bg-slate-800/50 backdrop-blur-md p-8 rounded-2xl border border-slate-700">
+                <h3 className="text-2xl font-bold text-white mb-6">Requirements</h3>
+                <div className="space-y-4">
+                  <div className="flex items-center">
+                    <div className="w-2 h-2 bg-blue-400 rounded-full mr-4"></div>
+                    <span className="text-slate-300">Minimum 3+ years of active trading experience</span>
+                  </div>
+                  <div className="flex items-center">
+                    <div className="w-2 h-2 bg-blue-400 rounded-full mr-4"></div>
+                    <span className="text-slate-300">Proven track record of consistent profitability</span>
+                  </div>
+                  <div className="flex items-center">
+                    <div className="w-2 h-2 bg-blue-400 rounded-full mr-4"></div>
+                    <span className="text-slate-300">Strong understanding of risk management</span>
+                  </div>
+                  <div className="flex items-center">
+                    <div className="w-2 h-2 bg-blue-400 rounded-full mr-4"></div>
+                    <span className="text-slate-300">Experience with US equity markets (intraday focus preferred)</span>
+                  </div>
+                  <div className="flex items-center">
+                    <div className="w-2 h-2 bg-blue-400 rounded-full mr-4"></div>
+                    <span className="text-slate-300">Ability to work in team-oriented environment</span>
+                  </div>
+                </div>
+              </div>
+
+              <div className="bg-gradient-to-r from-green-600/20 to-blue-600/20 p-8 rounded-2xl border border-green-400/30">
+                <h3 className="text-2xl font-bold text-white mb-4">Ready to Apply?</h3>
+                <p className="text-slate-300 mb-6">
+                  Send us your trading resume, performance history, and a brief cover letter explaining 
+                  your trading strategy and experience.
+                </p>
+                <div className="flex flex-col sm:flex-row gap-4">
+                  <button
+                    onClick={() => alert('Please send your application to: careers@apexcapital.com\n\nInclude:\n- Trading resume\n- Performance history\n- Cover letter with strategy overview\n- Contact information')}
+                    className="bg-green-600 hover:bg-green-700 text-white px-8 py-4 rounded-lg font-semibold transition-all duration-300 transform hover:scale-105 flex items-center justify-center"
+                  >
+                    <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                    </svg>
+                    Apply Now
+                  </button>
+                  <button
+                    onClick={() => alert('For trader inquiries, contact us at:\n\nPhone: +1 (555) 123-4567\nEmail: careers@apexcapital.com\nWebsite: www.apexcapital.com/careers\n\nOur recruiting team will respond within 24 hours.')}
+                    className="bg-slate-700 hover:bg-slate-600 text-white px-8 py-4 rounded-lg font-semibold transition-all duration-300 border border-slate-600"
+                  >
+                    Learn More
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="mt-16 text-center">
+            <div className="bg-slate-800/50 backdrop-blur-md p-8 rounded-2xl border border-slate-700 max-w-4xl mx-auto">
+              <h3 className="text-2xl font-bold text-white mb-4">Our Trading Philosophy</h3>
+              <p className="text-slate-300 text-lg leading-relaxed">
+                At Apex Capital, we believe in combining disciplined risk management with innovative trading strategies. 
+                Our traders operate within a collaborative framework where individual expertise contributes to collective success. 
+                We maintain strict risk controls with a maximum 1% risk per trade, ensuring sustainable long-term growth 
+                while providing traders with the freedom to execute their proven strategies within our institutional framework.
+              </p>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-8">
+                <div className="text-center">
+                  <div className="text-3xl font-bold text-green-400 mb-2">1%</div>
+                  <div className="text-slate-300 text-sm">Maximum Risk Per Trade</div>
+                </div>
+                <div className="text-center">
+                  <div className="text-3xl font-bold text-blue-400 mb-2">24/7</div>
+                  <div className="text-slate-300 text-sm">Market Analysis & Support</div>
+                </div>
+                <div className="text-center">
+                  <div className="text-3xl font-bold text-purple-400 mb-2">$5M+</div>
+                  <div className="text-slate-300 text-sm">Capital Under Management</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* Contact Section */}
       <section id="contact" className="py-20 bg-slate-800">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
