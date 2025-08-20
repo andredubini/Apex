@@ -78,13 +78,229 @@ const InvestorDashboard = () => {
     weeklyReports: true,
     monthlyStatements: true
   });
-  const [notifications, setNotifications] = useState([
-    { id: 1, type: "profit", message: "Weekly profit of $2,450 added to your account", time: "2 hours ago", read: false, priority: "high" },
-    { id: 2, type: "deposit", message: "Deposit of $50,000 processed successfully", time: "1 day ago", read: false, priority: "medium" },
-    { id: 3, type: "report", message: "New weekly trading report available", time: "3 days ago", read: true, priority: "low" },
-    { id: 4, type: "alert", message: "Portfolio volatility increased to 8.5%", time: "5 days ago", read: false, priority: "high" },
-    { id: 5, type: "security", message: "Login from new device detected", time: "1 week ago", read: true, priority: "high" },
-  ]);
+  const [notifications, setNotifications] = useState([]);
+  const [notificationSettings, setNotificationSettings] = useState({
+    emailNotifications: true,
+    pushNotifications: true,
+    smsNotifications: false,
+    categories: {
+      profit: true,
+      deposit: true,
+      withdrawal: true,
+      alert: true,
+      security: true,
+      report: true,
+      system: true,
+      trade: true,
+      risk: true,
+      performance: true
+    },
+    prioritySettings: {
+      low: true,
+      medium: true,
+      high: true,
+      critical: true
+    },
+    quietHours: {
+      enabled: false,
+      startTime: "22:00",
+      endTime: "08:00",
+      timezone: "UTC"
+    },
+    frequencyLimits: {
+      dailyLimit: 50,
+      hourlyLimit: 10
+    }
+  });
+  
+  const websocketRef = useRef(null);
+  const reconnectTimeoutRef = useRef(null);
+  const [connectionStatus, setConnectionStatus] = useState("disconnected"); // "connected", "connecting", "disconnected"
+  const [unreadCount, setUnreadCount] = useState(0);
+  
+  // WebSocket connection management
+  const connectWebSocket = useCallback(() => {
+    if (!user?.email) return;
+    
+    setConnectionStatus("connecting");
+    const backendUrl = process.env.REACT_APP_BACKEND_URL || 'http://localhost:8001';
+    const wsUrl = backendUrl.replace('http', 'ws').replace('https', 'wss');
+    
+    try {
+      websocketRef.current = new WebSocket(`${wsUrl}/ws/${user.email}`);
+      
+      websocketRef.current.onopen = () => {
+        console.log('WebSocket connected');
+        setConnectionStatus("connected");
+        
+        // Clear any existing reconnect timeout
+        if (reconnectTimeoutRef.current) {
+          clearTimeout(reconnectTimeoutRef.current);
+          reconnectTimeoutRef.current = null;
+        }
+      };
+      
+      websocketRef.current.onmessage = (event) => {
+        try {
+          const message = JSON.parse(event.data);
+          
+          if (message.type === 'new_notification') {
+            const newNotification = message.data;
+            setNotifications(prev => [newNotification, ...prev]);
+            setUnreadCount(prev => prev + 1);
+            
+            // Show browser notification if enabled and permission granted
+            if (notificationSettings.pushNotifications && 'Notification' in window && Notification.permission === 'granted') {
+              new Notification(newNotification.title, {
+                body: newNotification.message,
+                icon: '/favicon.ico',
+                badge: '/favicon.ico'
+              });
+            }
+          }
+        } catch (error) {
+          console.error('Error parsing WebSocket message:', error);
+        }
+      };
+      
+      websocketRef.current.onclose = () => {
+        console.log('WebSocket disconnected');
+        setConnectionStatus("disconnected");
+        
+        // Attempt to reconnect after 5 seconds
+        reconnectTimeoutRef.current = setTimeout(() => {
+          connectWebSocket();
+        }, 5000);
+      };
+      
+      websocketRef.current.onerror = (error) => {
+        console.error('WebSocket error:', error);
+        setConnectionStatus("disconnected");
+      };
+    } catch (error) {
+      console.error('Failed to create WebSocket connection:', error);
+      setConnectionStatus("disconnected");
+      
+      // Retry connection after 5 seconds
+      reconnectTimeoutRef.current = setTimeout(() => {
+        connectWebSocket();
+      }, 5000);
+    }
+  }, [user?.email, notificationSettings.pushNotifications]);
+  
+  // Load notifications from API
+  const loadNotifications = async () => {
+    if (!user?.email) return;
+    
+    try {
+      const backendUrl = process.env.REACT_APP_BACKEND_URL || 'http://localhost:8001';
+      const response = await fetch(`${backendUrl}/api/notifications/${user.email}`);
+      
+      if (response.ok) {
+        const data = await response.json();
+        setNotifications(data);
+        
+        // Count unread notifications
+        const unreadNotifications = data.filter(n => n.status === 'unread');
+        setUnreadCount(unreadNotifications.length);
+      }
+    } catch (error) {
+      console.error('Error loading notifications:', error);
+    }
+  };
+  
+  // Load notification settings from API
+  const loadNotificationSettings = async () => {
+    if (!user?.email) return;
+    
+    try {
+      const backendUrl = process.env.REACT_APP_BACKEND_URL || 'http://localhost:8001';
+      const response = await fetch(`${backendUrl}/api/notification-settings/${user.email}`);
+      
+      if (response.ok) {
+        const data = await response.json();
+        setNotificationSettings(prev => ({...prev, ...data}));
+      }
+    } catch (error) {
+      console.error('Error loading notification settings:', error);
+    }
+  };
+  
+  // Mark notification as read
+  const markNotificationAsRead = async (notificationId) => {
+    try {
+      const backendUrl = process.env.REACT_APP_BACKEND_URL || 'http://localhost:8001';
+      const response = await fetch(`${backendUrl}/api/notifications/${notificationId}/read`, {
+        method: 'PATCH'
+      });
+      
+      if (response.ok) {
+        setNotifications(prev => 
+          prev.map(n => 
+            n.id === notificationId 
+              ? { ...n, status: 'read', read_at: new Date().toISOString() }
+              : n
+          )
+        );
+        setUnreadCount(prev => Math.max(0, prev - 1));
+      }
+    } catch (error) {
+      console.error('Error marking notification as read:', error);
+    }
+  };
+  
+  // Mark all notifications as read
+  const markAllNotificationsAsRead = async () => {
+    if (!user?.email) return;
+    
+    try {
+      const backendUrl = process.env.REACT_APP_BACKEND_URL || 'http://localhost:8001';
+      const response = await fetch(`${backendUrl}/api/notifications/${user.email}/mark-all-read`, {
+        method: 'PATCH'
+      });
+      
+      if (response.ok) {
+        setNotifications(prev => 
+          prev.map(n => ({ ...n, status: 'read', read_at: new Date().toISOString() }))
+        );
+        setUnreadCount(0);
+      }
+    } catch (error) {
+      console.error('Error marking all notifications as read:', error);
+    }
+  };
+  
+  // Update notification settings
+  const updateNotificationSettings = async (newSettings) => {
+    if (!user?.email) return;
+    
+    try {
+      const backendUrl = process.env.REACT_APP_BACKEND_URL || 'http://localhost:8001';
+      const response = await fetch(`${backendUrl}/api/notification-settings/${user.email}`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(newSettings)
+      });
+      
+      if (response.ok) {
+        const data = await response.json();
+        setNotificationSettings(prev => ({...prev, ...data}));
+      }
+    } catch (error) {
+      console.error('Error updating notification settings:', error);
+    }
+  };
+  
+  // Request notification permission
+  const requestNotificationPermission = async () => {
+    if ('Notification' in window && Notification.permission === 'default') {
+      const permission = await Notification.requestPermission();
+      return permission === 'granted';
+    }
+    return Notification.permission === 'granted';
+  };
 
   // Sample bank details
   const [bankDetails, setBankDetails] = useState({
