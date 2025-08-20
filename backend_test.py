@@ -7,6 +7,8 @@ Tests all API endpoints, profit calculation logic, and database operations
 import requests
 import json
 import time
+import websocket
+import threading
 from datetime import datetime, timezone
 from decimal import Decimal
 
