@@ -119,16 +119,153 @@ class InvestorPayment(BaseModel):
     processed_at: Optional[datetime] = None
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
-# Carry Over Loss Tracking
-class CarryOverLoss(BaseModel):
+# Notification Models
+class NotificationPriority(str, Enum):
+    LOW = "low"
+    MEDIUM = "medium"
+    HIGH = "high"
+    CRITICAL = "critical"
+
+class NotificationType(str, Enum):
+    PROFIT = "profit"
+    DEPOSIT = "deposit"
+    WITHDRAWAL = "withdrawal"
+    ALERT = "alert"
+    SECURITY = "security"
+    REPORT = "report"
+    SYSTEM = "system"
+    TRADE = "trade"
+    RISK = "risk"
+    PERFORMANCE = "performance"
+
+class NotificationStatus(str, Enum):
+    UNREAD = "unread"
+    READ = "read"
+    ARCHIVED = "archived"
+
+class Notification(BaseModel):
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
-    year: int
-    month: int
-    loss_amount: float
-    remaining_amount: float
-    is_cleared: bool = False
+    user_id: str  # Can be investor ID or admin ID
+    user_type: str  # "investor" or "admin"
+    title: str
+    message: str
+    type: NotificationType
+    priority: NotificationPriority
+    status: NotificationStatus = NotificationStatus.UNREAD
+    metadata: Dict = Field(default_factory=dict)  # Additional data specific to notification type
+    scheduled_for: Optional[datetime] = None  # For scheduled notifications
+    expires_at: Optional[datetime] = None  # For temporary notifications
+    read_at: Optional[datetime] = None
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
-    cleared_at: Optional[datetime] = None
+    updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+
+class NotificationCreate(BaseModel):
+    user_id: str
+    user_type: str
+    title: str
+    message: str
+    type: NotificationType
+    priority: NotificationPriority = NotificationPriority.MEDIUM
+    metadata: Dict = Field(default_factory=dict)
+    scheduled_for: Optional[datetime] = None
+    expires_at: Optional[datetime] = None
+
+class NotificationSettings(BaseModel):
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    user_id: str
+    user_type: str  # "investor" or "admin"
+    email_notifications: bool = True
+    push_notifications: bool = True
+    sms_notifications: bool = False
+    categories: Dict[str, bool] = Field(default_factory=lambda: {
+        "profit": True,
+        "deposit": True,
+        "withdrawal": True,
+        "alert": True,
+        "security": True,
+        "report": True,
+        "system": True,
+        "trade": True,
+        "risk": True,
+        "performance": True
+    })
+    priority_settings: Dict[str, bool] = Field(default_factory=lambda: {
+        "low": True,
+        "medium": True,
+        "high": True,
+        "critical": True
+    })
+    quiet_hours: Dict = Field(default_factory=lambda: {
+        "enabled": False,
+        "start_time": "22:00",
+        "end_time": "08:00",
+        "timezone": "UTC"
+    })
+    frequency_limits: Dict = Field(default_factory=lambda: {
+        "daily_limit": 50,
+        "hourly_limit": 10
+    })
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+
+class NotificationSettingsUpdate(BaseModel):
+    email_notifications: Optional[bool] = None
+    push_notifications: Optional[bool] = None
+    sms_notifications: Optional[bool] = None
+    categories: Optional[Dict[str, bool]] = None
+    priority_settings: Optional[Dict[str, bool]] = None
+    quiet_hours: Optional[Dict] = None
+    frequency_limits: Optional[Dict] = None
+
+# WebSocket Connection Manager
+class ConnectionManager:
+    def __init__(self):
+        self.active_connections: Dict[str, Set[WebSocket]] = {}  # user_id -> set of websockets
+
+    async def connect(self, websocket: WebSocket, user_id: str):
+        await websocket.accept()
+        if user_id not in self.active_connections:
+            self.active_connections[user_id] = set()
+        self.active_connections[user_id].add(websocket)
+        logger.info(f"WebSocket connected for user: {user_id}")
+
+    def disconnect(self, websocket: WebSocket, user_id: str):
+        if user_id in self.active_connections:
+            self.active_connections[user_id].discard(websocket)
+            if not self.active_connections[user_id]:
+                del self.active_connections[user_id]
+        logger.info(f"WebSocket disconnected for user: {user_id}")
+
+    async def send_personal_message(self, message: str, user_id: str):
+        if user_id in self.active_connections:
+            disconnected_websockets = set()
+            for websocket in self.active_connections[user_id]:
+                try:
+                    await websocket.send_text(message)
+                except:
+                    disconnected_websockets.add(websocket)
+            
+            # Clean up disconnected websockets
+            for websocket in disconnected_websockets:
+                self.active_connections[user_id].discard(websocket)
+            
+            if not self.active_connections[user_id]:
+                del self.active_connections[user_id]
+
+    async def broadcast_to_all(self, message: str):
+        for user_id, websockets in self.active_connections.items():
+            disconnected_websockets = set()
+            for websocket in websockets:
+                try:
+                    await websocket.send_text(message)
+                except:
+                    disconnected_websockets.add(websocket)
+            
+            # Clean up disconnected websockets
+            for websocket in disconnected_websockets:
+                websockets.discard(websocket)
+
+manager = ConnectionManager()
 
 # Add your routes to the router instead of directly to app
 @api_router.get("/")
