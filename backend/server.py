@@ -305,13 +305,17 @@ async def clear_carry_over_losses(amount_to_clear: float):
 
 async def add_carry_over_loss(year: int, month: int, loss_amount: float):
     """Add a new carry-over loss"""
-    carry_over_loss = CarryOverLoss(
-        year=year,
-        month=month,
-        loss_amount=abs(loss_amount),
-        remaining_amount=abs(loss_amount)
-    )
-    await db.carry_over_losses.insert_one(carry_over_loss.dict())
+    carry_over_loss = {
+        "id": str(uuid.uuid4()),
+        "year": year,
+        "month": month,
+        "loss_amount": abs(loss_amount),
+        "remaining_amount": abs(loss_amount),
+        "is_cleared": False,
+        "created_at": datetime.now(timezone.utc),
+        "cleared_at": None
+    }
+    await db.carry_over_losses.insert_one(carry_over_loss)
 
 async def process_monthly_profit_distribution():
     """Main function to process monthly profit distribution"""
