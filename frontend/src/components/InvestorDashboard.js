@@ -1892,11 +1892,11 @@ const InvestorDashboard = () => {
       {/* Desktop Sidebar Navigation */}
       <aside className={`hidden md:block fixed left-6 top-24 bottom-6 w-64 ${cardBgClass} rounded-xl shadow-sm border ${borderClass} p-6`}>
         <nav className="space-y-2">
-          {navItems.map(({ id, label, icon: Icon }) => (
+          {navItems.map(({ id, label, icon: Icon, badge }) => (
             <button
               key={id}
               onClick={() => setActiveTab(id)}
-              className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg text-left transition-colors ${
+              className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg text-left transition-colors relative ${
                 activeTab === id 
                   ? 'bg-blue-600 text-white' 
                   : `${textSecondaryClass} hover:${theme === 'dark' ? 'bg-slate-700' : 'bg-gray-100'}`
@@ -1904,6 +1904,11 @@ const InvestorDashboard = () => {
             >
               <Icon className="w-5 h-5" />
               <span className="font-medium">{label}</span>
+              {badge && (
+                <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-bold">
+                  {badge > 99 ? '99+' : badge}
+                </span>
+              )}
             </button>
           ))}
         </nav>
