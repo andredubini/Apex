@@ -272,6 +272,191 @@ manager = ConnectionManager()
 async def root():
     return {"message": "Apex Capital Management API"}
 
+# WebSocket endpoint for real-time notifications
+@app.websocket("/ws/{user_id}")
+async def websocket_endpoint(websocket: WebSocket, user_id: str):
+    await manager.connect(websocket, user_id)
+    try:
+        while True:
+            data = await websocket.receive_text()
+            # Handle incoming WebSocket messages if needed
+            # For now, just echo back
+            await websocket.send_text(f"Message received: {data}")
+    except WebSocketDisconnect:
+        manager.disconnect(websocket, user_id)
+
+# Notification Management Endpoints
+@api_router.post("/notifications", response_model=Notification)
+async def create_notification(notification: NotificationCreate):
+    """Create a new notification"""
+    notification_dict = notification.dict()
+    notification_obj = Notification(**notification_dict)
+    await db.notifications.insert_one(notification_obj.dict())
+    
+    # Send real-time notification via WebSocket
+    notification_data = {
+        "type": "new_notification",
+        "data": notification_obj.dict()
+    }
+    await manager.send_personal_message(
+        json.dumps(notification_data), 
+        notification.user_id
+    )
+    
+    return notification_obj
+
+@api_router.get("/notifications/{user_id}", response_model=List[Notification])
+async def get_user_notifications(
+    user_id: str,
+    status: Optional[NotificationStatus] = None,
+    type: Optional[NotificationType] = None,
+    priority: Optional[NotificationPriority] = None,
+    limit: int = 50,
+    offset: int = 0
+):
+    """Get notifications for a specific user with filtering"""
+    filter_query = {"user_id": user_id}
+    
+    if status:
+        filter_query["status"] = status
+    if type:
+        filter_query["type"] = type
+    if priority:
+        filter_query["priority"] = priority
+    
+    notifications = await db.notifications.find(filter_query)\
+        .sort("created_at", -1)\
+        .skip(offset)\
+        .limit(limit)\
+        .to_list(limit)
+    
+    return [Notification(**notif) for notif in notifications]
+
+@api_router.patch("/notifications/{notification_id}/read")
+async def mark_notification_read(notification_id: str):
+    """Mark a notification as read"""
+    update_result = await db.notifications.update_one(
+        {"id": notification_id},
+        {
+            "$set": {
+                "status": NotificationStatus.READ,
+                "read_at": datetime.now(timezone.utc),
+                "updated_at": datetime.now(timezone.utc)
+            }
+        }
+    )
+    
+    if update_result.modified_count == 0:
+        raise HTTPException(status_code=404, detail="Notification not found")
+    
+    return {"message": "Notification marked as read"}
+
+@api_router.patch("/notifications/{user_id}/mark-all-read")
+async def mark_all_notifications_read(user_id: str):
+    """Mark all notifications as read for a user"""
+    await db.notifications.update_many(
+        {"user_id": user_id, "status": NotificationStatus.UNREAD},
+        {
+            "$set": {
+                "status": NotificationStatus.READ,
+                "read_at": datetime.now(timezone.utc),
+                "updated_at": datetime.now(timezone.utc)
+            }
+        }
+    )
+    
+    return {"message": "All notifications marked as read"}
+
+@api_router.delete("/notifications/{notification_id}")
+async def delete_notification(notification_id: str):
+    """Delete a specific notification"""
+    delete_result = await db.notifications.delete_one({"id": notification_id})
+    
+    if delete_result.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="Notification not found")
+    
+    return {"message": "Notification deleted"}
+
+@api_router.get("/notifications/{user_id}/unread-count")
+async def get_unread_count(user_id: str):
+    """Get count of unread notifications for a user"""
+    count = await db.notifications.count_documents({
+        "user_id": user_id,
+        "status": NotificationStatus.UNREAD
+    })
+    
+    return {"unread_count": count}
+
+# Notification Settings Endpoints
+@api_router.get("/notification-settings/{user_id}", response_model=NotificationSettings)
+async def get_notification_settings(user_id: str):
+    """Get notification settings for a user"""
+    settings = await db.notification_settings.find_one({"user_id": user_id})
+    
+    if not settings:
+        # Create default settings
+        default_settings = NotificationSettings(user_id=user_id, user_type="investor")
+        await db.notification_settings.insert_one(default_settings.dict())
+        return default_settings
+    
+    return NotificationSettings(**settings)
+
+@api_router.patch("/notification-settings/{user_id}", response_model=NotificationSettings)
+async def update_notification_settings(user_id: str, settings_update: NotificationSettingsUpdate):
+    """Update notification settings for a user"""
+    update_data = {k: v for k, v in settings_update.dict().items() if v is not None}
+    update_data["updated_at"] = datetime.now(timezone.utc)
+    
+    update_result = await db.notification_settings.update_one(
+        {"user_id": user_id},
+        {"$set": update_data}
+    )
+    
+    if update_result.modified_count == 0:
+        raise HTTPException(status_code=404, detail="Notification settings not found")
+    
+    updated_settings = await db.notification_settings.find_one({"user_id": user_id})
+    return NotificationSettings(**updated_settings)
+
+# Bulk Notification Endpoints (for admin use)
+@api_router.post("/notifications/broadcast")
+async def broadcast_notification(notification: NotificationCreate):
+    """Broadcast notification to all users (admin only)"""
+    if notification.user_type != "admin":
+        raise HTTPException(status_code=403, detail="Admin access required")
+    
+    # Get all active users
+    if notification.user_id == "all_investors":
+        investors = await db.investors.find({"status": "active"}).to_list(1000)
+        user_ids = [investor["id"] for investor in investors]
+    elif notification.user_id == "all_admins":
+        # Add logic for admin users if needed
+        user_ids = ["admin"]  # Placeholder
+    else:
+        user_ids = [notification.user_id]
+    
+    created_notifications = []
+    
+    for user_id in user_ids:
+        notif_data = notification.dict()
+        notif_data["user_id"] = user_id
+        notification_obj = Notification(**notif_data)
+        
+        await db.notifications.insert_one(notification_obj.dict())
+        created_notifications.append(notification_obj)
+        
+        # Send real-time notification
+        notification_data = {
+            "type": "new_notification",
+            "data": notification_obj.dict()
+        }
+        await manager.send_personal_message(
+            json.dumps(notification_data), 
+            user_id
+        )
+    
+    return {"message": f"Notification broadcast to {len(created_notifications)} users"}
+
 @api_router.post("/status", response_model=StatusCheck)
 async def create_status_check(input: StatusCheckCreate):
     status_dict = input.dict()
