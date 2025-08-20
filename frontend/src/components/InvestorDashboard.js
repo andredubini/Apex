@@ -1840,9 +1840,19 @@ const InvestorDashboard = () => {
               >
                 {theme === 'dark' ? <Sun className="w-6 h-6" /> : <Moon className="w-6 h-6" />}
               </button>
-              <button className={`p-2 ${textSecondaryClass} hover:${textClass} transition-colors`}>
-                <Bell className="w-6 h-6" />
-              </button>
+              <div className="relative">
+                <button 
+                  onClick={() => setActiveTab('notifications')}
+                  className={`p-2 ${textSecondaryClass} hover:${textClass} transition-colors`}
+                >
+                  <Bell className="w-6 h-6" />
+                </button>
+                {unreadCount > 0 && (
+                  <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-bold">
+                    {unreadCount > 99 ? '99+' : unreadCount}
+                  </span>
+                )}
+              </div>
               <button
                 onClick={handleLogout}
                 className={`p-2 ${textSecondaryClass} hover:text-red-600 transition-colors`}
