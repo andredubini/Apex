@@ -451,10 +451,16 @@ async def broadcast_notification(notification: NotificationCreate):
         await db.notifications.insert_one(notification_obj.dict())
         created_notifications.append(notification_obj)
         
-        # Send real-time notification
+        # Send real-time notification with JSON serializable data
+        notification_dict = notification_obj.dict()
+        # Convert datetime objects to ISO format strings
+        for key, value in notification_dict.items():
+            if isinstance(value, datetime):
+                notification_dict[key] = value.isoformat()
+        
         notification_data = {
             "type": "new_notification",
-            "data": notification_obj.dict()
+            "data": notification_dict
         }
         await manager.send_personal_message(
             json.dumps(notification_data), 
