@@ -533,6 +533,126 @@ const InvestorDashboard = () => {
           </div>
         </div>
       </div>
+
+      {/* Risk-Adjusted Performance Metrics */}
+      <div className={`${cardBgClass} rounded-xl p-6 shadow-sm border ${borderClass}`}>
+        <div className="flex items-center justify-between mb-4">
+          <h3 className={`text-lg font-semibold ${textClass}`}>Risk-Adjusted Performance</h3>
+          <button 
+            onClick={() => alert('Detailed risk analysis with correlation matrices, VaR calculations, and stress test scenarios')}
+            className="text-blue-500 hover:text-blue-600 text-sm font-medium"
+          >
+            View Details →
+          </button>
+        </div>
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
+          <div className="text-center p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
+            <div className="text-lg font-bold text-blue-600 mb-1">{riskMetrics.sharpeRatio}</div>
+            <div className={`text-xs ${textSecondaryClass}`}>Sharpe Ratio</div>
+            <div className="text-xs text-green-500 mt-1">Excellent</div>
+          </div>
+          <div className="text-center p-3 bg-green-50 dark:bg-green-900/20 rounded-lg">
+            <div className="text-lg font-bold text-green-600 mb-1">{riskMetrics.sortinoRatio}</div>
+            <div className={`text-xs ${textSecondaryClass}`}>Sortino Ratio</div>
+            <div className="text-xs text-green-500 mt-1">Superior</div>
+          </div>
+          <div className="text-center p-3 bg-purple-50 dark:bg-purple-900/20 rounded-lg">
+            <div className="text-lg font-bold text-purple-600 mb-1">{riskMetrics.alpha}%</div>
+            <div className={`text-xs ${textSecondaryClass}`}>Alpha</div>
+            <div className="text-xs text-green-500 mt-1">Outperforming</div>
+          </div>
+          <div className="text-center p-3 bg-orange-50 dark:bg-orange-900/20 rounded-lg">
+            <div className="text-lg font-bold text-orange-600 mb-1">{riskMetrics.beta}</div>
+            <div className={`text-xs ${textSecondaryClass}`}>Beta</div>
+            <div className="text-xs text-blue-500 mt-1">Low Risk</div>
+          </div>
+          <div className="text-center p-3 bg-red-50 dark:bg-red-900/20 rounded-lg">
+            <div className="text-lg font-bold text-red-600 mb-1">{riskMetrics.maxDrawdown}%</div>
+            <div className={`text-xs ${textSecondaryClass}`}>Max Drawdown</div>
+            <div className="text-xs text-green-500 mt-1">Minimal</div>
+          </div>
+        </div>
+      </div>
+
+      {/* AI Predictive Analytics */}
+      <div className={`${cardBgClass} rounded-xl p-6 shadow-sm border ${borderClass} bg-gradient-to-r from-indigo-50 to-purple-50 dark:from-indigo-900/20 dark:to-purple-900/20`}>
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center space-x-2">
+            <div className="w-8 h-8 bg-indigo-600 rounded-full flex items-center justify-center">
+              <Target className="w-4 h-4 text-white" />
+            </div>
+            <h3 className={`text-lg font-semibold ${textClass}`}>AI-Powered Predictions</h3>
+          </div>
+          <div className="text-xs bg-indigo-600 text-white px-2 py-1 rounded-full">
+            Beta
+          </div>
+        </div>
+        
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div>
+            <h4 className={`font-medium ${textClass} mb-3`}>12-Month Forecast</h4>
+            <div className="space-y-3">
+              <div className="flex items-center justify-between">
+                <span className={textSecondaryClass}>Projected Return:</span>
+                <div className="flex items-center space-x-2">
+                  <span className="text-green-500 font-semibold">+{predictiveAnalytics.projectedReturn}%</span>
+                  <div className="w-12 h-2 bg-gray-200 dark:bg-slate-700 rounded-full">
+                    <div className="w-10 h-2 bg-green-500 rounded-full"></div>
+                  </div>
+                </div>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className={textSecondaryClass}>Confidence Level:</span>
+                <div className="flex items-center space-x-2">
+                  <span className="text-blue-500 font-semibold">{predictiveAnalytics.confidence}%</span>
+                  <div className="w-12 h-2 bg-gray-200 dark:bg-slate-700 rounded-full">
+                    <div 
+                      className="h-2 bg-blue-500 rounded-full transition-all duration-300"
+                      style={{width: `${(predictiveAnalytics.confidence / 100) * 48}px`}}
+                    ></div>
+                  </div>
+                </div>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className={textSecondaryClass}>Risk-Adjusted Target:</span>
+                <span className="text-purple-500 font-semibold">+{predictiveAnalytics.riskAdjustedTarget}%</span>
+              </div>
+            </div>
+          </div>
+          <div>
+            <h4 className={`font-medium ${textClass} mb-3`}>Next Month Probability</h4>
+            <div className="space-y-3">
+              <div>
+                <div className="flex items-center justify-between mb-1">
+                  <span className={textSecondaryClass}>Positive Return</span>
+                  <span className="text-green-500 font-semibold">{predictiveAnalytics.nextMonthProbability.positive}%</span>
+                </div>
+                <div className="w-full bg-gray-200 dark:bg-slate-700 rounded-full h-2">
+                  <div 
+                    className="bg-green-500 h-2 rounded-full transition-all duration-500" 
+                    style={{width: `${predictiveAnalytics.nextMonthProbability.positive}%`}}
+                  ></div>
+                </div>
+              </div>
+              <div>
+                <div className="flex items-center justify-between mb-1">
+                  <span className={textSecondaryClass}>Negative Return</span>
+                  <span className="text-red-500 font-semibold">{predictiveAnalytics.nextMonthProbability.negative}%</span>
+                </div>
+                <div className="w-full bg-gray-200 dark:bg-slate-700 rounded-full h-2">
+                  <div 
+                    className="bg-red-500 h-2 rounded-full transition-all duration-500" 
+                    style={{width: `${predictiveAnalytics.nextMonthProbability.negative}%`}}
+                  ></div>
+                </div>
+              </div>
+              <div className="text-xs text-gray-500 mt-3 p-2 bg-gray-100 dark:bg-slate-800 rounded">
+                <span className="font-medium">Model Accuracy:</span> 87.3% over last 24 months
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   );
 
