@@ -316,21 +316,608 @@ class HedgeFundBackendTester:
         except Exception as e:
             self.log_test("Payment Structure Validation", False, f"Validation error: {str(e)}")
     
-    def test_scheduler_verification(self):
-        """Test scheduler functionality (indirect verification)"""
-        print("\n=== TESTING SCHEDULER VERIFICATION ===")
+    def test_notification_system(self):
+        """Test comprehensive real-time notification system"""
+        print("\n=== TESTING REAL-TIME NOTIFICATION SYSTEM ===")
         
-        # We can't directly test the scheduler, but we can verify it's configured
-        # by checking if the manual distribution works (which uses the same logic)
+        # Test user IDs for testing
+        test_user_id = "investor@example.com"
+        admin_user_id = "admin@apexcapital.com"
+        
+        # Test 1: Create notifications with different priorities and types
+        self.test_create_notifications(test_user_id, admin_user_id)
+        
+        # Test 2: Get user notifications with filtering
+        self.test_get_user_notifications(test_user_id)
+        
+        # Test 3: Mark notifications as read
+        self.test_mark_notifications_read(test_user_id)
+        
+        # Test 4: Get unread count
+        self.test_get_unread_count(test_user_id)
+        
+        # Test 5: Delete notifications
+        self.test_delete_notifications(test_user_id)
+        
+        # Test 6: WebSocket connection (simplified test)
+        self.test_websocket_connection(test_user_id)
+    
+    def test_create_notifications(self, user_id, admin_user_id):
+        """Test creating notifications with different priorities and types"""
+        print("\n--- Testing Notification Creation ---")
+        
+        # Test notifications with different priorities and categories
+        test_notifications = [
+            {
+                "user_id": user_id,
+                "user_type": "investor",
+                "title": "Weekly Profit Distribution",
+                "message": "Your weekly profit of $2,450 has been added to your account",
+                "type": "profit",
+                "priority": "high",
+                "metadata": {"amount": 2450, "period": "2025-01"}
+            },
+            {
+                "user_id": user_id,
+                "user_type": "investor",
+                "title": "Security Alert",
+                "message": "New login detected from unknown device",
+                "type": "security",
+                "priority": "critical",
+                "metadata": {"ip": "192.168.1.100", "device": "Chrome on Windows"}
+            },
+            {
+                "user_id": user_id,
+                "user_type": "investor",
+                "title": "Deposit Confirmation",
+                "message": "Your deposit of $50,000 has been processed successfully",
+                "type": "deposit",
+                "priority": "medium",
+                "metadata": {"amount": 50000, "transaction_id": "TXN-12345"}
+            },
+            {
+                "user_id": admin_user_id,
+                "user_type": "admin",
+                "title": "System Performance Alert",
+                "message": "Trading system performance is above target (95.2% success rate)",
+                "type": "performance",
+                "priority": "low",
+                "metadata": {"success_rate": 95.2, "period": "week-3"}
+            }
+        ]
+        
+        created_notification_ids = []
+        
+        for i, notification in enumerate(test_notifications):
+            try:
+                response = requests.post(f"{self.base_url}/notifications", 
+                                       json=notification, timeout=10)
+                if response.status_code == 200:
+                    created_notif = response.json()
+                    created_notification_ids.append(created_notif["id"])
+                    
+                    # Verify notification structure
+                    if (created_notif["title"] == notification["title"] and
+                        created_notif["type"] == notification["type"] and
+                        created_notif["priority"] == notification["priority"] and
+                        created_notif["status"] == "unread"):
+                        self.log_test(f"Create Notification {i+1}", True, 
+                                    f"Created {notification['priority']} priority {notification['type']} notification")
+                    else:
+                        self.log_test(f"Create Notification {i+1}", False, 
+                                    "Notification data mismatch", created_notif)
+                else:
+                    self.log_test(f"Create Notification {i+1}", False, 
+                                f"HTTP {response.status_code}", response.text)
+            except Exception as e:
+                self.log_test(f"Create Notification {i+1}", False, "Connection failed", str(e))
+        
+        # Store created IDs for later tests
+        self.created_notification_ids = created_notification_ids
+        return created_notification_ids
+    
+    def test_get_user_notifications(self, user_id):
+        """Test getting user notifications with filtering"""
+        print("\n--- Testing Get User Notifications ---")
+        
+        # Test 1: Get all notifications for user
         try:
-            # Check if we can trigger manual distribution (scheduler uses same function)
-            response = requests.post(f"{self.base_url}/manual-profit-distribution", timeout=30)
+            response = requests.get(f"{self.base_url}/notifications/{user_id}", timeout=10)
             if response.status_code == 200:
-                self.log_test("Scheduler Logic", True, "Scheduler logic verified through manual trigger")
+                notifications = response.json()
+                self.log_test("Get All User Notifications", True, 
+                            f"Retrieved {len(notifications)} notifications for user")
+                
+                # Verify notification structure
+                if len(notifications) > 0:
+                    notif = notifications[0]
+                    required_fields = ["id", "user_id", "title", "message", "type", "priority", "status", "created_at"]
+                    missing_fields = [field for field in required_fields if field not in notif]
+                    
+                    if not missing_fields:
+                        self.log_test("Notification Structure", True, "All required fields present")
+                    else:
+                        self.log_test("Notification Structure", False, f"Missing fields: {missing_fields}")
             else:
-                self.log_test("Scheduler Logic", False, f"Scheduler logic may be broken: HTTP {response.status_code}")
+                self.log_test("Get All User Notifications", False, 
+                            f"HTTP {response.status_code}", response.text)
         except Exception as e:
-            self.log_test("Scheduler Logic", False, f"Scheduler verification failed: {str(e)}")
+            self.log_test("Get All User Notifications", False, "Connection failed", str(e))
+        
+        # Test 2: Filter by status (unread)
+        try:
+            response = requests.get(f"{self.base_url}/notifications/{user_id}?status=unread", timeout=10)
+            if response.status_code == 200:
+                unread_notifications = response.json()
+                self.log_test("Filter by Status (Unread)", True, 
+                            f"Retrieved {len(unread_notifications)} unread notifications")
+            else:
+                self.log_test("Filter by Status (Unread)", False, 
+                            f"HTTP {response.status_code}", response.text)
+        except Exception as e:
+            self.log_test("Filter by Status (Unread)", False, "Connection failed", str(e))
+        
+        # Test 3: Filter by type (profit)
+        try:
+            response = requests.get(f"{self.base_url}/notifications/{user_id}?type=profit", timeout=10)
+            if response.status_code == 200:
+                profit_notifications = response.json()
+                self.log_test("Filter by Type (Profit)", True, 
+                            f"Retrieved {len(profit_notifications)} profit notifications")
+            else:
+                self.log_test("Filter by Type (Profit)", False, 
+                            f"HTTP {response.status_code}", response.text)
+        except Exception as e:
+            self.log_test("Filter by Type (Profit)", False, "Connection failed", str(e))
+        
+        # Test 4: Filter by priority (critical)
+        try:
+            response = requests.get(f"{self.base_url}/notifications/{user_id}?priority=critical", timeout=10)
+            if response.status_code == 200:
+                critical_notifications = response.json()
+                self.log_test("Filter by Priority (Critical)", True, 
+                            f"Retrieved {len(critical_notifications)} critical notifications")
+            else:
+                self.log_test("Filter by Priority (Critical)", False, 
+                            f"HTTP {response.status_code}", response.text)
+        except Exception as e:
+            self.log_test("Filter by Priority (Critical)", False, "Connection failed", str(e))
+    
+    def test_mark_notifications_read(self, user_id):
+        """Test marking notifications as read"""
+        print("\n--- Testing Mark Notifications as Read ---")
+        
+        # Test 1: Mark individual notification as read
+        if hasattr(self, 'created_notification_ids') and self.created_notification_ids:
+            notification_id = self.created_notification_ids[0]
+            try:
+                response = requests.patch(f"{self.base_url}/notifications/{notification_id}/read", timeout=10)
+                if response.status_code == 200:
+                    result = response.json()
+                    if "message" in result and "read" in result["message"].lower():
+                        self.log_test("Mark Individual Notification Read", True, 
+                                    "Successfully marked notification as read")
+                    else:
+                        self.log_test("Mark Individual Notification Read", False, 
+                                    "Unexpected response format", result)
+                else:
+                    self.log_test("Mark Individual Notification Read", False, 
+                                f"HTTP {response.status_code}", response.text)
+            except Exception as e:
+                self.log_test("Mark Individual Notification Read", False, "Connection failed", str(e))
+        
+        # Test 2: Mark all notifications as read for user
+        try:
+            response = requests.patch(f"{self.base_url}/notifications/{user_id}/mark-all-read", timeout=10)
+            if response.status_code == 200:
+                result = response.json()
+                if "message" in result and "read" in result["message"].lower():
+                    self.log_test("Mark All Notifications Read", True, 
+                                "Successfully marked all notifications as read")
+                else:
+                    self.log_test("Mark All Notifications Read", False, 
+                                "Unexpected response format", result)
+            else:
+                self.log_test("Mark All Notifications Read", False, 
+                            f"HTTP {response.status_code}", response.text)
+        except Exception as e:
+            self.log_test("Mark All Notifications Read", False, "Connection failed", str(e))
+    
+    def test_get_unread_count(self, user_id):
+        """Test getting unread notification count"""
+        print("\n--- Testing Get Unread Count ---")
+        
+        try:
+            response = requests.get(f"{self.base_url}/notifications/{user_id}/unread-count", timeout=10)
+            if response.status_code == 200:
+                result = response.json()
+                if "unread_count" in result and isinstance(result["unread_count"], int):
+                    self.log_test("Get Unread Count", True, 
+                                f"Retrieved unread count: {result['unread_count']}")
+                else:
+                    self.log_test("Get Unread Count", False, 
+                                "Invalid response format", result)
+            else:
+                self.log_test("Get Unread Count", False, 
+                            f"HTTP {response.status_code}", response.text)
+        except Exception as e:
+            self.log_test("Get Unread Count", False, "Connection failed", str(e))
+    
+    def test_delete_notifications(self, user_id):
+        """Test deleting notifications"""
+        print("\n--- Testing Delete Notifications ---")
+        
+        # Create a test notification to delete
+        try:
+            test_notification = {
+                "user_id": user_id,
+                "user_type": "investor",
+                "title": "Test Notification for Deletion",
+                "message": "This notification will be deleted",
+                "type": "system",
+                "priority": "low"
+            }
+            
+            response = requests.post(f"{self.base_url}/notifications", 
+                                   json=test_notification, timeout=10)
+            if response.status_code == 200:
+                created_notif = response.json()
+                notification_id = created_notif["id"]
+                
+                # Now delete it
+                delete_response = requests.delete(f"{self.base_url}/notifications/{notification_id}", timeout=10)
+                if delete_response.status_code == 200:
+                    result = delete_response.json()
+                    if "message" in result and "deleted" in result["message"].lower():
+                        self.log_test("Delete Notification", True, 
+                                    "Successfully deleted notification")
+                    else:
+                        self.log_test("Delete Notification", False, 
+                                    "Unexpected response format", result)
+                else:
+                    self.log_test("Delete Notification", False, 
+                                f"HTTP {delete_response.status_code}", delete_response.text)
+            else:
+                self.log_test("Delete Notification", False, 
+                            f"Failed to create test notification: HTTP {response.status_code}")
+        except Exception as e:
+            self.log_test("Delete Notification", False, "Connection failed", str(e))
+    
+    def test_websocket_connection(self, user_id):
+        """Test WebSocket connection for real-time notifications"""
+        print("\n--- Testing WebSocket Connection ---")
+        
+        try:
+            # Simple WebSocket connection test
+            ws_url = f"{self.websocket_url}/ws/{user_id}"
+            
+            def on_message(ws, message):
+                self.websocket_messages.append(message)
+                print(f"WebSocket received: {message}")
+            
+            def on_open(ws):
+                self.websocket_connected = True
+                print("WebSocket connection opened")
+                # Send a test message
+                ws.send("Test message from client")
+            
+            def on_error(ws, error):
+                print(f"WebSocket error: {error}")
+            
+            def on_close(ws, close_status_code, close_msg):
+                print("WebSocket connection closed")
+            
+            # Create WebSocket connection with timeout
+            ws = websocket.WebSocketApp(ws_url,
+                                      on_open=on_open,
+                                      on_message=on_message,
+                                      on_error=on_error,
+                                      on_close=on_close)
+            
+            # Run WebSocket in a separate thread with timeout
+            def run_websocket():
+                ws.run_forever()
+            
+            ws_thread = threading.Thread(target=run_websocket)
+            ws_thread.daemon = True
+            ws_thread.start()
+            
+            # Wait for connection
+            time.sleep(2)
+            
+            if self.websocket_connected:
+                self.log_test("WebSocket Connection", True, 
+                            "Successfully established WebSocket connection")
+                
+                # Test sending notification while WebSocket is connected
+                test_notification = {
+                    "user_id": user_id,
+                    "user_type": "investor",
+                    "title": "Real-time Test Notification",
+                    "message": "This notification should be delivered via WebSocket",
+                    "type": "system",
+                    "priority": "medium"
+                }
+                
+                response = requests.post(f"{self.base_url}/notifications", 
+                                       json=test_notification, timeout=10)
+                
+                # Wait for WebSocket message
+                time.sleep(1)
+                
+                if len(self.websocket_messages) > 0:
+                    self.log_test("WebSocket Real-time Delivery", True, 
+                                f"Received {len(self.websocket_messages)} WebSocket messages")
+                else:
+                    self.log_test("WebSocket Real-time Delivery", False, 
+                                "No WebSocket messages received")
+                
+                ws.close()
+            else:
+                self.log_test("WebSocket Connection", False, 
+                            "Failed to establish WebSocket connection")
+                
+        except Exception as e:
+            self.log_test("WebSocket Connection", False, f"WebSocket test failed: {str(e)}")
+    
+    def test_notification_settings(self):
+        """Test notification settings system"""
+        print("\n=== TESTING NOTIFICATION SETTINGS SYSTEM ===")
+        
+        test_user_id = "investor@example.com"
+        
+        # Test 1: Get notification settings (should create defaults if none exist)
+        try:
+            response = requests.get(f"{self.base_url}/notification-settings/{test_user_id}", timeout=10)
+            if response.status_code == 200:
+                settings = response.json()
+                
+                # Verify default settings structure
+                required_fields = ["user_id", "email_notifications", "push_notifications", 
+                                 "categories", "priority_settings", "quiet_hours", "frequency_limits"]
+                missing_fields = [field for field in required_fields if field not in settings]
+                
+                if not missing_fields:
+                    self.log_test("Get Notification Settings", True, 
+                                "Retrieved notification settings with all required fields")
+                    
+                    # Verify categories are present
+                    expected_categories = ["profit", "deposit", "withdrawal", "alert", "security", 
+                                         "report", "system", "trade", "risk", "performance"]
+                    missing_categories = [cat for cat in expected_categories 
+                                        if cat not in settings["categories"]]
+                    
+                    if not missing_categories:
+                        self.log_test("Notification Categories", True, 
+                                    f"All {len(expected_categories)} notification categories present")
+                    else:
+                        self.log_test("Notification Categories", False, 
+                                    f"Missing categories: {missing_categories}")
+                        
+                    # Verify priority settings
+                    expected_priorities = ["low", "medium", "high", "critical"]
+                    missing_priorities = [pri for pri in expected_priorities 
+                                        if pri not in settings["priority_settings"]]
+                    
+                    if not missing_priorities:
+                        self.log_test("Priority Settings", True, 
+                                    f"All {len(expected_priorities)} priority levels present")
+                    else:
+                        self.log_test("Priority Settings", False, 
+                                    f"Missing priorities: {missing_priorities}")
+                else:
+                    self.log_test("Get Notification Settings", False, 
+                                f"Missing fields: {missing_fields}")
+            else:
+                self.log_test("Get Notification Settings", False, 
+                            f"HTTP {response.status_code}", response.text)
+        except Exception as e:
+            self.log_test("Get Notification Settings", False, "Connection failed", str(e))
+        
+        # Test 2: Update notification settings
+        try:
+            settings_update = {
+                "email_notifications": False,
+                "sms_notifications": True,
+                "categories": {
+                    "profit": True,
+                    "security": True,
+                    "deposit": False,
+                    "withdrawal": False
+                },
+                "priority_settings": {
+                    "low": False,
+                    "medium": True,
+                    "high": True,
+                    "critical": True
+                },
+                "quiet_hours": {
+                    "enabled": True,
+                    "start_time": "23:00",
+                    "end_time": "07:00",
+                    "timezone": "UTC"
+                },
+                "frequency_limits": {
+                    "daily_limit": 25,
+                    "hourly_limit": 5
+                }
+            }
+            
+            response = requests.patch(f"{self.base_url}/notification-settings/{test_user_id}", 
+                                    json=settings_update, timeout=10)
+            if response.status_code == 200:
+                updated_settings = response.json()
+                
+                # Verify updates were applied
+                if (updated_settings["email_notifications"] == False and
+                    updated_settings["sms_notifications"] == True and
+                    updated_settings["categories"]["profit"] == True and
+                    updated_settings["categories"]["deposit"] == False and
+                    updated_settings["quiet_hours"]["enabled"] == True):
+                    self.log_test("Update Notification Settings", True, 
+                                "Successfully updated notification settings")
+                else:
+                    self.log_test("Update Notification Settings", False, 
+                                "Settings update not applied correctly", updated_settings)
+            else:
+                self.log_test("Update Notification Settings", False, 
+                            f"HTTP {response.status_code}", response.text)
+        except Exception as e:
+            self.log_test("Update Notification Settings", False, "Connection failed", str(e))
+    
+    def test_broadcast_notifications(self):
+        """Test broadcast notification system"""
+        print("\n=== TESTING BROADCAST NOTIFICATION SYSTEM ===")
+        
+        # Test admin broadcast to all investors
+        try:
+            broadcast_notification = {
+                "user_id": "all_investors",
+                "user_type": "admin",
+                "title": "Important System Maintenance Notice",
+                "message": "The trading system will undergo maintenance on Sunday from 2-4 AM EST",
+                "type": "system",
+                "priority": "high",
+                "metadata": {
+                    "maintenance_window": "Sunday 2-4 AM EST",
+                    "expected_downtime": "2 hours"
+                }
+            }
+            
+            response = requests.post(f"{self.base_url}/notifications/broadcast", 
+                                   json=broadcast_notification, timeout=10)
+            if response.status_code == 200:
+                result = response.json()
+                if "message" in result and "broadcast" in result["message"].lower():
+                    # Extract number of users from message
+                    import re
+                    match = re.search(r'(\d+) users', result["message"])
+                    if match:
+                        user_count = int(match.group(1))
+                        self.log_test("Broadcast Notification", True, 
+                                    f"Successfully broadcast notification to {user_count} users")
+                    else:
+                        self.log_test("Broadcast Notification", True, 
+                                    "Successfully broadcast notification")
+                else:
+                    self.log_test("Broadcast Notification", False, 
+                                "Unexpected response format", result)
+            else:
+                self.log_test("Broadcast Notification", False, 
+                            f"HTTP {response.status_code}", response.text)
+        except Exception as e:
+            self.log_test("Broadcast Notification", False, "Connection failed", str(e))
+    
+    def test_enhanced_notification_features(self):
+        """Test enhanced notification features"""
+        print("\n=== TESTING ENHANCED NOTIFICATION FEATURES ===")
+        
+        test_user_id = "investor@example.com"
+        
+        # Test all notification priorities
+        priorities = ["low", "medium", "high", "critical"]
+        for priority in priorities:
+            try:
+                test_notification = {
+                    "user_id": test_user_id,
+                    "user_type": "investor",
+                    "title": f"Test {priority.title()} Priority Notification",
+                    "message": f"This is a {priority} priority notification for testing",
+                    "type": "system",
+                    "priority": priority,
+                    "metadata": {"test_priority": priority}
+                }
+                
+                response = requests.post(f"{self.base_url}/notifications", 
+                                       json=test_notification, timeout=10)
+                if response.status_code == 200:
+                    created_notif = response.json()
+                    if created_notif["priority"] == priority:
+                        self.log_test(f"Priority {priority.title()}", True, 
+                                    f"Successfully created {priority} priority notification")
+                    else:
+                        self.log_test(f"Priority {priority.title()}", False, 
+                                    f"Priority mismatch: expected {priority}, got {created_notif['priority']}")
+                else:
+                    self.log_test(f"Priority {priority.title()}", False, 
+                                f"HTTP {response.status_code}", response.text)
+            except Exception as e:
+                self.log_test(f"Priority {priority.title()}", False, "Connection failed", str(e))
+        
+        # Test all notification categories
+        categories = ["profit", "deposit", "withdrawal", "alert", "security", 
+                     "report", "system", "trade", "risk", "performance"]
+        for category in categories:
+            try:
+                test_notification = {
+                    "user_id": test_user_id,
+                    "user_type": "investor",
+                    "title": f"Test {category.title()} Notification",
+                    "message": f"This is a {category} category notification for testing",
+                    "type": category,
+                    "priority": "medium",
+                    "metadata": {"test_category": category}
+                }
+                
+                response = requests.post(f"{self.base_url}/notifications", 
+                                       json=test_notification, timeout=10)
+                if response.status_code == 200:
+                    created_notif = response.json()
+                    if created_notif["type"] == category:
+                        self.log_test(f"Category {category.title()}", True, 
+                                    f"Successfully created {category} category notification")
+                    else:
+                        self.log_test(f"Category {category.title()}", False, 
+                                    f"Category mismatch: expected {category}, got {created_notif['type']}")
+                else:
+                    self.log_test(f"Category {category.title()}", False, 
+                                f"HTTP {response.status_code}", response.text)
+            except Exception as e:
+                self.log_test(f"Category {category.title()}", False, "Connection failed", str(e))
+        
+        # Test metadata handling
+        try:
+            complex_metadata = {
+                "amount": 15000.50,
+                "transaction_id": "TXN-98765",
+                "account_details": {
+                    "account_number": "ACC-12345",
+                    "routing_number": "123456789"
+                },
+                "timestamps": {
+                    "initiated": "2025-01-15T10:30:00Z",
+                    "processed": "2025-01-15T10:35:00Z"
+                },
+                "flags": ["urgent", "verified", "processed"]
+            }
+            
+            metadata_notification = {
+                "user_id": test_user_id,
+                "user_type": "investor",
+                "title": "Complex Metadata Test",
+                "message": "Testing complex metadata handling",
+                "type": "deposit",
+                "priority": "high",
+                "metadata": complex_metadata
+            }
+            
+            response = requests.post(f"{self.base_url}/notifications", 
+                                   json=metadata_notification, timeout=10)
+            if response.status_code == 200:
+                created_notif = response.json()
+                if (created_notif["metadata"]["amount"] == 15000.50 and
+                    "account_details" in created_notif["metadata"] and
+                    len(created_notif["metadata"]["flags"]) == 3):
+                    self.log_test("Complex Metadata Handling", True, 
+                                "Successfully handled complex metadata structure")
+                else:
+                    self.log_test("Complex Metadata Handling", False, 
+                                "Metadata not preserved correctly", created_notif["metadata"])
+            else:
+                self.log_test("Complex Metadata Handling", False, 
+                            f"HTTP {response.status_code}", response.text)
+        except Exception as e:
+            self.log_test("Complex Metadata Handling", False, "Connection failed", str(e))
     
     def run_comprehensive_tests(self):
         """Run all tests in sequence"""
