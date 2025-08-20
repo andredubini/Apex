@@ -20,6 +20,9 @@ class HedgeFundBackendTester:
         self.base_url = BACKEND_URL
         self.test_results = []
         self.created_investor_id = None
+        self.websocket_url = BACKEND_URL.replace("https://", "wss://").replace("/api", "")
+        self.websocket_messages = []
+        self.websocket_connected = False
         
     def log_test(self, test_name, success, message, details=None):
         """Log test results"""
