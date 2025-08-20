@@ -173,6 +173,7 @@ function App() {
             <Route path="/faq" element={<FAQ />} />
             <Route path="/privacy" element={<PrivacyPolicy />} />
             <Route path="/terms" element={<TermsOfUse />} />
+            <Route path="/blog" element={<Blog />} />
           </Routes>
         </Router>
       </ThemeContext.Provider>
