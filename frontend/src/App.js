@@ -8,6 +8,9 @@ import LoginPage from "./components/LoginPage";
 import RegisterPage from "./components/RegisterPage";
 import InvestorDashboard from "./components/InvestorDashboard";
 import AdminDashboard from "./components/AdminDashboard";
+import FAQ from "./components/FAQ";
+import PrivacyPolicy from "./components/PrivacyPolicy";
+import TermsOfUse from "./components/TermsOfUse";
 
 // Authentication context
 const AuthContext = React.createContext();
