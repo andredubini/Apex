@@ -1057,29 +1057,222 @@ const InvestorDashboard = () => {
     </div>
   );
 
-  const renderNotifications = () => (
-    <div className="space-y-4 pb-20 md:pb-6">
-      <div className={`${cardBgClass} rounded-xl p-6 shadow-sm border ${borderClass}`}>
-        <h3 className={`text-lg font-semibold ${textClass} mb-4`}>Activity</h3>
-        <div className="space-y-3">
-          {notifications.map((notification) => (
-            <div key={notification.id} className={theme === 'dark' ? 'bg-slate-700/50 rounded-lg p-4' : 'bg-gray-50 rounded-lg p-4'}>
-              <div className="flex items-start space-x-3">
-                <div className={`w-2 h-2 rounded-full mt-2 ${
-                  notification.type === 'profit' ? 'bg-green-500' :
-                  notification.type === 'deposit' ? 'bg-blue-500' : 'bg-orange-500'
-                }`}></div>
-                <div className="flex-1">
-                  <p className={`${textClass} font-medium`}>{notification.message}</p>
-                  <p className={`text-sm ${textSecondaryClass} mt-1`}>{notification.time}</p>
-                </div>
-              </div>
+  const renderNotifications = () => {
+    const [selectedPriority, setSelectedPriority] = useState("all");
+    const [selectedCategory, setSelectedCategory] = useState("all");
+    
+    // Filter notifications based on priority and category
+    const filteredNotifications = notifications.filter(notification => {
+      const priorityMatch = selectedPriority === "all" || notification.priority === selectedPriority;
+      const categoryMatch = selectedCategory === "all" || notification.type === selectedCategory;
+      return priorityMatch && categoryMatch;
+    });
+
+    const getPriorityColor = (priority) => {
+      switch (priority) {
+        case 'critical': return 'text-red-500 bg-red-100 border-red-200';
+        case 'high': return 'text-orange-500 bg-orange-100 border-orange-200';
+        case 'medium': return 'text-blue-500 bg-blue-100 border-blue-200';
+        case 'low': return 'text-gray-500 bg-gray-100 border-gray-200';
+        default: return 'text-gray-500 bg-gray-100 border-gray-200';
+      }
+    };
+
+    const getTypeColor = (type) => {
+      switch (type) {
+        case 'profit': return 'text-green-600 bg-green-100';
+        case 'deposit': return 'text-blue-600 bg-blue-100';
+        case 'withdrawal': return 'text-orange-600 bg-orange-100';
+        case 'alert': return 'text-red-600 bg-red-100';
+        case 'security': return 'text-purple-600 bg-purple-100';
+        case 'report': return 'text-indigo-600 bg-indigo-100';
+        case 'system': return 'text-gray-600 bg-gray-100';
+        case 'trade': return 'text-emerald-600 bg-emerald-100';
+        case 'risk': return 'text-yellow-600 bg-yellow-100';
+        case 'performance': return 'text-cyan-600 bg-cyan-100';
+        default: return 'text-gray-600 bg-gray-100';
+      }
+    };
+
+    const formatTimeAgo = (dateString) => {
+      const date = new Date(dateString);
+      const now = new Date();
+      const diffInSeconds = Math.floor((now - date) / 1000);
+      
+      if (diffInSeconds < 60) return 'Just now';
+      if (diffInSeconds < 3600) return `${Math.floor(diffInSeconds / 60)}m ago`;
+      if (diffInSeconds < 86400) return `${Math.floor(diffInSeconds / 3600)}h ago`;
+      return `${Math.floor(diffInSeconds / 86400)}d ago`;
+    };
+
+    return (
+      <div className="space-y-4 pb-20 md:pb-6">
+        {/* Connection Status Indicator */}
+        <div className={`${cardBgClass} rounded-xl p-4 shadow-sm border ${borderClass}`}>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-3">
+              <div className={`w-3 h-3 rounded-full ${
+                connectionStatus === 'connected' ? 'bg-green-500' : 
+                connectionStatus === 'connecting' ? 'bg-yellow-500 animate-pulse' : 
+                'bg-red-500'
+              }`}></div>
+              <span className={`text-sm ${textSecondaryClass}`}>
+                Real-time notifications: {
+                  connectionStatus === 'connected' ? 'Connected' : 
+                  connectionStatus === 'connecting' ? 'Connecting...' : 
+                  'Disconnected'
+                }
+              </span>
             </div>
-          ))}
+            <div className="flex items-center space-x-2">
+              <button
+                onClick={markAllNotificationsAsRead}
+                disabled={unreadCount === 0}
+                className={`text-sm px-3 py-1 rounded-lg ${
+                  unreadCount > 0 
+                    ? 'text-blue-600 bg-blue-100 hover:bg-blue-200' 
+                    : 'text-gray-400 bg-gray-100 cursor-not-allowed'
+                }`}
+              >
+                Mark All Read
+              </button>
+              <span className={`text-sm ${textSecondaryClass}`}>
+                {unreadCount} unread
+              </span>
+            </div>
+          </div>
+        </div>
+
+        {/* Filter Controls */}
+        <div className={`${cardBgClass} rounded-xl p-4 shadow-sm border ${borderClass}`}>
+          <div className="flex flex-col sm:flex-row gap-4">
+            <div className="flex-1">
+              <label className={`block text-sm font-medium ${textSecondaryClass} mb-2`}>
+                Filter by Priority
+              </label>
+              <select
+                value={selectedPriority}
+                onChange={(e) => setSelectedPriority(e.target.value)}
+                className={`w-full px-3 py-2 border ${borderClass} rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${theme === 'dark' ? 'bg-slate-700 text-white' : 'bg-white text-gray-900'}`}
+              >
+                <option value="all">All Priorities</option>
+                <option value="critical">Critical</option>
+                <option value="high">High</option>
+                <option value="medium">Medium</option>
+                <option value="low">Low</option>
+              </select>
+            </div>
+            <div className="flex-1">
+              <label className={`block text-sm font-medium ${textSecondaryClass} mb-2`}>
+                Filter by Category
+              </label>
+              <select
+                value={selectedCategory}
+                onChange={(e) => setSelectedCategory(e.target.value)}
+                className={`w-full px-3 py-2 border ${borderClass} rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${theme === 'dark' ? 'bg-slate-700 text-white' : 'bg-white text-gray-900'}`}
+              >
+                <option value="all">All Categories</option>
+                <option value="profit">Profits</option>
+                <option value="deposit">Deposits</option>
+                <option value="withdrawal">Withdrawals</option>
+                <option value="alert">Alerts</option>
+                <option value="security">Security</option>
+                <option value="report">Reports</option>
+                <option value="system">System</option>
+                <option value="trade">Trading</option>
+                <option value="risk">Risk</option>
+                <option value="performance">Performance</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        {/* Notifications List */}
+        <div className={`${cardBgClass} rounded-xl p-6 shadow-sm border ${borderClass}`}>
+          <h3 className={`text-lg font-semibold ${textClass} mb-4`}>
+            Activity Feed ({filteredNotifications.length} notifications)
+          </h3>
+          
+          {filteredNotifications.length === 0 ? (
+            <div className="text-center py-8">
+              <Bell className={`w-12 h-12 mx-auto ${textSecondaryClass} mb-4`} />
+              <p className={`${textSecondaryClass}`}>No notifications found</p>
+            </div>
+          ) : (
+            <div className="space-y-3">
+              {filteredNotifications.map((notification) => (
+                <div
+                  key={notification.id}
+                  className={`p-4 rounded-lg border transition-all hover:shadow-md ${
+                    notification.status === 'unread' 
+                      ? 'border-blue-200 bg-blue-50 dark:bg-blue-900/20 dark:border-blue-700' 
+                      : `${borderClass} ${theme === 'dark' ? 'bg-slate-700/50' : 'bg-gray-50'}`
+                  }`}
+                >
+                  <div className="flex items-start justify-between">
+                    <div className="flex-1">
+                      <div className="flex items-center space-x-3 mb-2">
+                        {/* Priority Indicator */}
+                        <span className={`px-2 py-1 rounded-full text-xs font-medium border ${getPriorityColor(notification.priority)}`}>
+                          {notification.priority?.toUpperCase() || 'MEDIUM'}
+                        </span>
+                        
+                        {/* Category Badge */}
+                        <span className={`px-2 py-1 rounded-full text-xs font-medium ${getTypeColor(notification.type)}`}>
+                          {notification.type?.toUpperCase() || 'SYSTEM'}
+                        </span>
+                        
+                        {/* Unread Indicator */}
+                        {notification.status === 'unread' && (
+                          <span className="w-2 h-2 bg-blue-500 rounded-full"></span>
+                        )}
+                      </div>
+                      
+                      <h4 className={`font-semibold ${textClass} mb-1`}>
+                        {notification.title || notification.message}
+                      </h4>
+                      
+                      {notification.title && notification.title !== notification.message && (
+                        <p className={`${textSecondaryClass} text-sm mb-2`}>
+                          {notification.message}
+                        </p>
+                      )}
+                      
+                      <p className={`text-xs ${textSecondaryClass}`}>
+                        {formatTimeAgo(notification.created_at)}
+                      </p>
+                      
+                      {/* Metadata Display */}
+                      {notification.metadata && Object.keys(notification.metadata).length > 0 && (
+                        <div className="mt-2 p-2 rounded bg-gray-100 dark:bg-slate-800">
+                          <p className="text-xs text-gray-600 dark:text-gray-400">
+                            {notification.metadata.amount && `Amount: $${notification.metadata.amount.toLocaleString()}`}
+                            {notification.metadata.period && ` • Period: ${notification.metadata.period}`}
+                            {notification.metadata.payment_reference && ` • Ref: ${notification.metadata.payment_reference}`}
+                          </p>
+                        </div>
+                      )}
+                    </div>
+                    
+                    <div className="flex space-x-2 ml-4">
+                      {notification.status === 'unread' && (
+                        <button
+                          onClick={() => markNotificationAsRead(notification.id)}
+                          className="text-blue-600 hover:text-blue-700 text-sm font-medium"
+                        >
+                          Mark Read
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       </div>
-    </div>
-  );
+    );
+  };
 
   const renderSettings = () => (
     <div className="space-y-6 pb-20 md:pb-6">
