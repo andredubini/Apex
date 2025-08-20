@@ -1057,10 +1057,11 @@ const InvestorDashboard = () => {
     </div>
   );
 
+  // Additional state for notification filtering
+  const [selectedPriority, setSelectedPriority] = useState("all");
+  const [selectedCategory, setSelectedCategory] = useState("all");
+
   const renderNotifications = () => {
-    const [selectedPriority, setSelectedPriority] = useState("all");
-    const [selectedCategory, setSelectedCategory] = useState("all");
-    
     // Filter notifications based on priority and category
     const filteredNotifications = notifications.filter(notification => {
       const priorityMatch = selectedPriority === "all" || notification.priority === selectedPriority;
