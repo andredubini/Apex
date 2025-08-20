@@ -280,7 +280,7 @@ const InvestorDashboard = () => {
 
   const renderOverview = () => (
     <div className="space-y-6 pb-20 md:pb-6">
-      {/* Main Balance Card */}
+      {/* Main Balance Card with Enhanced Features */}
       <div className="bg-gradient-to-r from-blue-600 to-blue-700 rounded-2xl p-6 text-white shadow-lg">
         <div className="flex items-center justify-between mb-4">
           <div>
@@ -303,13 +303,41 @@ const InvestorDashboard = () => {
           </div>
         </div>
         
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between mb-4">
           <div className="flex items-center space-x-2">
             <ArrowUpRight className="w-4 h-4 text-green-200" />
             <span className="text-sm text-blue-100">+{totalReturn.toFixed(2)}% Total Return</span>
           </div>
           <div className="text-sm text-blue-100">
             Since {user.joinDate || "Jan 2024"}
+          </div>
+        </div>
+
+        {/* Market Comparison Selector */}
+        <div className="border-t border-blue-500 pt-4">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-blue-100 text-sm mb-1">Benchmark Comparison</p>
+              <select
+                value={benchmarkComparison}
+                onChange={(e) => setBenchmarkComparison(e.target.value)}
+                className="bg-blue-800 text-white text-sm px-3 py-1 rounded border border-blue-500 focus:outline-none focus:border-blue-300"
+              >
+                <option value="SP500">vs S&P 500</option>
+                <option value="NASDAQ">vs NASDAQ</option>
+                <option value="none">No Comparison</option>
+              </select>
+            </div>
+            {benchmarkComparison !== 'none' && (
+              <div className="text-right">
+                <div className="text-sm text-blue-100">
+                  Outperforming {benchmarkComparison} by
+                </div>
+                <div className="text-lg font-bold text-green-200">
+                  +{benchmarkComparison === 'SP500' ? '6.41%' : '3.91%'}
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </div>
