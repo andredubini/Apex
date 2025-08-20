@@ -575,6 +575,132 @@ const LandingPage = () => {
         </div>
       </section>
 
+      {/* Management Team Section */}
+      <section className="py-20 bg-slate-800">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-16">
+            <h2 className="text-4xl md:text-5xl font-bold text-white mb-6">Management Team</h2>
+            <p className="text-xl text-slate-300 max-w-3xl mx-auto">
+              Experienced professionals with decades of combined expertise in financial markets and risk management
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {/* CEO */}
+            <div className="bg-slate-900/50 backdrop-blur-md p-8 rounded-2xl border border-slate-700 text-center">
+              <div className="w-32 h-32 mx-auto mb-6 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center">
+                <span className="text-3xl font-bold text-white">MJ</span>
+              </div>
+              <h3 className="text-2xl font-bold text-white mb-2">Michael Johnson</h3>
+              <p className="text-blue-400 font-semibold mb-4">Chief Executive Officer</p>
+              <p className="text-slate-300 text-sm leading-relaxed mb-4">
+                Former Goldman Sachs portfolio manager with 15+ years in institutional trading. 
+                MBA from Wharton, CFA charterholder. Led $2B+ in asset management.
+              </p>
+              <div className="flex flex-wrap gap-2 justify-center">
+                <span className="bg-blue-600/20 text-blue-400 px-3 py-1 rounded-full text-xs">Portfolio Management</span>
+                <span className="bg-green-600/20 text-green-400 px-3 py-1 rounded-full text-xs">Risk Assessment</span>
+              </div>
+            </div>
+
+            {/* CTO */}
+            <div className="bg-slate-900/50 backdrop-blur-md p-8 rounded-2xl border border-slate-700 text-center">
+              <div className="w-32 h-32 mx-auto mb-6 bg-gradient-to-br from-green-500 to-blue-600 rounded-full flex items-center justify-center">
+                <span className="text-3xl font-bold text-white">SD</span>
+              </div>
+              <h3 className="text-2xl font-bold text-white mb-2">Sarah Davis</h3>
+              <p className="text-green-400 font-semibold mb-4">Chief Technology Officer</p>
+              <p className="text-slate-300 text-sm leading-relaxed mb-4">
+                Former fintech executive at JPMorgan Chase with expertise in algorithmic trading systems. 
+                MS Computer Science from MIT, specialized in quantitative finance.
+              </p>
+              <div className="flex flex-wrap gap-2 justify-center">
+                <span className="bg-purple-600/20 text-purple-400 px-3 py-1 rounded-full text-xs">Algorithm Development</span>
+                <span className="bg-orange-600/20 text-orange-400 px-3 py-1 rounded-full text-xs">Trading Systems</span>
+              </div>
+            </div>
+
+            {/* Chief Risk Officer */}
+            <div className="bg-slate-900/50 backdrop-blur-md p-8 rounded-2xl border border-slate-700 text-center">
+              <div className="w-32 h-32 mx-auto mb-6 bg-gradient-to-br from-orange-500 to-red-600 rounded-full flex items-center justify-center">
+                <span className="text-3xl font-bold text-white">RC</span>
+              </div>
+              <h3 className="text-2xl font-bold text-white mb-2">Robert Chen</h3>
+              <p className="text-orange-400 font-semibold mb-4">Chief Risk Officer</p>
+              <p className="text-slate-300 text-sm leading-relaxed mb-4">
+                20+ years in risk management at major investment banks including Morgan Stanley. 
+                PhD in Financial Mathematics, FRM certified risk professional.
+              </p>
+              <div className="flex flex-wrap gap-2 justify-center">
+                <span className="bg-red-600/20 text-red-400 px-3 py-1 rounded-full text-xs">Risk Management</span>
+                <span className="bg-yellow-600/20 text-yellow-400 px-3 py-1 rounded-full text-xs">Compliance</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Advisory Board */}
+          <div className="mt-20">
+            <div className="text-center mb-12">
+              <h3 className="text-3xl font-bold text-white mb-4">Advisory Board</h3>
+              <p className="text-slate-300 max-w-2xl mx-auto">
+                Industry veterans providing strategic guidance and regulatory oversight
+              </p>
+            </div>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+              <div className="bg-slate-900/50 backdrop-blur-md p-6 rounded-2xl border border-slate-700">
+                <div className="flex items-center space-x-4">
+                  <div className="w-16 h-16 bg-gradient-to-br from-purple-500 to-pink-600 rounded-full flex items-center justify-center">
+                    <span className="text-lg font-bold text-white">DT</span>
+                  </div>
+                  <div>
+                    <h4 className="text-lg font-bold text-white">Dr. David Thompson</h4>
+                    <p className="text-purple-400 font-semibold">Financial Advisor</p>
+                    <p className="text-slate-300 text-sm">Former SEC Commissioner, Harvard Business School Professor</p>
+                  </div>
+                </div>
+              </div>
+              
+              <div className="bg-slate-900/50 backdrop-blur-md p-6 rounded-2xl border border-slate-700">
+                <div className="flex items-center space-x-4">
+                  <div className="w-16 h-16 bg-gradient-to-br from-teal-500 to-blue-600 rounded-full flex items-center justify-center">
+                    <span className="text-lg font-bold text-white">LW</span>
+                  </div>
+                  <div>
+                    <h4 className="text-lg font-bold text-white">Lisa Wang</h4>
+                    <p className="text-teal-400 font-semibold">Regulatory Advisor</p>
+                    <p className="text-slate-300 text-sm">Former FINRA Executive Director, Securities Law Expert</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Credentials & Certifications */}
+          <div className="mt-16 bg-slate-900/50 backdrop-blur-md p-8 rounded-2xl border border-slate-700">
+            <h3 className="text-2xl font-bold text-white mb-6 text-center">Professional Credentials</h3>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
+              <div>
+                <div className="text-3xl font-bold text-blue-400 mb-2">50+</div>
+                <div className="text-slate-300 text-sm">Combined Years<br />Experience</div>
+              </div>
+              <div>
+                <div className="text-3xl font-bold text-green-400 mb-2">3</div>
+                <div className="text-slate-300 text-sm">CFA<br />Charterholders</div>
+              </div>
+              <div>
+                <div className="text-3xl font-bold text-purple-400 mb-2">2</div>
+                <div className="text-slate-300 text-sm">Advanced<br />Degrees (PhD/MBA)</div>
+              </div>
+              <div>
+                <div className="text-3xl font-bold text-orange-400 mb-2">$5B+</div>
+                <div className="text-slate-300 text-sm">Assets Previously<br />Managed</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* For Traders Section */}
       <section id="for-traders" className="py-20 bg-gradient-to-r from-slate-900 to-slate-800">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
