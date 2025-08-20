@@ -828,6 +828,27 @@ async def process_monthly_profit_distribution():
                 }
             )
             
+            # Create notification for investor about payment
+            await create_notification_for_user(
+                user_id=investor["id"],
+                user_type="investor",
+                title="Monthly Profit Payment Processed",
+                message=f"Your profit share of ${payment.total_payment:,.2f} has been processed and will be deposited within 24 hours.",
+                type=NotificationType.PROFIT,
+                priority=NotificationPriority.HIGH,
+                metadata={
+                    "amount": payment.total_payment,
+                    "period": f"{prev_year}-{prev_month:02d}",
+                    "payment_reference": payment.payment_reference,
+                    "tier_breakdown": {
+                        "tier_1": profit_details["tier_1_amount"],
+                        "tier_2": profit_details["tier_2_amount"],
+                        "tier_3": profit_details["tier_3_amount"],
+                        "tier_4": profit_details["tier_4_amount"]
+                    }
+                }
+            )
+            
             logger.info(f"Processed payment for investor {investor['name']}: ${payment.total_payment:.2f}")
         
         # Update distribution record
