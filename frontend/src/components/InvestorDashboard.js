@@ -1867,11 +1867,11 @@ const InvestorDashboard = () => {
       {/* Bottom Navigation - Mobile */}
       <nav className={`fixed bottom-0 left-0 right-0 ${cardBgClass} border-t ${borderClass} md:hidden`}>
         <div className="grid grid-cols-5 py-2">
-          {navItems.map(({ id, label, icon: Icon }) => (
+          {navItems.map(({ id, label, icon: Icon, badge }) => (
             <button
               key={id}
               onClick={() => setActiveTab(id)}
-              className={`flex flex-col items-center py-2 px-1 transition-colors ${
+              className={`flex flex-col items-center py-2 px-1 transition-colors relative ${
                 activeTab === id 
                   ? 'text-blue-600' 
                   : textSecondaryClass
@@ -1879,6 +1879,11 @@ const InvestorDashboard = () => {
             >
               <Icon className="w-6 h-6 mb-1" />
               <span className="text-xs font-medium">{label}</span>
+              {badge && (
+                <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-bold">
+                  {badge > 99 ? '99+' : badge}
+                </span>
+              )}
             </button>
           ))}
         </div>
