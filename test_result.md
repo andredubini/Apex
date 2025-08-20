@@ -463,12 +463,10 @@ Please thoroughly test the notification API endpoints, WebSocket connectivity, a
 
 ## test_plan:
   current_focus:
-    - "Landing Page UX/UI Analysis"
-    - "Investor Dashboard Functionality"
-    - "Admin Dashboard Management System"
-    - "Mobile Responsiveness and Cross-Device Compatibility"
-    - "Authentication and Security Features"
-    - "Financial Industry Compliance and Trust Elements"
+    - "Real-time Notification System"
+    - "Notification Settings System"
+    - "Broadcast Notification System"
+    - "Enhanced Notification Features"
   stuck_tasks: []
   test_all: true
   test_priority: "high_first"
