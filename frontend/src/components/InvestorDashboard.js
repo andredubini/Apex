@@ -47,6 +47,18 @@ const InvestorDashboard = () => {
   const [activeTab, setActiveTab] = useState("overview");
   const [showBalance, setShowBalance] = useState(true);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [selectedTimeframe, setSelectedTimeframe] = useState("3M");
+  const [compareWithMarket, setCompareWithMarket] = useState(true);
+  const [alertSettings, setAlertSettings] = useState({
+    performanceAlerts: true,
+    depositAlerts: true,
+    riskAlerts: true,
+    weeklyReports: true,
+    pushNotifications: true,
+    smsAlerts: false,
+    emailDigests: true
+  });
+  const [benchmarkComparison, setBenchmarkComparison] = useState("SP500");
   const [userProfile, setUserProfile] = useState({
     name: user.name || "John Investor",
     email: user.email || "investor@example.com",
@@ -66,9 +78,11 @@ const InvestorDashboard = () => {
     monthlyStatements: true
   });
   const [notifications, setNotifications] = useState([
-    { id: 1, type: "profit", message: "Weekly profit of $2,450 added to your account", time: "2 hours ago" },
-    { id: 2, type: "deposit", message: "Deposit of $50,000 processed successfully", time: "1 day ago" },
-    { id: 3, type: "report", message: "New weekly trading report available", time: "3 days ago" },
+    { id: 1, type: "profit", message: "Weekly profit of $2,450 added to your account", time: "2 hours ago", read: false, priority: "high" },
+    { id: 2, type: "deposit", message: "Deposit of $50,000 processed successfully", time: "1 day ago", read: false, priority: "medium" },
+    { id: 3, type: "report", message: "New weekly trading report available", time: "3 days ago", read: true, priority: "low" },
+    { id: 4, type: "alert", message: "Portfolio volatility increased to 8.5%", time: "5 days ago", read: false, priority: "high" },
+    { id: 5, type: "security", message: "Login from new device detected", time: "1 week ago", read: true, priority: "high" },
   ]);
 
   // Sample bank details
