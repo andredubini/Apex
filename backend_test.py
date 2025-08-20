@@ -929,11 +929,14 @@ class HedgeFundBackendTester:
         
         # Run all test suites
         self.test_api_health()
+        self.test_notification_system()
+        self.test_notification_settings()
+        self.test_broadcast_notifications()
+        self.test_enhanced_notification_features()
         self.test_investor_management()
         self.test_trading_performance()
         self.test_profit_distribution_system()
         self.test_investor_payments()
-        self.test_scheduler_verification()
         
         end_time = time.time()
         
