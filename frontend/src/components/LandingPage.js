@@ -851,48 +851,121 @@ const LandingPage = () => {
       {/* Footer */}
       <footer className="bg-slate-900 border-t border-slate-800 py-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          {/* Security and Trust Indicators */}
+          <div className="mb-12">
+            <div className="text-center mb-8">
+              <h3 className="text-2xl font-bold text-white mb-6">Security & Compliance</h3>
+            </div>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-6 items-center">
+              <div className="bg-slate-800/50 p-4 rounded-lg text-center">
+                <div className="flex items-center justify-center mb-2">
+                  <svg className="w-8 h-8 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                </div>
+                <div className="text-green-400 font-semibold text-sm">SSL Encrypted</div>
+                <div className="text-slate-400 text-xs">256-bit Security</div>
+              </div>
+              
+              <div className="bg-slate-800/50 p-4 rounded-lg text-center">
+                <div className="flex items-center justify-center mb-2">
+                  <svg className="w-8 h-8 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.7-2.3L21 7.6M3 21l1.3-1.3" />
+                  </svg>
+                </div>
+                <div className="text-blue-400 font-semibold text-sm">SIPC Insured</div>
+                <div className="text-slate-400 text-xs">Up to $500,000</div>
+              </div>
+              
+              <div className="bg-slate-800/50 p-4 rounded-lg text-center">
+                <div className="flex items-center justify-center mb-2">
+                  <svg className="w-8 h-8 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 14v3m4-3v3m4-3v3M3 21h18M3 10h18M3 7l9-4 9 4M4 10h16v11H4V10z" />
+                  </svg>
+                </div>
+                <div className="text-purple-400 font-semibold text-sm">Delaware Registered</div>
+                <div className="text-slate-400 text-xs">HF-2024-001</div>
+              </div>
+              
+              <div className="bg-slate-800/50 p-4 rounded-lg text-center">
+                <div className="flex items-center justify-center mb-2">
+                  <svg className="w-8 h-8 text-orange-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                </div>
+                <div className="text-orange-400 font-semibold text-sm">Audited</div>
+                <div className="text-slate-400 text-xs">Annual Reports</div>
+              </div>
+            </div>
+          </div>
+
           <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
             <div>
               <div className="text-2xl font-bold text-white mb-4">
                 <span className="text-blue-400">Apex</span>Capital
               </div>
-              <p className="text-slate-300 text-sm">
+              <p className="text-slate-300 text-sm mb-4">
                 Delaware-registered hedge fund specializing in US stock market intraday trading with proven risk management strategies.
               </p>
+              <div className="flex items-center space-x-2 text-sm text-slate-400">
+                <svg className="w-4 h-4 text-green-400" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clipRule="evenodd" />
+                </svg>
+                <span>Secure & Encrypted</span>
+              </div>
             </div>
             
             <div>
-              <h4 className="text-lg font-semibold text-white mb-4">Quick Links</h4>
-              <ul className="space-y-2 text-sm text-slate-300">
-                <li><button onClick={() => scrollToSection("about")} className="hover:text-white transition-colors">About</button></li>
-                <li><button onClick={() => scrollToSection("strategy")} className="hover:text-white transition-colors">Strategy</button></li>
-                <li><button onClick={() => scrollToSection("advantages")} className="hover:text-white transition-colors">Advantages</button></li>
-                <li><button onClick={() => scrollToSection("investors")} className="hover:text-white transition-colors">Investors</button></li>
+              <h4 className="text-white font-semibold mb-4">Company</h4>
+              <ul className="space-y-2 text-slate-300 text-sm">
+                <li><button onClick={() => scrollToSection('about')}>About Us</button></li>
+                <li><button onClick={() => alert('Management team information would be displayed')}>Management Team</button></li>
+                <li><button onClick={() => alert('Privacy Policy page would open')}>Privacy Policy</button></li>
+                <li><button onClick={() => alert('Terms of Use page would open')}>Terms of Use</button></li>
+                <li><button onClick={() => alert('FAQ page would open')}>FAQ</button></li>
               </ul>
             </div>
             
             <div>
-              <h4 className="text-lg font-semibold text-white mb-4">Legal</h4>
-              <ul className="space-y-2 text-sm text-slate-300">
-                <li><a href="#" className="hover:text-white transition-colors">Privacy Policy</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">Terms of Service</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">Investment Disclosures</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">Regulatory Information</a></li>
+              <h4 className="text-white font-semibold mb-4">Resources</h4>
+              <ul className="space-y-2 text-slate-300 text-sm">
+                <li><button onClick={() => alert('Blog page would open')}>Market Analysis Blog</button></li>
+                <li><button onClick={() => alert('Educational resources page would open')}>Educational Resources</button></li>
+                <li><button onClick={() => alert('Financial glossary page would open')}>Financial Glossary</button></li>
+                <li><button onClick={() => alert('Audit reports page would open')}>Audit Reports</button></li>
+                <li><button onClick={() => alert('Regulatory documents page would open')}>Regulatory Documents</button></li>
               </ul>
             </div>
             
             <div>
-              <h4 className="text-lg font-semibold text-white mb-4">Contact</h4>
-              <ul className="space-y-2 text-sm text-slate-300">
-                <li>contact@apexcapital.com</li>
+              <h4 className="text-white font-semibold mb-4">Contact</h4>
+              <ul className="space-y-2 text-slate-300 text-sm">
+                <li>support@apexcapital.com</li>
                 <li>+1 (555) 123-4567</li>
                 <li>1234 Financial District<br />Wilmington, DE 19801</li>
+                <li className="pt-2">
+                  <button 
+                    onClick={() => alert('Live chat support would be available here')}
+                    className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors"
+                  >
+                    Live Chat Support
+                  </button>
+                </li>
               </ul>
             </div>
           </div>
           
-          <div className="border-t border-slate-800 mt-12 pt-8 text-center text-slate-400 text-sm">
-            <p>&copy; 2025 Apex Capital Management. All rights reserved. | Delaware Registration: HF-2024-001</p>
+          <div className="border-t border-slate-800 mt-12 pt-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-center">
+              <div className="text-center md:text-left text-slate-400 text-sm">
+                <p>&copy; 2025 Apex Capital Management. All rights reserved.</p>
+                <p className="mt-1">Delaware Registration: HF-2024-001 | SIPC Member</p>
+              </div>
+              <div className="text-center md:text-right text-slate-400 text-xs">
+                <p>Investment involves risk. Past performance does not guarantee future results.</p>
+                <p className="mt-1">This website is protected by SSL encryption and complies with GDPR regulations.</p>
+              </div>
+            </div>
           </div>
         </div>
       </footer>
