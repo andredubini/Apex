@@ -510,7 +510,7 @@ const InvestorDashboard = () => {
     { id: 'overview', label: 'Home', icon: Home },
     { id: 'reports', label: 'Reports', icon: FileText },
     { id: 'transactions', label: 'Transfer', icon: Send },
-    { id: 'notifications', label: 'Activity', icon: Bell },
+    { id: 'notifications', label: 'Activity', icon: Bell, badge: unreadCount > 0 ? unreadCount : null },
     { id: 'settings', label: 'Settings', icon: Settings }
   ];
 
