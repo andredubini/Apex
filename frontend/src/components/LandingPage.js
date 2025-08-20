@@ -61,6 +61,7 @@ const LandingPage = () => {
                   { id: "strategy", label: "Strategy" },
                   { id: "advantages", label: "Advantages" },
                   { id: "investors", label: "Investors" },
+                  { id: "management", label: "Team" },
                   { id: "for-traders", label: "For Traders" },
                   { id: "contact", label: "Contact" }
                 ].map((item) => (
