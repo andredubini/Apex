@@ -986,9 +986,10 @@ class HedgeFundBackendTester:
         if not critical_failures:
             print(f"\n🎉 CORE FUNCTIONALITY: ALL CRITICAL TESTS PASSED")
             print("✅ Automated profit-sharing payment system is working correctly")
+            print("✅ Real-time notification system is fully operational")
         else:
             print(f"\n⚠️  CORE FUNCTIONALITY: {len(critical_failures)} CRITICAL FAILURES")
-            print("❌ Automated profit-sharing payment system has issues")
+            print("❌ Some critical systems have issues")
 
 if __name__ == "__main__":
     tester = HedgeFundBackendTester()
