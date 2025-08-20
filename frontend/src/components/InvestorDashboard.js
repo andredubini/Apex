@@ -312,7 +312,7 @@ const InvestorDashboard = () => {
 
   const [showAddBank, setShowAddBank] = useState(false);
 
-  // Hide the Emergent badge on mount
+  // Initialize WebSocket connection and load data
   useEffect(() => {
     const emergentBadge = document.getElementById('emergent-badge');
     if (emergentBadge) {
@@ -324,7 +324,34 @@ const InvestorDashboard = () => {
     badges.forEach(badge => {
       badge.style.display = 'none';
     });
-  }, []);
+
+    // Initialize notifications
+    loadNotifications();
+    loadNotificationSettings();
+    
+    // Request notification permission
+    requestNotificationPermission();
+    
+    // Connect to WebSocket
+    connectWebSocket();
+    
+    // Cleanup on unmount
+    return () => {
+      if (websocketRef.current) {
+        websocketRef.current.close();
+      }
+      if (reconnectTimeoutRef.current) {
+        clearTimeout(reconnectTimeoutRef.current);
+      }
+    };
+  }, [connectWebSocket]);
+  
+  // Reconnect WebSocket when user changes
+  useEffect(() => {
+    if (user?.email) {
+      connectWebSocket();
+    }
+  }, [user?.email, connectWebSocket]);
 
   // Calculate performance metrics
   const totalWeeks = sampleTradingData.length;
