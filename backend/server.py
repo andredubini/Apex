@@ -293,10 +293,16 @@ async def create_notification(notification: NotificationCreate):
     notification_obj = Notification(**notification_dict)
     await db.notifications.insert_one(notification_obj.dict())
     
-    # Send real-time notification via WebSocket
+    # Send real-time notification via WebSocket with JSON serializable data
+    notification_dict = notification_obj.dict()
+    # Convert datetime objects to ISO format strings
+    for key, value in notification_dict.items():
+        if isinstance(value, datetime):
+            notification_dict[key] = value.isoformat()
+    
     notification_data = {
         "type": "new_notification",
-        "data": notification_obj.dict()
+        "data": notification_dict
     }
     await manager.send_personal_message(
         json.dumps(notification_data), 
