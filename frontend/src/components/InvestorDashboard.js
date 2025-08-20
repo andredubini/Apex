@@ -173,6 +173,83 @@ const InvestorDashboard = () => {
     return: week.returnPercentage
   }));
 
+  // Enhanced market comparison data
+  const marketComparison = {
+    SP500: [
+      { week: "Week 1", ourFund: 2.1, market: 1.2, alpha: 0.9 },
+      { week: "Week 2", ourFund: -0.8, market: -1.5, alpha: 0.7 },
+      { week: "Week 3", ourFund: 3.2, market: 2.1, alpha: 1.1 },
+      { week: "Week 4", ourFund: 1.5, market: 0.8, alpha: 0.7 },
+      { week: "Week 5", ourFund: 2.8, market: 1.9, alpha: 0.9 },
+      { week: "Week 6", ourFund: -1.1, market: -2.2, alpha: 1.1 },
+      { week: "Week 7", ourFund: 4.1, market: 2.8, alpha: 1.3 },
+      { week: "Week 8", ourFund: 0.9, market: 0.5, alpha: 0.4 },
+      { week: "Week 9", ourFund: 2.7, market: 1.6, alpha: 1.1 },
+      { week: "Week 10", ourFund: 1.8, market: 1.1, alpha: 0.7 },
+      { week: "Week 11", ourFund: 3.4, market: 2.3, alpha: 1.1 },
+      { week: "Week 12", ourFund: 2.2, market: 1.4, alpha: 0.8 }
+    ],
+    NASDAQ: [
+      { week: "Week 1", ourFund: 2.1, market: 1.8, alpha: 0.3 },
+      { week: "Week 2", ourFund: -0.8, market: -2.1, alpha: 1.3 },
+      { week: "Week 3", ourFund: 3.2, market: 2.9, alpha: 0.3 },
+      { week: "Week 4", ourFund: 1.5, market: 1.2, alpha: 0.3 },
+      { week: "Week 5", ourFund: 2.8, market: 2.4, alpha: 0.4 },
+      { week: "Week 6", ourFund: -1.1, market: -2.8, alpha: 1.7 },
+      { week: "Week 7", ourFund: 4.1, market: 3.5, alpha: 0.6 },
+      { week: "Week 8", ourFund: 0.9, market: 0.3, alpha: 0.6 },
+      { week: "Week 9", ourFund: 2.7, market: 2.1, alpha: 0.6 },
+      { week: "Week 10", ourFund: 1.8, market: 1.3, alpha: 0.5 },
+      { week: "Week 11", ourFund: 3.4, market: 2.9, alpha: 0.5 },
+      { week: "Week 12", ourFund: 2.2, market: 1.7, alpha: 0.5 }
+    ]
+  };
+
+  // Risk-adjusted performance metrics
+  const riskMetrics = {
+    sharpeRatio: 1.85,
+    sortinoRatio: 2.12,
+    calmarRatio: 1.67,
+    maxDrawdown: -2.1,
+    volatility: 8.2,
+    beta: 0.78,
+    alpha: 8.7,
+    informationRatio: 1.34,
+    trackingError: 5.2
+  };
+
+  // Enhanced sector allocation with values
+  const enhancedPortfolioData = [
+    { sector: "Technology", percentage: 28, value: 42000, color: "#3B82F6", change: "+2.4%" },
+    { sector: "Healthcare", percentage: 22, value: 33000, color: "#10B981", change: "+1.8%" },
+    { sector: "Financial", percentage: 18, value: 27000, color: "#F59E0B", change: "-0.5%" },
+    { sector: "Consumer Discretionary", percentage: 15, value: 22500, color: "#EF4444", change: "+0.9%" },
+    { sector: "Industrial", percentage: 10, value: 15000, color: "#8B5CF6", change: "+1.2%" },
+    { sector: "Energy", percentage: 4, value: 6000, color: "#F97316", change: "-1.1%" },
+    { sector: "Real Estate", percentage: 3, value: 4500, color: "#06B6D4", change: "+0.3%" }
+  ];
+
+  // Strategy performance breakdown
+  const strategyPerformance = [
+    { strategy: "Momentum Trading", contribution: 35, return: 12.4, trades: 156, winRate: 68, color: "#3B82F6" },
+    { strategy: "Mean Reversion", contribution: 28, return: 9.8, trades: 98, winRate: 72, color: "#10B981" },
+    { strategy: "Breakout Trading", contribution: 20, return: 8.2, trades: 74, winRate: 65, color: "#F59E0B" },
+    { strategy: "Scalping", contribution: 17, return: 6.1, trades: 283, winRate: 58, color: "#EF4444" }
+  ];
+
+  // Predictive analytics data
+  const predictiveAnalytics = {
+    projectedReturn: 47.2,
+    confidence: 78,
+    riskAdjustedTarget: 41.8,
+    volatilityForecast: 7.8,
+    nextMonthProbability: {
+      positive: 72,
+      negative: 28
+    },
+    marketCorrelation: 0.65
+  };
+
   const handleLogout = () => {
     logout();
   };
