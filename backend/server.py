@@ -922,6 +922,7 @@ async def startup_event():
     
     # Create sample data for testing
     await create_sample_data()
+    await create_system_notifications()
 
 @app.on_event("shutdown")
 async def shutdown_db_client():
