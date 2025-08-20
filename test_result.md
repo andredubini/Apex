@@ -102,38 +102,42 @@
 # Testing Data - Main Agent and testing sub agent both should log testing data below this section
 #====================================================================================================
 
+# Testing Data - Main Agent and testing sub agent should log testing data below this section
+#====================================================================================================
+
 ## user_problem_statement: 
-Test the newly implemented automated profit-sharing payment system in the hedge fund backend:
+Complete the improvements for the Investor Dashboard and Admin Panel notification systems with priorities and extended settings.
+
+Testing the newly implemented real-time notification system with WebSocket support:
 
 1. Test API Health:
    - GET /api/ (root endpoint)
    - GET /api/status (basic functionality)
 
-2. Test Investor Management APIs:
-   - GET /api/investors (should show sample investors created on startup)
-   - POST /api/investors (create a new test investor)
-   - GET /api/investors/{investor_id} (retrieve specific investor)
+2. Test Real-time Notification System:
+   - WebSocket connection to /ws/{user_id} 
+   - POST /api/notifications (create notifications)
+   - GET /api/notifications/{user_id} (retrieve user notifications)
+   - PATCH /api/notifications/{notification_id}/read (mark as read)
+   - PATCH /api/notifications/{user_id}/mark-all-read (mark all as read)
+   - GET /api/notifications/{user_id}/unread-count (get unread count)
 
-3. Test Profit Distribution System:
-   - POST /api/manual-profit-distribution (trigger manual profit distribution for testing)
-   - GET /api/profit-distributions (view profit distribution history)
-   - GET /api/investor-payments/{investor_id} (view investor payment history)
+3. Test Notification Settings System:
+   - GET /api/notification-settings/{user_id} (get settings with defaults)
+   - PATCH /api/notification-settings/{user_id} (update settings)
 
-4. Test Trading Performance APIs:
-   - POST /api/trading-periods (create trading period with sample data)
-   - GET /api/trading-periods (retrieve trading periods)
+4. Test Broadcast Notifications:
+   - POST /api/notifications/broadcast (admin broadcast)
 
-5. Verify Database Operations:
-   - Confirm sample investors are created in MongoDB
-   - Verify profit distribution calculations work correctly
-   - Test carry-over loss functionality
-   - Verify tiered profit sharing (80/20, 70/30, 60/40, 50/50)
+5. Verify Enhanced Features:
+   - Priority-based notifications (critical, high, medium, low)
+   - Category filtering (profit, deposit, withdrawal, alert, security, report, system, trade, risk, performance)
+   - Real-time WebSocket delivery
+   - Notification settings with categories and priority preferences
+   - Quiet hours functionality
+   - Frequency limits
 
-6. Test Scheduler:
-   - Verify APScheduler is running
-   - Confirm monthly job is scheduled for 9:00 AM on 1st of each month
-
-Please thoroughly test the profit calculation logic, database operations, and ensure all endpoints work correctly. Focus on the core functionality of the automated payment system.
+Please thoroughly test the notification API endpoints, WebSocket connectivity, and ensure all notification management features work correctly. Focus on the real-time delivery system and comprehensive notification preferences.
 
 ## frontend:
   - task: "Landing Page UX/UI Analysis"
