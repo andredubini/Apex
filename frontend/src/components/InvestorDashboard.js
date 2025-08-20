@@ -38,7 +38,8 @@ import {
   BarChart3,
   User,
   Sun,
-  Moon
+  Moon,
+  Target
 } from "lucide-react";
 
 const InvestorDashboard = () => {
