@@ -342,11 +342,11 @@ const InvestorDashboard = () => {
         </div>
       </div>
 
-      {/* Quick Actions */}
-      <div className="grid grid-cols-2 gap-4">
+      {/* Enhanced Quick Actions */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         <button
           onClick={handleDepositRequest}
-          className={`${cardBgClass} rounded-xl p-4 shadow-sm border ${borderClass} hover:shadow-md transition-shadow`}
+          className={`${cardBgClass} rounded-xl p-4 shadow-sm border ${borderClass} hover:shadow-md transition-all hover:scale-105`}
         >
           <div className="flex items-center justify-between">
             <div className="text-left">
@@ -361,7 +361,7 @@ const InvestorDashboard = () => {
         
         <button
           onClick={handleWithdrawRequest}
-          className={`${cardBgClass} rounded-xl p-4 shadow-sm border ${borderClass} hover:shadow-md transition-shadow`}
+          className={`${cardBgClass} rounded-xl p-4 shadow-sm border ${borderClass} hover:shadow-md transition-all hover:scale-105`}
         >
           <div className="flex items-center justify-between">
             <div className="text-left">
@@ -370,6 +370,36 @@ const InvestorDashboard = () => {
             </div>
             <div className="bg-blue-100 p-2 rounded-full">
               <Send className="w-5 h-5 text-blue-600" />
+            </div>
+          </div>
+        </button>
+
+        <button
+          onClick={() => alert('Advanced analytics dashboard with interactive charts, risk metrics, and performance attribution')}
+          className={`${cardBgClass} rounded-xl p-4 shadow-sm border ${borderClass} hover:shadow-md transition-all hover:scale-105`}
+        >
+          <div className="flex items-center justify-between">
+            <div className="text-left">
+              <p className={`${textSecondaryClass} text-sm`}>Analytics</p>
+              <p className={`${textClass} font-semibold`}>Deep Dive</p>
+            </div>
+            <div className="bg-purple-100 p-2 rounded-full">
+              <BarChart3 className="w-5 h-5 text-purple-600" />
+            </div>
+          </div>
+        </button>
+
+        <button
+          onClick={() => alert('AI-powered portfolio optimization suggestions and risk management recommendations')}
+          className={`${cardBgClass} rounded-xl p-4 shadow-sm border ${borderClass} hover:shadow-md transition-all hover:scale-105`}
+        >
+          <div className="flex items-center justify-between">
+            <div className="text-left">
+              <p className={`${textSecondaryClass} text-sm`}>AI Insights</p>
+              <p className={`${textClass} font-semibold`}>Optimize</p>
+            </div>
+            <div className="bg-indigo-100 p-2 rounded-full">
+              <Target className="w-5 h-5 text-indigo-600" />
             </div>
           </div>
         </button>
