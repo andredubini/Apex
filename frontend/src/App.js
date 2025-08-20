@@ -11,6 +11,7 @@ import AdminDashboard from "./components/AdminDashboard";
 import FAQ from "./components/FAQ";
 import PrivacyPolicy from "./components/PrivacyPolicy";
 import TermsOfUse from "./components/TermsOfUse";
+import Blog from "./components/Blog";
 
 // Authentication context
 const AuthContext = React.createContext();
