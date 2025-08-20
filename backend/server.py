@@ -539,6 +539,85 @@ async def trigger_manual_profit_distribution():
         logger.error(f"Manual profit distribution failed: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
+# Notification Helper Functions
+async def create_notification_for_user(
+    user_id: str,
+    user_type: str,
+    title: str,
+    message: str,
+    type: NotificationType,
+    priority: NotificationPriority = NotificationPriority.MEDIUM,
+    metadata: Dict = None
+):
+    """Helper function to create notifications"""
+    notification = Notification(
+        user_id=user_id,
+        user_type=user_type,
+        title=title,
+        message=message,
+        type=type,
+        priority=priority,
+        metadata=metadata or {}
+    )
+    
+    await db.notifications.insert_one(notification.dict())
+    
+    # Send real-time notification
+    notification_data = {
+        "type": "new_notification",
+        "data": notification.dict()
+    }
+    await manager.send_personal_message(
+        json.dumps(notification_data), 
+        user_id
+    )
+    
+    return notification
+
+async def create_system_notifications():
+    """Create sample system notifications for demo purposes"""
+    sample_notifications = [
+        {
+            "user_id": "investor@example.com",
+            "user_type": "investor",
+            "title": "Weekly Profit Distribution",
+            "message": "Your weekly profit of $2,450 has been added to your account",
+            "type": NotificationType.PROFIT,
+            "priority": NotificationPriority.HIGH,
+            "metadata": {"amount": 2450, "period": "2025-01"}
+        },
+        {
+            "user_id": "investor@example.com",
+            "user_type": "investor",
+            "title": "Security Alert",
+            "message": "New login detected from unknown device",
+            "type": NotificationType.SECURITY,
+            "priority": NotificationPriority.CRITICAL,
+            "metadata": {"ip": "192.168.1.100", "device": "Chrome on Windows"}
+        },
+        {
+            "user_id": "admin@apexcapital.com",
+            "user_type": "admin",
+            "title": "System Performance Alert",
+            "message": "Trading system performance is above target (95.2% success rate)",
+            "type": NotificationType.PERFORMANCE,
+            "priority": NotificationPriority.MEDIUM,
+            "metadata": {"success_rate": 95.2, "period": "week-3"}
+        },
+        {
+            "user_id": "admin@apexcapital.com",
+            "user_type": "admin",
+            "title": "New Investor Application",
+            "message": "New investor application received from Michael Chen ($500,000)",
+            "type": NotificationType.SYSTEM,
+            "priority": NotificationPriority.HIGH,
+            "metadata": {"investor_name": "Michael Chen", "amount": 500000}
+        }
+    ]
+    
+    for notif_data in sample_notifications:
+        await create_notification_for_user(**notif_data)
+
 # Profit Calculation Functions
 def calculate_investor_profit_share(annual_return_percentage: float, investor_balance: float) -> dict:
     """Calculate profit distribution based on tiered structure"""
