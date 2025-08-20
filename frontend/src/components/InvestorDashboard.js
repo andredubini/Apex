@@ -1428,149 +1428,272 @@ const InvestorDashboard = () => {
         </div>
       </div>
 
-      {/* Security Settings */}
+      {/* Enhanced Notification Preferences */}
       <div className={`${cardBgClass} rounded-xl p-6 shadow-sm border ${borderClass}`}>
-        <h3 className={`text-lg font-semibold ${textClass} mb-6`}>Security & Notifications</h3>
+        <h3 className={`text-lg font-semibold ${textClass} mb-4`}>
+          Notification Preferences
+        </h3>
         
-        <div className="space-y-6">
-          {/* Security Options */}
-          <div>
-            <h4 className={`font-medium ${textClass} mb-4`}>Security</h4>
-            <div className="space-y-3">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className={`font-medium ${textClass}`}>Two-Factor Authentication</p>
-                  <p className={`text-sm ${textSecondaryClass}`}>Add an extra layer of security</p>
-                </div>
-                <button
-                  onClick={() => setSecuritySettings({...securitySettings, twoFactorEnabled: !securitySettings.twoFactorEnabled})}
-                  className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
-                    securitySettings.twoFactorEnabled ? 'bg-blue-600' : 'bg-gray-300'
-                  }`}
-                >
-                  <span
-                    className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
-                      securitySettings.twoFactorEnabled ? 'translate-x-6' : 'translate-x-1'
-                    }`}
-                  />
-                </button>
+        {/* Notification Delivery Methods */}
+        <div className="space-y-4 mb-6">
+          <h4 className={`font-medium ${textClass} mb-3`}>Delivery Methods</h4>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <label className="flex items-center space-x-3 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={notificationSettings.emailNotifications}
+                onChange={(e) => {
+                  const newSettings = {
+                    ...notificationSettings,
+                    emailNotifications: e.target.checked
+                  };
+                  setNotificationSettings(newSettings);
+                  updateNotificationSettings({emailNotifications: e.target.checked});
+                }}
+                className="w-4 h-4 text-blue-600 rounded focus:ring-blue-500"
+              />
+              <span className={`${textClass} text-sm`}>Email Notifications</span>
+            </label>
+            
+            <label className="flex items-center space-x-3 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={notificationSettings.pushNotifications}
+                onChange={(e) => {
+                  const newSettings = {
+                    ...notificationSettings,
+                    pushNotifications: e.target.checked
+                  };
+                  setNotificationSettings(newSettings);
+                  updateNotificationSettings({pushNotifications: e.target.checked});
+                  
+                  // Request permission if enabling push notifications
+                  if (e.target.checked) {
+                    requestNotificationPermission();
+                  }
+                }}
+                className="w-4 h-4 text-blue-600 rounded focus:ring-blue-500"
+              />
+              <span className={`${textClass} text-sm`}>Push Notifications</span>
+            </label>
+            
+            <label className="flex items-center space-x-3 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={notificationSettings.smsNotifications}
+                onChange={(e) => {
+                  const newSettings = {
+                    ...notificationSettings,
+                    smsNotifications: e.target.checked
+                  };
+                  setNotificationSettings(newSettings);
+                  updateNotificationSettings({smsNotifications: e.target.checked});
+                }}
+                className="w-4 h-4 text-blue-600 rounded focus:ring-blue-500"
+              />
+              <span className={`${textClass} text-sm`}>SMS Notifications</span>
+            </label>
+          </div>
+        </div>
+        
+        {/* Notification Categories */}
+        <div className="space-y-4 mb-6">
+          <h4 className={`font-medium ${textClass} mb-3`}>Notification Categories</h4>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {Object.entries(notificationSettings.categories).map(([category, enabled]) => (
+              <label key={category} className="flex items-center space-x-3 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={enabled}
+                  onChange={(e) => {
+                    const newCategories = {
+                      ...notificationSettings.categories,
+                      [category]: e.target.checked
+                    };
+                    const newSettings = {
+                      ...notificationSettings,
+                      categories: newCategories
+                    };
+                    setNotificationSettings(newSettings);
+                    updateNotificationSettings({categories: newCategories});
+                  }}
+                  className="w-4 h-4 text-blue-600 rounded focus:ring-blue-500"
+                />
+                <span className={`${textClass} text-sm capitalize`}>
+                  {category.replace('_', ' ')} Notifications
+                </span>
+              </label>
+            ))}
+          </div>
+        </div>
+        
+        {/* Priority Settings */}
+        <div className="space-y-4 mb-6">
+          <h4 className={`font-medium ${textClass} mb-3`}>Priority Levels</h4>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {Object.entries(notificationSettings.prioritySettings).map(([priority, enabled]) => (
+              <label key={priority} className="flex items-center space-x-3 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={enabled}
+                  onChange={(e) => {
+                    const newPrioritySettings = {
+                      ...notificationSettings.prioritySettings,
+                      [priority]: e.target.checked
+                    };
+                    const newSettings = {
+                      ...notificationSettings,
+                      prioritySettings: newPrioritySettings
+                    };
+                    setNotificationSettings(newSettings);
+                    updateNotificationSettings({prioritySettings: newPrioritySettings});
+                  }}
+                  className="w-4 h-4 text-blue-600 rounded focus:ring-blue-500"
+                />
+                <span className={`${textClass} text-sm capitalize flex items-center space-x-2`}>
+                  <span className={`w-2 h-2 rounded-full ${
+                    priority === 'critical' ? 'bg-red-500' :
+                    priority === 'high' ? 'bg-orange-500' :
+                    priority === 'medium' ? 'bg-blue-500' :
+                    'bg-gray-500'
+                  }`}></span>
+                  <span>{priority} Priority</span>
+                </span>
+              </label>
+            ))}
+          </div>
+        </div>
+        
+        {/* Quiet Hours */}
+        <div className="space-y-4 mb-6">
+          <h4 className={`font-medium ${textClass} mb-3`}>Quiet Hours</h4>
+          <label className="flex items-center space-x-3 cursor-pointer mb-4">
+            <input
+              type="checkbox"
+              checked={notificationSettings.quietHours.enabled}
+              onChange={(e) => {
+                const newQuietHours = {
+                  ...notificationSettings.quietHours,
+                  enabled: e.target.checked
+                };
+                const newSettings = {
+                  ...notificationSettings,
+                  quietHours: newQuietHours
+                };
+                setNotificationSettings(newSettings);
+                updateNotificationSettings({quietHours: newQuietHours});
+              }}
+              className="w-4 h-4 text-blue-600 rounded focus:ring-blue-500"
+            />
+            <span className={`${textClass} text-sm`}>Enable Quiet Hours</span>
+          </label>
+          
+          {notificationSettings.quietHours.enabled && (
+            <div className="grid grid-cols-2 gap-4 ml-7">
+              <div>
+                <label className={`block text-sm font-medium ${textSecondaryClass} mb-2`}>
+                  Start Time
+                </label>
+                <input
+                  type="time"
+                  value={notificationSettings.quietHours.startTime}
+                  onChange={(e) => {
+                    const newQuietHours = {
+                      ...notificationSettings.quietHours,
+                      startTime: e.target.value
+                    };
+                    const newSettings = {
+                      ...notificationSettings,
+                      quietHours: newQuietHours
+                    };
+                    setNotificationSettings(newSettings);
+                    updateNotificationSettings({quietHours: newQuietHours});
+                  }}
+                  className={`w-full px-3 py-2 border ${borderClass} rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${theme === 'dark' ? 'bg-slate-700 text-white' : 'bg-white text-gray-900'}`}
+                />
               </div>
-              
-              <div className="flex items-center justify-between pt-3 border-t border-gray-200">
-                <div>
-                  <p className={`font-medium ${textClass}`}>Change Password</p>
-                  <p className={`text-sm ${textSecondaryClass}`}>Update your login password</p>
-                </div>
-                <button
-                  onClick={() => alert('Password change form would open here')}
-                  className="text-blue-600 hover:text-blue-700 font-medium text-sm"
-                >
-                  Change
-                </button>
+              <div>
+                <label className={`block text-sm font-medium ${textSecondaryClass} mb-2`}>
+                  End Time
+                </label>
+                <input
+                  type="time"
+                  value={notificationSettings.quietHours.endTime}
+                  onChange={(e) => {
+                    const newQuietHours = {
+                      ...notificationSettings.quietHours,
+                      endTime: e.target.value
+                    };
+                    const newSettings = {
+                      ...notificationSettings,
+                      quietHours: newQuietHours
+                    };
+                    setNotificationSettings(newSettings);
+                    updateNotificationSettings({quietHours: newQuietHours});
+                  }}
+                  className={`w-full px-3 py-2 border ${borderClass} rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${theme === 'dark' ? 'bg-slate-700 text-white' : 'bg-white text-gray-900'}`}
+                />
               </div>
             </div>
-          </div>
-
-          {/* Notification Preferences */}
-          <div>
-            <h4 className={`font-medium ${textClass} mb-4`}>Notifications</h4>
-            <div className="space-y-3">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className={`font-medium ${textClass}`}>Email Notifications</p>
-                  <p className={`text-sm ${textSecondaryClass}`}>Trading updates and reports</p>
-                </div>
-                <button
-                  onClick={() => setSecuritySettings({...securitySettings, emailNotifications: !securitySettings.emailNotifications})}
-                  className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
-                    securitySettings.emailNotifications ? 'bg-blue-600' : 'bg-gray-300'
-                  }`}
-                >
-                  <span
-                    className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
-                      securitySettings.emailNotifications ? 'translate-x-6' : 'translate-x-1'
-                    }`}
-                  />
-                </button>
-              </div>
-
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className={`font-medium ${textClass}`}>SMS Notifications</p>
-                  <p className={`text-sm ${textSecondaryClass}`}>Important alerts via text</p>
-                </div>
-                <button
-                  onClick={() => setSecuritySettings({...securitySettings, smsNotifications: !securitySettings.smsNotifications})}
-                  className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
-                    securitySettings.smsNotifications ? 'bg-blue-600' : 'bg-gray-300'
-                  }`}
-                >
-                  <span
-                    className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
-                      securitySettings.smsNotifications ? 'translate-x-6' : 'translate-x-1'
-                    }`}
-                  />
-                </button>
-              </div>
-
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className={`font-medium ${textClass}`}>Push Notifications</p>
-                  <p className={`text-sm ${textSecondaryClass}`}>Real-time app notifications</p>
-                </div>
-                <button
-                  onClick={() => setSecuritySettings({...securitySettings, pushNotifications: !securitySettings.pushNotifications})}
-                  className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
-                    securitySettings.pushNotifications ? 'bg-blue-600' : 'bg-gray-300'
-                  }`}
-                >
-                  <span
-                    className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
-                      securitySettings.pushNotifications ? 'translate-x-6' : 'translate-x-1'
-                    }`}
-                  />
-                </button>
-              </div>
-
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className={`font-medium ${textClass}`}>Weekly Reports</p>
-                  <p className={`text-sm ${textSecondaryClass}`}>Performance summaries</p>
-                </div>
-                <button
-                  onClick={() => setSecuritySettings({...securitySettings, weeklyReports: !securitySettings.weeklyReports})}
-                  className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
-                    securitySettings.weeklyReports ? 'bg-blue-600' : 'bg-gray-300'
-                  }`}
-                >
-                  <span
-                    className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
-                      securitySettings.weeklyReports ? 'translate-x-6' : 'translate-x-1'
-                    }`}
-                  />
-                </button>
-              </div>
-
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className={`font-medium ${textClass}`}>Monthly Statements</p>
-                  <p className={`text-sm ${textSecondaryClass}`}>Detailed account statements</p>
-                </div>
-                <button
-                  onClick={() => setSecuritySettings({...securitySettings, monthlyStatements: !securitySettings.monthlyStatements})}
-                  className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
-                    securitySettings.monthlyStatements ? 'bg-blue-600' : 'bg-gray-300'
-                  }`}
-                >
-                  <span
-                    className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
-                      securitySettings.monthlyStatements ? 'translate-x-6' : 'translate-x-1'
-                    }`}
-                  />
-                </button>
-              </div>
+          )}
+        </div>
+        
+        {/* Frequency Limits */}
+        <div className="space-y-4">
+          <h4 className={`font-medium ${textClass} mb-3`}>Frequency Limits</h4>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label className={`block text-sm font-medium ${textSecondaryClass} mb-2`}>
+                Daily Limit
+              </label>
+              <input
+                type="number"
+                min="1"
+                max="100"
+                value={notificationSettings.frequencyLimits.dailyLimit}
+                onChange={(e) => {
+                  const newFrequencyLimits = {
+                    ...notificationSettings.frequencyLimits,
+                    dailyLimit: parseInt(e.target.value) || 50
+                  };
+                  const newSettings = {
+                    ...notificationSettings,
+                    frequencyLimits: newFrequencyLimits
+                  };
+                  setNotificationSettings(newSettings);
+                  updateNotificationSettings({frequencyLimits: newFrequencyLimits});
+                }}
+                className={`w-full px-3 py-2 border ${borderClass} rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${theme === 'dark' ? 'bg-slate-700 text-white' : 'bg-white text-gray-900'}`}
+              />
+            </div>
+            <div>
+              <label className={`block text-sm font-medium ${textSecondaryClass} mb-2`}>
+                Hourly Limit
+              </label>
+              <input
+                type="number"
+                min="1"
+                max="20"
+                value={notificationSettings.frequencyLimits.hourlyLimit}
+                onChange={(e) => {
+                  const newFrequencyLimits = {
+                    ...notificationSettings.frequencyLimits,
+                    hourlyLimit: parseInt(e.target.value) || 10
+                  };
+                  const newSettings = {
+                    ...notificationSettings,
+                    frequencyLimits: newFrequencyLimits
+                  };
+                  setNotificationSettings(newSettings);
+                  updateNotificationSettings({frequencyLimits: newFrequencyLimits});
+                }}
+                className={`w-full px-3 py-2 border ${borderClass} rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${theme === 'dark' ? 'bg-slate-700 text-white' : 'bg-white text-gray-900'}`}
+              />
             </div>
           </div>
+          <p className={`text-xs ${textSecondaryClass}`}>
+            Limit the number of notifications you receive to avoid overwhelming your inbox
+          </p>
         </div>
       </div>
 
