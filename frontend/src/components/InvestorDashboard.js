@@ -1,4 +1,4 @@
-import React, { useState, useContext, useEffect } from "react";
+import React, { useState, useContext, useEffect, useRef, useCallback } from "react";
 import { AuthContext, ThemeContext } from "../App";
 import { 
   LineChart, 
