@@ -169,6 +169,9 @@ function App() {
               path="/admin" 
               element={user && user.role === 'admin' ? <AdminDashboard /> : <Navigate to="/login" />} 
             />
+            <Route path="/faq" element={<FAQ />} />
+            <Route path="/privacy" element={<PrivacyPolicy />} />
+            <Route path="/terms" element={<TermsOfUse />} />
           </Routes>
         </Router>
       </ThemeContext.Provider>
