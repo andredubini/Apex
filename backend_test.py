@@ -976,7 +976,8 @@ class HedgeFundBackendTester:
         critical_tests = [
             "Root Endpoint", "Get Investors", "Create Investor", 
             "Manual Profit Distribution", "Get Profit Distributions",
-            "Tiered Profit Sharing"
+            "Tiered Profit Sharing", "Create Notification 1", "Get All User Notifications",
+            "Get Notification Settings", "Mark Individual Notification Read"
         ]
         
         critical_failures = [r for r in self.test_results 
