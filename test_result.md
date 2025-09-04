@@ -249,7 +249,7 @@ Please thoroughly test the notification API endpoints, WebSocket connectivity, a
           comment: "✅ FINANCIAL INDUSTRY STANDARDS MET:
                     • Delaware registration prominently displayed
                     • Ameritrade platform integration mentioned
-                    • Comprehensive risk management information (1% max risk per trade)
+                    • Comprehensive risk management information (1% max risk per trading period)
                     • Transparent profit-sharing structure (80/20, 70/30, 60/40, 50/50 tiers)
                     • Professional investment terms clearly stated
                     • Weekly reporting frequency emphasized
