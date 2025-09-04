@@ -402,7 +402,7 @@ const AdminDashboard = () => {
           <div className="flex items-center justify-between p-4 bg-green-50 dark:bg-green-900/20 rounded-lg">
             <div>
               <h4 className={`font-medium ${textClass}`}>Multi-Level Risk System</h4>
-              <p className={`text-sm ${textSecondaryClass}`}>Active monitoring with 1% maximum risk per trade</p>
+              <p className={`text-sm ${textSecondaryClass}`}>Active monitoring with 1% maximum risk per trading period</p>
             </div>
             <div className="flex items-center space-x-2">
               <span className="w-3 h-3 bg-green-500 rounded-full"></span>
