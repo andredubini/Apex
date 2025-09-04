@@ -346,7 +346,7 @@ const AdminDashboard = () => {
           
           <div>
             <label className={`block text-sm font-medium ${textSecondaryClass} mb-2`}>
-              Maximum Risk Per Trade (%)
+              Maximum Risk Per Trading Period (%)
             </label>
             <input
               type="number"
