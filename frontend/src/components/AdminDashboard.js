@@ -1063,6 +1063,7 @@ const AdminDashboard = () => {
                 <th className={`text-left py-3 px-4 ${textSecondaryClass} font-medium`}>Return</th>
                 <th className={`text-left py-3 px-4 ${textSecondaryClass} font-medium`}>Risk Profile</th>
                 <th className={`text-left py-3 px-4 ${textSecondaryClass} font-medium`}>Status</th>
+                <th className={`text-left py-3 px-4 ${textSecondaryClass} font-medium`}>Trading</th>
                 <th className={`text-left py-3 px-4 ${textSecondaryClass} font-medium`}>Actions</th>
               </tr>
             </thead>
