@@ -344,6 +344,28 @@ Please thoroughly test the notification API endpoints, WebSocket connectivity, a
                     • JSON serialization issues resolved for datetime objects
                     • All notification management features operational"
 
+  - task: "Trading Status Management System"
+    implemented: true
+    working: true
+    file: "backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+        - working: true
+          agent: "testing"
+          comment: "✅ COMPREHENSIVE TRADING STATUS MANAGEMENT TESTING COMPLETED:
+                    • GET /api/investors/{investor_id}/trading-status: Successfully retrieves individual investor trading status with all required fields (investor_id, trading_status, name, email)
+                    • PATCH /api/investors/{investor_id}/trading-status: Successfully updates trading status from 'inactive' to 'active' and back to 'inactive'
+                    • Trading status validation: Correctly accepts only 'active' and 'inactive' values, properly rejects invalid values ('enabled', 'disabled', 'suspended', 'pending', 'invalid')
+                    • Error handling: Correctly returns 404 for non-existent investor IDs
+                    • Database persistence: Trading status updates are properly saved and retrieved from database
+                    • Notification integration: Automatically creates system notifications when trading status changes (tested with priority HIGH and type SYSTEM)
+                    • GET /api/investors: Verified trading_status field is included in investor data with valid default value 'inactive'
+                    • All 13 trading status management tests passed with 100% success rate
+                    • Sample investors created with correct trading_status field (default: 'inactive')
+                    • Admin function working correctly for controlling investor trading permissions"
+
   - task: "Investor Management APIs"
     implemented: true
     working: true
