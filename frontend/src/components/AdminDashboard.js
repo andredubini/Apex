@@ -141,6 +141,35 @@ const AdminDashboard = () => {
   const handleLogout = () => {
     logout();
   };
+  
+  // Handle trading status toggle
+  const handleTradingStatusToggle = async (investorId, currentStatus) => {
+    const newStatus = currentStatus === "active" ? "inactive" : "active";
+    
+    try {
+      const backendUrl = process.env.REACT_APP_BACKEND_URL || 'http://localhost:8001';
+      const response = await fetch(`${backendUrl}/api/investors/${investorId}/trading-status`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          trading_status: newStatus
+        })
+      });
+      
+      if (response.ok) {
+        // In a real app, you'd update the state with the response
+        // For now, we'll just show a success message
+        alert(`Trading status updated to ${newStatus} for investor`);
+      } else {
+        alert('Failed to update trading status');
+      }
+    } catch (error) {
+      console.error('Error updating trading status:', error);
+      alert('Error updating trading status');
+    }
+  };
 
   // Theme classes
   const bgClass = theme === 'dark' ? 'bg-slate-900' : 'bg-gray-50';
