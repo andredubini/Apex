@@ -1046,7 +1046,8 @@ async def create_sample_data():
                 current_balance=investor_data["initial_investment"],
                 total_invested=investor_data["initial_investment"],
                 join_date=datetime.now(timezone.utc),
-                status="active"
+                status="active",
+                trading_status="inactive"  # Default to inactive, admin can enable
             )
             await db.investors.insert_one(investor.dict())
         
