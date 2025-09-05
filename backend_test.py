@@ -1493,7 +1493,9 @@ class HedgeFundBackendTester:
             "Manual Profit Distribution", "Get Profit Distributions",
             "Tiered Profit Sharing", "Create Notification 1", "Get All User Notifications",
             "Get Notification Settings", "Mark Individual Notification Read",
-            "Get Individual Trading Status", "Update Status to Active", "Update Status to Inactive"
+            "Get Individual Trading Status", "Admin Update Status to Active", "Admin Update Status to Inactive",
+            "Investor Request Status Change (inactive->active)", "Investor Confirmation Notification", 
+            "Admin Request Notification", "E2E Step 1 - Investor Request", "E2E Step 2 - Admin Approval"
         ]
         
         critical_failures = [r for r in self.test_results 
