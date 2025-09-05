@@ -79,12 +79,17 @@ class HedgeFundBackendTester:
                 investors = response.json()
                 if len(investors) >= 3:  # Should have sample investors
                     self.log_test("Get Investors", True, f"Retrieved {len(investors)} investors including sample data")
-                    # Verify sample investor structure
+                    # Verify sample investor structure including trading_status
                     sample_investor = investors[0]
-                    required_fields = ["id", "name", "email", "current_balance", "initial_investment", "status"]
+                    required_fields = ["id", "name", "email", "current_balance", "initial_investment", "status", "trading_status"]
                     missing_fields = [field for field in required_fields if field not in sample_investor]
                     if not missing_fields:
-                        self.log_test("Investor Data Structure", True, "All required fields present in investor data")
+                        self.log_test("Investor Data Structure", True, "All required fields present in investor data including trading_status")
+                        # Verify trading_status field has valid value
+                        if sample_investor["trading_status"] in ["active", "inactive"]:
+                            self.log_test("Trading Status Field", True, f"Trading status field valid: {sample_investor['trading_status']}")
+                        else:
+                            self.log_test("Trading Status Field", False, f"Invalid trading status: {sample_investor['trading_status']}")
                     else:
                         self.log_test("Investor Data Structure", False, f"Missing fields: {missing_fields}")
                 else:
