@@ -142,6 +142,161 @@ class HedgeFundBackendTester:
             except Exception as e:
                 self.log_test("Get Specific Investor", False, "Connection failed", str(e))
     
+    def test_trading_status_management(self):
+        """Test trading status management system"""
+        print("\n=== TESTING TRADING STATUS MANAGEMENT SYSTEM ===")
+        
+        # Get a test investor ID (use investor@example.com)
+        test_investor_email = "investor@example.com"
+        test_investor_id = None
+        
+        # First, get investors to find the test investor
+        try:
+            response = requests.get(f"{self.base_url}/investors", timeout=10)
+            if response.status_code == 200:
+                investors = response.json()
+                for investor in investors:
+                    if investor["email"] == test_investor_email:
+                        test_investor_id = investor["id"]
+                        break
+                
+                if not test_investor_id:
+                    self.log_test("Find Test Investor", False, f"Could not find investor with email {test_investor_email}")
+                    return
+                else:
+                    self.log_test("Find Test Investor", True, f"Found test investor: {test_investor_id}")
+            else:
+                self.log_test("Find Test Investor", False, f"HTTP {response.status_code}", response.text)
+                return
+        except Exception as e:
+            self.log_test("Find Test Investor", False, "Connection failed", str(e))
+            return
+        
+        # Test 1: Get individual investor trading status
+        try:
+            response = requests.get(f"{self.base_url}/investors/{test_investor_id}/trading-status", timeout=10)
+            if response.status_code == 200:
+                status_data = response.json()
+                required_fields = ["investor_id", "trading_status", "name", "email"]
+                missing_fields = [field for field in required_fields if field not in status_data]
+                
+                if not missing_fields:
+                    current_status = status_data["trading_status"]
+                    self.log_test("Get Individual Trading Status", True, 
+                                f"Retrieved trading status: {current_status} for {status_data['name']}")
+                    
+                    # Verify status is valid
+                    if current_status in ["active", "inactive"]:
+                        self.log_test("Trading Status Validation", True, f"Valid trading status: {current_status}")
+                    else:
+                        self.log_test("Trading Status Validation", False, f"Invalid trading status: {current_status}")
+                else:
+                    self.log_test("Get Individual Trading Status", False, f"Missing fields: {missing_fields}")
+            else:
+                self.log_test("Get Individual Trading Status", False, f"HTTP {response.status_code}", response.text)
+        except Exception as e:
+            self.log_test("Get Individual Trading Status", False, "Connection failed", str(e))
+        
+        # Test 2: Update trading status from inactive to active
+        try:
+            status_update = {"trading_status": "active"}
+            response = requests.patch(f"{self.base_url}/investors/{test_investor_id}/trading-status", 
+                                    json=status_update, timeout=10)
+            if response.status_code == 200:
+                result = response.json()
+                if ("message" in result and "active" in result["message"] and 
+                    "investor" in result and result["investor"]["trading_status"] == "active"):
+                    self.log_test("Update Status to Active", True, 
+                                "Successfully updated trading status to active")
+                    
+                    # Verify notification was created
+                    time.sleep(1)  # Wait for notification creation
+                    notif_response = requests.get(f"{self.base_url}/notifications/{test_investor_email}?type=system", timeout=10)
+                    if notif_response.status_code == 200:
+                        notifications = notif_response.json()
+                        trading_notifications = [n for n in notifications if "trading status" in n["message"].lower()]
+                        if trading_notifications:
+                            self.log_test("Trading Status Notification", True, 
+                                        "Notification created for trading status change")
+                        else:
+                            self.log_test("Trading Status Notification", False, 
+                                        "No trading status notification found")
+                else:
+                    self.log_test("Update Status to Active", False, "Unexpected response format", result)
+            else:
+                self.log_test("Update Status to Active", False, f"HTTP {response.status_code}", response.text)
+        except Exception as e:
+            self.log_test("Update Status to Active", False, "Connection failed", str(e))
+        
+        # Test 3: Update trading status from active to inactive
+        try:
+            status_update = {"trading_status": "inactive"}
+            response = requests.patch(f"{self.base_url}/investors/{test_investor_id}/trading-status", 
+                                    json=status_update, timeout=10)
+            if response.status_code == 200:
+                result = response.json()
+                if ("message" in result and "inactive" in result["message"] and 
+                    "investor" in result and result["investor"]["trading_status"] == "inactive"):
+                    self.log_test("Update Status to Inactive", True, 
+                                "Successfully updated trading status to inactive")
+                else:
+                    self.log_test("Update Status to Inactive", False, "Unexpected response format", result)
+            else:
+                self.log_test("Update Status to Inactive", False, f"HTTP {response.status_code}", response.text)
+        except Exception as e:
+            self.log_test("Update Status to Inactive", False, "Connection failed", str(e))
+        
+        # Test 4: Test invalid trading status values
+        invalid_statuses = ["enabled", "disabled", "suspended", "pending", "invalid"]
+        for invalid_status in invalid_statuses:
+            try:
+                status_update = {"trading_status": invalid_status}
+                response = requests.patch(f"{self.base_url}/investors/{test_investor_id}/trading-status", 
+                                        json=status_update, timeout=10)
+                if response.status_code == 400:
+                    self.log_test(f"Reject Invalid Status '{invalid_status}'", True, 
+                                "Correctly rejected invalid trading status")
+                elif response.status_code == 422:
+                    self.log_test(f"Reject Invalid Status '{invalid_status}'", True, 
+                                "Correctly rejected invalid trading status (validation error)")
+                else:
+                    self.log_test(f"Reject Invalid Status '{invalid_status}'", False, 
+                                f"Should reject invalid status, got HTTP {response.status_code}")
+            except Exception as e:
+                self.log_test(f"Reject Invalid Status '{invalid_status}'", False, "Connection failed", str(e))
+        
+        # Test 5: Test with non-existent investor ID
+        try:
+            fake_investor_id = "non-existent-investor-id-12345"
+            status_update = {"trading_status": "active"}
+            response = requests.patch(f"{self.base_url}/investors/{fake_investor_id}/trading-status", 
+                                    json=status_update, timeout=10)
+            if response.status_code == 404:
+                self.log_test("Non-existent Investor ID", True, 
+                            "Correctly returned 404 for non-existent investor")
+            else:
+                self.log_test("Non-existent Investor ID", False, 
+                            f"Should return 404, got HTTP {response.status_code}")
+        except Exception as e:
+            self.log_test("Non-existent Investor ID", False, "Connection failed", str(e))
+        
+        # Test 6: Verify database persistence
+        try:
+            # Get the investor again to verify the status was saved
+            response = requests.get(f"{self.base_url}/investors/{test_investor_id}/trading-status", timeout=10)
+            if response.status_code == 200:
+                status_data = response.json()
+                if status_data["trading_status"] == "inactive":  # Should be inactive from previous test
+                    self.log_test("Database Persistence", True, 
+                                "Trading status correctly persisted in database")
+                else:
+                    self.log_test("Database Persistence", False, 
+                                f"Expected 'inactive', got '{status_data['trading_status']}'")
+            else:
+                self.log_test("Database Persistence", False, f"HTTP {response.status_code}", response.text)
+        except Exception as e:
+            self.log_test("Database Persistence", False, "Connection failed", str(e))
+    
     def test_trading_performance(self):
         """Test trading performance APIs"""
         print("\n=== TESTING TRADING PERFORMANCE ===")
