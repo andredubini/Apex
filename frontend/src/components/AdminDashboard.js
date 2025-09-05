@@ -1109,6 +1109,20 @@ const AdminDashboard = () => {
                       </span>
                     </td>
                     <td className="py-4 px-4">
+                      <div className="flex items-center space-x-2">
+                        <button
+                          onClick={() => handleTradingStatusToggle(investor.email, investor.tradingStatus)}
+                          className={`px-3 py-1 rounded-full text-xs font-medium border-2 transition-all hover:scale-105 ${
+                            investor.tradingStatus === 'active' 
+                              ? 'bg-green-100 text-green-800 border-green-200 hover:bg-green-200' 
+                              : 'bg-red-100 text-red-800 border-red-200 hover:bg-red-200'
+                          }`}
+                        >
+                          {investor.tradingStatus === 'active' ? 'Active' : 'Inactive'}
+                        </button>
+                      </div>
+                    </td>
+                    <td className="py-4 px-4">
                       <div className="flex space-x-2">
                         <button 
                           onClick={() => setSelectedInvestor(investor)}
