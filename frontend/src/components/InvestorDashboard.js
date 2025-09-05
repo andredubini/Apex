@@ -311,6 +311,27 @@ const InvestorDashboard = () => {
   });
 
   const [showAddBank, setShowAddBank] = useState(false);
+  
+  // Trading status state
+  const [tradingStatus, setTradingStatus] = useState("inactive"); // "active" or "inactive"
+  const [tradingStatusLoading, setTradingStatusLoading] = useState(false);
+  
+  // Load trading status from API
+  const loadTradingStatus = async () => {
+    if (!user?.email) return;
+    
+    try {
+      const backendUrl = process.env.REACT_APP_BACKEND_URL || 'http://localhost:8001';
+      const response = await fetch(`${backendUrl}/api/investors/${user.email}/trading-status`);
+      
+      if (response.ok) {
+        const data = await response.json();
+        setTradingStatus(data.trading_status || "inactive");
+      }
+    } catch (error) {
+      console.error('Error loading trading status:', error);
+    }
+  };
 
   // Initialize WebSocket connection and load data
   useEffect(() => {
