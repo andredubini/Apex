@@ -1186,6 +1186,21 @@ const AdminDashboard = () => {
                   <label className={`block text-sm font-medium ${textSecondaryClass} mb-1`}>Total Invested</label>
                   <div className={`${textClass} font-semibold`}>${selectedInvestor.invested.toLocaleString()}</div>
                 </div>
+                <div>
+                  <label className={`block text-sm font-medium ${textSecondaryClass} mb-1`}>Trading Status</label>
+                  <div className="flex items-center space-x-2">
+                    <button
+                      onClick={() => handleTradingStatusToggle(selectedInvestor.email, selectedInvestor.tradingStatus)}
+                      className={`px-3 py-1 rounded-full text-xs font-medium border-2 transition-all hover:scale-105 ${
+                        selectedInvestor.tradingStatus === 'active' 
+                          ? 'bg-green-100 text-green-800 border-green-200 hover:bg-green-200' 
+                          : 'bg-red-100 text-red-800 border-red-200 hover:bg-red-200'
+                      }`}
+                    >
+                      {selectedInvestor.tradingStatus === 'active' ? 'Active - Click to Disable' : 'Inactive - Click to Enable'}
+                    </button>
+                  </div>
+                </div>
               </div>
               
               <div className="flex gap-4 pt-4">
