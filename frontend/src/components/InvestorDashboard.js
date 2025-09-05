@@ -355,6 +355,7 @@ const InvestorDashboard = () => {
     // Initialize notifications
     loadNotifications();
     loadNotificationSettings();
+    loadTradingStatus();
     
     // Request notification permission
     requestNotificationPermission();
