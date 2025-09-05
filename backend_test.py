@@ -1138,7 +1138,8 @@ class HedgeFundBackendTester:
             "Root Endpoint", "Get Investors", "Create Investor", 
             "Manual Profit Distribution", "Get Profit Distributions",
             "Tiered Profit Sharing", "Create Notification 1", "Get All User Notifications",
-            "Get Notification Settings", "Mark Individual Notification Read"
+            "Get Notification Settings", "Mark Individual Notification Read",
+            "Get Individual Trading Status", "Update Status to Active", "Update Status to Inactive"
         ]
         
         critical_failures = [r for r in self.test_results 
