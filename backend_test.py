@@ -13,7 +13,7 @@ from datetime import datetime, timezone
 from decimal import Decimal
 
 # Backend URL from frontend/.env
-BACKEND_URL = "https://hedgefund-platform.preview.emergentagent.com/api"
+BACKEND_URL = "https://None.preview.emergentagent.com/api"
 
 class HedgeFundBackendTester:
     def __init__(self):
