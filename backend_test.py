@@ -12,8 +12,20 @@ import threading
 from datetime import datetime, timezone
 from decimal import Decimal
 
-# Backend URL from frontend/.env
-BACKEND_URL = "https://None.preview.emergentagent.com/api"
+# Backend URL - try local first, then external
+try:
+    import requests
+    # Test local connection first
+    response = requests.get("http://localhost:8001/api/", timeout=5)
+    if response.status_code == 200:
+        BACKEND_URL = "http://localhost:8001/api"
+    else:
+        raise Exception("Local connection failed")
+except:
+    # Fallback to external URL pattern
+    import os
+    hostname = os.environ.get('HOSTNAME', 'agent-env-2028b814-2835-4f1c-b676-f5848bc305b9')
+    BACKEND_URL = f"https://{hostname}.preview.emergentagent.com/api"
 
 class HedgeFundBackendTester:
     def __init__(self):
