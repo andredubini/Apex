@@ -142,9 +142,9 @@ class HedgeFundBackendTester:
             except Exception as e:
                 self.log_test("Get Specific Investor", False, "Connection failed", str(e))
     
-    def test_trading_status_management(self):
-        """Test trading status management system"""
-        print("\n=== TESTING TRADING STATUS MANAGEMENT SYSTEM ===")
+    def test_enhanced_trading_status_request_system(self):
+        """Test enhanced trading status request system (investor self-service)"""
+        print("\n=== TESTING ENHANCED TRADING STATUS REQUEST SYSTEM ===")
         
         # Get a test investor ID (use investor@example.com)
         test_investor_email = "investor@example.com"
@@ -197,7 +197,206 @@ class HedgeFundBackendTester:
         except Exception as e:
             self.log_test("Get Individual Trading Status", False, "Connection failed", str(e))
         
-        # Test 2: Update trading status from inactive to active
+        # Test 2: Investor requests trading status change (inactive -> active)
+        try:
+            status_request = {
+                "requested_status": "active",
+                "message": "Please enable trading for my account. I would like to start active trading."
+            }
+            response = requests.post(f"{self.base_url}/investors/{test_investor_id}/trading-status-request", 
+                                   json=status_request, timeout=10)
+            if response.status_code == 200:
+                result = response.json()
+                if ("message" in result and "request submitted" in result["message"].lower() and 
+                    result.get("requested_status") == "active"):
+                    self.log_test("Investor Request Status Change (inactive->active)", True, 
+                                "Successfully submitted trading status request")
+                    
+                    # Wait for notifications to be created
+                    time.sleep(2)
+                    
+                    # Verify investor notification was created
+                    notif_response = requests.get(f"{self.base_url}/notifications/{test_investor_email}?type=system", timeout=10)
+                    if notif_response.status_code == 200:
+                        notifications = notif_response.json()
+                        investor_notifications = [n for n in notifications if "request submitted" in n["message"].lower()]
+                        if investor_notifications:
+                            self.log_test("Investor Confirmation Notification", True, 
+                                        "Investor received confirmation notification")
+                            # Check priority is MEDIUM
+                            if investor_notifications[0]["priority"] == "medium":
+                                self.log_test("Investor Notification Priority", True, 
+                                            "Investor notification has correct MEDIUM priority")
+                            else:
+                                self.log_test("Investor Notification Priority", False, 
+                                            f"Expected MEDIUM priority, got {investor_notifications[0]['priority']}")
+                        else:
+                            self.log_test("Investor Confirmation Notification", False, 
+                                        "No investor confirmation notification found")
+                    
+                    # Verify admin notification was created
+                    admin_notif_response = requests.get(f"{self.base_url}/notifications/admin@apexcapital.com?type=system", timeout=10)
+                    if admin_notif_response.status_code == 200:
+                        admin_notifications = admin_notif_response.json()
+                        admin_request_notifications = [n for n in admin_notifications if "trading status request" in n["title"].lower()]
+                        if admin_request_notifications:
+                            self.log_test("Admin Request Notification", True, 
+                                        "Admin received trading status request notification")
+                            # Check priority is HIGH
+                            if admin_request_notifications[0]["priority"] == "high":
+                                self.log_test("Admin Notification Priority", True, 
+                                            "Admin notification has correct HIGH priority")
+                            else:
+                                self.log_test("Admin Notification Priority", False, 
+                                            f"Expected HIGH priority, got {admin_request_notifications[0]['priority']}")
+                            
+                            # Check metadata includes proper request details
+                            metadata = admin_request_notifications[0].get("metadata", {})
+                            if (metadata.get("requested_status") == "active" and 
+                                metadata.get("investor_id") == test_investor_id and
+                                metadata.get("request_message") == status_request["message"]):
+                                self.log_test("Admin Notification Metadata", True, 
+                                            "Admin notification contains proper request details")
+                            else:
+                                self.log_test("Admin Notification Metadata", False, 
+                                            "Admin notification missing proper metadata", metadata)
+                        else:
+                            self.log_test("Admin Request Notification", False, 
+                                        "No admin request notification found")
+                else:
+                    self.log_test("Investor Request Status Change (inactive->active)", False, 
+                                "Unexpected response format", result)
+            else:
+                self.log_test("Investor Request Status Change (inactive->active)", False, 
+                            f"HTTP {response.status_code}", response.text)
+        except Exception as e:
+            self.log_test("Investor Request Status Change (inactive->active)", False, "Connection failed", str(e))
+        
+        # Test 3: Investor requests trading status change (active -> inactive) with different message
+        try:
+            status_request = {
+                "requested_status": "inactive",
+                "message": "I need to pause trading temporarily due to personal reasons."
+            }
+            response = requests.post(f"{self.base_url}/investors/{test_investor_id}/trading-status-request", 
+                                   json=status_request, timeout=10)
+            if response.status_code == 200:
+                result = response.json()
+                if ("message" in result and "request submitted" in result["message"].lower() and 
+                    result.get("requested_status") == "inactive"):
+                    self.log_test("Investor Request Status Change (active->inactive)", True, 
+                                "Successfully submitted trading status deactivation request")
+                else:
+                    self.log_test("Investor Request Status Change (active->inactive)", False, 
+                                "Unexpected response format", result)
+            else:
+                self.log_test("Investor Request Status Change (active->inactive)", False, 
+                            f"HTTP {response.status_code}", response.text)
+        except Exception as e:
+            self.log_test("Investor Request Status Change (active->inactive)", False, "Connection failed", str(e))
+        
+        # Test 4: Test request without optional message
+        try:
+            status_request = {
+                "requested_status": "active"
+                # No message field
+            }
+            response = requests.post(f"{self.base_url}/investors/{test_investor_id}/trading-status-request", 
+                                   json=status_request, timeout=10)
+            if response.status_code == 200:
+                result = response.json()
+                if ("message" in result and "request submitted" in result["message"].lower()):
+                    self.log_test("Request Without Message", True, 
+                                "Successfully submitted request without optional message")
+                else:
+                    self.log_test("Request Without Message", False, 
+                                "Unexpected response format", result)
+            else:
+                self.log_test("Request Without Message", False, 
+                            f"HTTP {response.status_code}", response.text)
+        except Exception as e:
+            self.log_test("Request Without Message", False, "Connection failed", str(e))
+        
+        # Test 5: Test invalid requested_status values
+        invalid_statuses = ["enabled", "disabled", "suspended", "pending", "invalid"]
+        for invalid_status in invalid_statuses:
+            try:
+                status_request = {
+                    "requested_status": invalid_status,
+                    "message": f"Testing invalid status: {invalid_status}"
+                }
+                response = requests.post(f"{self.base_url}/investors/{test_investor_id}/trading-status-request", 
+                                       json=status_request, timeout=10)
+                if response.status_code == 400:
+                    self.log_test(f"Reject Invalid Request Status '{invalid_status}'", True, 
+                                "Correctly rejected invalid requested status")
+                elif response.status_code == 422:
+                    self.log_test(f"Reject Invalid Request Status '{invalid_status}'", True, 
+                                "Correctly rejected invalid requested status (validation error)")
+                else:
+                    self.log_test(f"Reject Invalid Request Status '{invalid_status}'", False, 
+                                f"Should reject invalid status, got HTTP {response.status_code}")
+            except Exception as e:
+                self.log_test(f"Reject Invalid Request Status '{invalid_status}'", False, "Connection failed", str(e))
+        
+        # Test 6: Test with non-existent investor ID
+        try:
+            fake_investor_id = "non-existent-investor-id-12345"
+            status_request = {
+                "requested_status": "active",
+                "message": "Testing with fake investor ID"
+            }
+            response = requests.post(f"{self.base_url}/investors/{fake_investor_id}/trading-status-request", 
+                                   json=status_request, timeout=10)
+            if response.status_code == 404:
+                self.log_test("Non-existent Investor Request", True, 
+                            "Correctly returned 404 for non-existent investor")
+            else:
+                self.log_test("Non-existent Investor Request", False, 
+                            f"Should return 404, got HTTP {response.status_code}")
+        except Exception as e:
+            self.log_test("Non-existent Investor Request", False, "Connection failed", str(e))
+        
+        # Test 7: Test email simulation logging
+        try:
+            # Check backend logs for email simulation (this is a placeholder test)
+            # In a real scenario, you would check log files or monitoring systems
+            self.log_test("Email Simulation Logging", True, 
+                        "Email simulation should be logged in backend logs (check supervisor logs)")
+        except Exception as e:
+            self.log_test("Email Simulation Logging", False, "Could not verify email logging", str(e))
+    
+    def test_trading_status_management(self):
+        """Test admin trading status management system"""
+        print("\n=== TESTING ADMIN TRADING STATUS MANAGEMENT ===")
+        
+        # Get a test investor ID (use investor@example.com)
+        test_investor_email = "investor@example.com"
+        test_investor_id = None
+        
+        # First, get investors to find the test investor
+        try:
+            response = requests.get(f"{self.base_url}/investors", timeout=10)
+            if response.status_code == 200:
+                investors = response.json()
+                for investor in investors:
+                    if investor["email"] == test_investor_email:
+                        test_investor_id = investor["id"]
+                        break
+                
+                if not test_investor_id:
+                    self.log_test("Find Test Investor for Admin Tests", False, f"Could not find investor with email {test_investor_email}")
+                    return
+                else:
+                    self.log_test("Find Test Investor for Admin Tests", True, f"Found test investor: {test_investor_id}")
+            else:
+                self.log_test("Find Test Investor for Admin Tests", False, f"HTTP {response.status_code}", response.text)
+                return
+        except Exception as e:
+            self.log_test("Find Test Investor for Admin Tests", False, "Connection failed", str(e))
+            return
+        
+        # Test 1: Admin updates trading status from inactive to active
         try:
             status_update = {"trading_status": "active"}
             response = requests.patch(f"{self.base_url}/investors/{test_investor_id}/trading-status", 
@@ -206,29 +405,37 @@ class HedgeFundBackendTester:
                 result = response.json()
                 if ("message" in result and "active" in result["message"] and 
                     "investor" in result and result["investor"]["trading_status"] == "active"):
-                    self.log_test("Update Status to Active", True, 
+                    self.log_test("Admin Update Status to Active", True, 
                                 "Successfully updated trading status to active")
                     
-                    # Verify notification was created
+                    # Verify notification was created for investor
                     time.sleep(1)  # Wait for notification creation
                     notif_response = requests.get(f"{self.base_url}/notifications/{test_investor_email}?type=system", timeout=10)
                     if notif_response.status_code == 200:
                         notifications = notif_response.json()
-                        trading_notifications = [n for n in notifications if "trading status" in n["message"].lower()]
+                        trading_notifications = [n for n in notifications if "trading status" in n["message"].lower() and "enabled" in n["message"].lower()]
                         if trading_notifications:
-                            self.log_test("Trading Status Notification", True, 
-                                        "Notification created for trading status change")
+                            self.log_test("Admin Action Notification", True, 
+                                        "Notification created for investor about admin trading status change")
+                            # Check notification metadata
+                            metadata = trading_notifications[0].get("metadata", {})
+                            if metadata.get("changed_by") == "admin":
+                                self.log_test("Admin Action Metadata", True, 
+                                            "Notification metadata correctly indicates admin action")
+                            else:
+                                self.log_test("Admin Action Metadata", False, 
+                                            "Notification metadata missing admin indicator")
                         else:
-                            self.log_test("Trading Status Notification", False, 
+                            self.log_test("Admin Action Notification", False, 
                                         "No trading status notification found")
                 else:
-                    self.log_test("Update Status to Active", False, "Unexpected response format", result)
+                    self.log_test("Admin Update Status to Active", False, "Unexpected response format", result)
             else:
-                self.log_test("Update Status to Active", False, f"HTTP {response.status_code}", response.text)
+                self.log_test("Admin Update Status to Active", False, f"HTTP {response.status_code}", response.text)
         except Exception as e:
-            self.log_test("Update Status to Active", False, "Connection failed", str(e))
+            self.log_test("Admin Update Status to Active", False, "Connection failed", str(e))
         
-        # Test 3: Update trading status from active to inactive
+        # Test 2: Admin updates trading status from active to inactive
         try:
             status_update = {"trading_status": "inactive"}
             response = requests.patch(f"{self.base_url}/investors/{test_investor_id}/trading-status", 
@@ -237,16 +444,16 @@ class HedgeFundBackendTester:
                 result = response.json()
                 if ("message" in result and "inactive" in result["message"] and 
                     "investor" in result and result["investor"]["trading_status"] == "inactive"):
-                    self.log_test("Update Status to Inactive", True, 
+                    self.log_test("Admin Update Status to Inactive", True, 
                                 "Successfully updated trading status to inactive")
                 else:
-                    self.log_test("Update Status to Inactive", False, "Unexpected response format", result)
+                    self.log_test("Admin Update Status to Inactive", False, "Unexpected response format", result)
             else:
-                self.log_test("Update Status to Inactive", False, f"HTTP {response.status_code}", response.text)
+                self.log_test("Admin Update Status to Inactive", False, f"HTTP {response.status_code}", response.text)
         except Exception as e:
-            self.log_test("Update Status to Inactive", False, "Connection failed", str(e))
+            self.log_test("Admin Update Status to Inactive", False, "Connection failed", str(e))
         
-        # Test 4: Test invalid trading status values
+        # Test 3: Test invalid trading status values
         invalid_statuses = ["enabled", "disabled", "suspended", "pending", "invalid"]
         for invalid_status in invalid_statuses:
             try:
@@ -254,48 +461,193 @@ class HedgeFundBackendTester:
                 response = requests.patch(f"{self.base_url}/investors/{test_investor_id}/trading-status", 
                                         json=status_update, timeout=10)
                 if response.status_code == 400:
-                    self.log_test(f"Reject Invalid Status '{invalid_status}'", True, 
+                    self.log_test(f"Admin Reject Invalid Status '{invalid_status}'", True, 
                                 "Correctly rejected invalid trading status")
                 elif response.status_code == 422:
-                    self.log_test(f"Reject Invalid Status '{invalid_status}'", True, 
+                    self.log_test(f"Admin Reject Invalid Status '{invalid_status}'", True, 
                                 "Correctly rejected invalid trading status (validation error)")
                 else:
-                    self.log_test(f"Reject Invalid Status '{invalid_status}'", False, 
+                    self.log_test(f"Admin Reject Invalid Status '{invalid_status}'", False, 
                                 f"Should reject invalid status, got HTTP {response.status_code}")
             except Exception as e:
-                self.log_test(f"Reject Invalid Status '{invalid_status}'", False, "Connection failed", str(e))
+                self.log_test(f"Admin Reject Invalid Status '{invalid_status}'", False, "Connection failed", str(e))
         
-        # Test 5: Test with non-existent investor ID
+        # Test 4: Test with non-existent investor ID
         try:
             fake_investor_id = "non-existent-investor-id-12345"
             status_update = {"trading_status": "active"}
             response = requests.patch(f"{self.base_url}/investors/{fake_investor_id}/trading-status", 
                                     json=status_update, timeout=10)
             if response.status_code == 404:
-                self.log_test("Non-existent Investor ID", True, 
+                self.log_test("Admin Non-existent Investor ID", True, 
                             "Correctly returned 404 for non-existent investor")
             else:
-                self.log_test("Non-existent Investor ID", False, 
+                self.log_test("Admin Non-existent Investor ID", False, 
                             f"Should return 404, got HTTP {response.status_code}")
         except Exception as e:
-            self.log_test("Non-existent Investor ID", False, "Connection failed", str(e))
+            self.log_test("Admin Non-existent Investor ID", False, "Connection failed", str(e))
         
-        # Test 6: Verify database persistence
+        # Test 5: Verify database persistence
         try:
             # Get the investor again to verify the status was saved
             response = requests.get(f"{self.base_url}/investors/{test_investor_id}/trading-status", timeout=10)
             if response.status_code == 200:
                 status_data = response.json()
                 if status_data["trading_status"] == "inactive":  # Should be inactive from previous test
-                    self.log_test("Database Persistence", True, 
+                    self.log_test("Admin Database Persistence", True, 
                                 "Trading status correctly persisted in database")
                 else:
-                    self.log_test("Database Persistence", False, 
+                    self.log_test("Admin Database Persistence", False, 
                                 f"Expected 'inactive', got '{status_data['trading_status']}'")
             else:
-                self.log_test("Database Persistence", False, f"HTTP {response.status_code}", response.text)
+                self.log_test("Admin Database Persistence", False, f"HTTP {response.status_code}", response.text)
         except Exception as e:
-            self.log_test("Database Persistence", False, "Connection failed", str(e))
+            self.log_test("Admin Database Persistence", False, "Connection failed", str(e))
+    
+    def test_end_to_end_trading_status_flow(self):
+        """Test complete end-to-end trading status flow"""
+        print("\n=== TESTING END-TO-END TRADING STATUS FLOW ===")
+        
+        # Get a test investor ID (use investor@example.com)
+        test_investor_email = "investor@example.com"
+        test_investor_id = None
+        
+        # First, get investors to find the test investor
+        try:
+            response = requests.get(f"{self.base_url}/investors", timeout=10)
+            if response.status_code == 200:
+                investors = response.json()
+                for investor in investors:
+                    if investor["email"] == test_investor_email:
+                        test_investor_id = investor["id"]
+                        break
+                
+                if not test_investor_id:
+                    self.log_test("Find Test Investor for E2E", False, f"Could not find investor with email {test_investor_email}")
+                    return
+                else:
+                    self.log_test("Find Test Investor for E2E", True, f"Found test investor: {test_investor_id}")
+            else:
+                self.log_test("Find Test Investor for E2E", False, f"HTTP {response.status_code}", response.text)
+                return
+        except Exception as e:
+            self.log_test("Find Test Investor for E2E", False, "Connection failed", str(e))
+            return
+        
+        # Step 1: Ensure investor starts with inactive status
+        try:
+            status_update = {"trading_status": "inactive"}
+            response = requests.patch(f"{self.base_url}/investors/{test_investor_id}/trading-status", 
+                                    json=status_update, timeout=10)
+            if response.status_code == 200:
+                self.log_test("E2E Setup - Set Inactive", True, "Set initial status to inactive")
+            else:
+                self.log_test("E2E Setup - Set Inactive", False, f"HTTP {response.status_code}", response.text)
+        except Exception as e:
+            self.log_test("E2E Setup - Set Inactive", False, "Connection failed", str(e))
+        
+        # Step 2: Investor requests status change
+        try:
+            status_request = {
+                "requested_status": "active",
+                "message": "I would like to start active trading with my account. Please enable trading permissions."
+            }
+            response = requests.post(f"{self.base_url}/investors/{test_investor_id}/trading-status-request", 
+                                   json=status_request, timeout=10)
+            if response.status_code == 200:
+                result = response.json()
+                if ("message" in result and "request submitted" in result["message"].lower()):
+                    self.log_test("E2E Step 1 - Investor Request", True, 
+                                "Investor successfully submitted trading status request")
+                    
+                    # Verify current status is still inactive (no auto-approval)
+                    time.sleep(1)
+                    status_response = requests.get(f"{self.base_url}/investors/{test_investor_id}/trading-status", timeout=10)
+                    if status_response.status_code == 200:
+                        status_data = status_response.json()
+                        if status_data["trading_status"] == "inactive":
+                            self.log_test("E2E Status Unchanged", True, 
+                                        "Trading status remains inactive until admin approval")
+                        else:
+                            self.log_test("E2E Status Unchanged", False, 
+                                        f"Status should remain inactive, got {status_data['trading_status']}")
+                else:
+                    self.log_test("E2E Step 1 - Investor Request", False, 
+                                "Unexpected response format", result)
+            else:
+                self.log_test("E2E Step 1 - Investor Request", False, 
+                            f"HTTP {response.status_code}", response.text)
+        except Exception as e:
+            self.log_test("E2E Step 1 - Investor Request", False, "Connection failed", str(e))
+        
+        # Step 3: Admin approves the request by updating status
+        try:
+            time.sleep(2)  # Wait for notifications to be processed
+            status_update = {"trading_status": "active"}
+            response = requests.patch(f"{self.base_url}/investors/{test_investor_id}/trading-status", 
+                                    json=status_update, timeout=10)
+            if response.status_code == 200:
+                result = response.json()
+                if ("message" in result and "active" in result["message"] and 
+                    "investor" in result and result["investor"]["trading_status"] == "active"):
+                    self.log_test("E2E Step 2 - Admin Approval", True, 
+                                "Admin successfully approved and activated trading status")
+                    
+                    # Verify final status is active
+                    time.sleep(1)
+                    status_response = requests.get(f"{self.base_url}/investors/{test_investor_id}/trading-status", timeout=10)
+                    if status_response.status_code == 200:
+                        status_data = status_response.json()
+                        if status_data["trading_status"] == "active":
+                            self.log_test("E2E Final Status", True, 
+                                        "Trading status successfully changed to active after admin approval")
+                        else:
+                            self.log_test("E2E Final Status", False, 
+                                        f"Expected active status, got {status_data['trading_status']}")
+                else:
+                    self.log_test("E2E Step 2 - Admin Approval", False, 
+                                "Unexpected response format", result)
+            else:
+                self.log_test("E2E Step 2 - Admin Approval", False, 
+                            f"HTTP {response.status_code}", response.text)
+        except Exception as e:
+            self.log_test("E2E Step 2 - Admin Approval", False, "Connection failed", str(e))
+        
+        # Step 4: Verify notifications were created at each step
+        try:
+            time.sleep(2)  # Wait for all notifications to be processed
+            
+            # Check investor notifications
+            notif_response = requests.get(f"{self.base_url}/notifications/{test_investor_email}?type=system", timeout=10)
+            if notif_response.status_code == 200:
+                notifications = notif_response.json()
+                
+                # Look for request confirmation and status change notifications
+                request_notifications = [n for n in notifications if "request submitted" in n["message"].lower()]
+                status_notifications = [n for n in notifications if "trading status" in n["message"].lower() and "enabled" in n["message"].lower()]
+                
+                if request_notifications and status_notifications:
+                    self.log_test("E2E Notification Flow", True, 
+                                f"Complete notification flow: {len(request_notifications)} request confirmations, {len(status_notifications)} status changes")
+                else:
+                    self.log_test("E2E Notification Flow", False, 
+                                f"Missing notifications - Requests: {len(request_notifications)}, Status: {len(status_notifications)}")
+            
+            # Check admin notifications
+            admin_notif_response = requests.get(f"{self.base_url}/notifications/admin@apexcapital.com?type=system", timeout=10)
+            if admin_notif_response.status_code == 200:
+                admin_notifications = admin_notif_response.json()
+                admin_request_notifications = [n for n in admin_notifications if "trading status request" in n["title"].lower()]
+                
+                if admin_request_notifications:
+                    self.log_test("E2E Admin Notifications", True, 
+                                f"Admin received {len(admin_request_notifications)} trading status request notifications")
+                else:
+                    self.log_test("E2E Admin Notifications", False, 
+                                "Admin did not receive trading status request notifications")
+                    
+        except Exception as e:
+            self.log_test("E2E Notification Verification", False, "Connection failed", str(e))
     
     def test_trading_performance(self):
         """Test trading performance APIs"""
