@@ -65,6 +65,9 @@ class InvestorCreate(BaseModel):
     initial_investment: float
     risk_profile: str = "moderate"
 
+class TradingStatusUpdate(BaseModel):
+    trading_status: str  # "active" or "inactive"
+
 # Trading Performance Model
 class TradingPeriod(BaseModel):
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
