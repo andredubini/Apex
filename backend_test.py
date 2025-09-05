@@ -1441,7 +1441,9 @@ class HedgeFundBackendTester:
         
         # Run all test suites
         self.test_api_health()
-        self.test_trading_status_management()  # New trading status tests
+        self.test_enhanced_trading_status_request_system()  # New enhanced trading status request tests
+        self.test_trading_status_management()  # Admin trading status management tests
+        self.test_end_to_end_trading_status_flow()  # Complete E2E flow tests
         self.test_notification_system()
         self.test_notification_settings()
         self.test_broadcast_notifications()
