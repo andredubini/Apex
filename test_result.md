@@ -542,7 +542,6 @@ Please thoroughly test the notification API endpoints, WebSocket connectivity, a
 
 ## test_plan:
   current_focus:
-    - "Trading Status Management System"
     - "Real-time Notification System"
     - "Notification Settings System"
     - "Broadcast Notification System"
