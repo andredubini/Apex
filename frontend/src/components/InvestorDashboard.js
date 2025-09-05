@@ -333,10 +333,59 @@ const InvestorDashboard = () => {
     }
   };
   
-  // Handle trading status button click (for display only - actual changes come from admin)
-  const handleTradingStatusRequest = () => {
+  // Handle trading status button click - send actual request to backend
+  const handleTradingStatusRequest = async () => {
+    if (!user?.email) return;
+    
     const action = tradingStatus === "active" ? "stop" : "start";
-    alert(`Trading ${action} request noted. Your request has been sent to the admin for review. You will be notified once your trading status is updated.`);
+    const newStatus = tradingStatus === "active" ? "inactive" : "active";
+    
+    // Show confirmation dialog
+    const confirmed = window.confirm(
+      `Are you sure you want to ${action} trading?\n\n` +
+      `Current status: ${tradingStatus === "active" ? "Trading Active" : "Trading Inactive"}\n` +
+      `Your request will be sent to admin for review.`
+    );
+    
+    if (!confirmed) return;
+    
+    setTradingStatusLoading(true);
+    
+    try {
+      const backendUrl = process.env.REACT_APP_BACKEND_URL || 'http://localhost:8001';
+      const response = await fetch(`${backendUrl}/api/investors/${user.email}/trading-status-request`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          requested_status: newStatus,
+          message: `Request to ${action} trading via investor dashboard`
+        })
+      });
+      
+      if (response.ok) {
+        const result = await response.json();
+        
+        // Show success message
+        alert(
+          `✅ Request Submitted Successfully!\n\n` +
+          `${result.message}\n\n` +
+          `You will receive a notification once the admin reviews your request.`
+        );
+        
+        // Reload notifications to show the new confirmation notification
+        loadNotifications();
+      } else {
+        const error = await response.json();
+        alert(`❌ Request Failed: ${error.detail || 'Unknown error'}`);
+      }
+    } catch (error) {
+      console.error('Error submitting trading status request:', error);
+      alert('❌ Network Error: Could not submit request. Please try again.');
+    } finally {
+      setTradingStatusLoading(false);
+    }
   };
 
   // Initialize WebSocket connection and load data
