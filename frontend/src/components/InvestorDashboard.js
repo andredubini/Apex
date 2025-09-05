@@ -332,6 +332,12 @@ const InvestorDashboard = () => {
       console.error('Error loading trading status:', error);
     }
   };
+  
+  // Handle trading status button click (for display only - actual changes come from admin)
+  const handleTradingStatusRequest = () => {
+    const action = tradingStatus === "active" ? "stop" : "start";
+    alert(`Trading ${action} request noted. Your request has been sent to the admin for review. You will be notified once your trading status is updated.`);
+  };
 
   // Initialize WebSocket connection and load data
   useEffect(() => {
