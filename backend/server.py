@@ -68,6 +68,10 @@ class InvestorCreate(BaseModel):
 class TradingStatusUpdate(BaseModel):
     trading_status: str  # "active" or "inactive"
 
+class TradingStatusRequest(BaseModel):
+    requested_status: str  # "active" or "inactive"
+    message: str = ""  # Optional message from investor
+
 # Trading Performance Model
 class TradingPeriod(BaseModel):
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
