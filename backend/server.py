@@ -568,6 +568,72 @@ async def get_investor_trading_status(investor_id: str):
         "email": investor.get("email")
     }
 
+# Investor Trading Request Endpoint (for investor self-service)
+@api_router.post("/investors/{investor_id}/trading-status-request")
+async def request_trading_status_change(investor_id: str, request: TradingStatusRequest):
+    """Allow investor to request trading status change (requires admin approval)"""
+    if request.requested_status not in ["active", "inactive"]:
+        raise HTTPException(status_code=400, detail="Requested status must be 'active' or 'inactive'")
+    
+    # Get investor data
+    investor = await db.investors.find_one({"id": investor_id})
+    if not investor:
+        raise HTTPException(status_code=404, detail="Investor not found")
+    
+    current_status = investor.get("trading_status", "inactive")
+    action = "start" if request.requested_status == "active" else "stop"
+    
+    # Create notification for investor (confirmation)
+    await create_notification_for_user(
+        user_id=investor["email"],
+        user_type="investor",
+        title=f"Trading {action.title()} Request Submitted",
+        message=f"Your request to {action} trading has been submitted to the admin for review. You will be notified once your request is processed.",
+        type=NotificationType.SYSTEM,
+        priority=NotificationPriority.MEDIUM,
+        metadata={
+            "requested_status": request.requested_status,
+            "current_status": current_status,
+            "action": action,
+            "request_message": request.message
+        }
+    )
+    
+    # Create notification for admin
+    await create_notification_for_user(
+        user_id="admin@apexcapital.com",
+        user_type="admin",
+        title=f"Trading Status Request from {investor['name']}",
+        message=f"{investor['name']} has requested to {action} trading. Current status: {current_status}, Requested: {request.requested_status}. {request.message if request.message else ''}",
+        type=NotificationType.SYSTEM,
+        priority=NotificationPriority.HIGH,
+        metadata={
+            "investor_id": investor_id,
+            "investor_name": investor["name"],
+            "investor_email": investor["email"],
+            "requested_status": request.requested_status,
+            "current_status": current_status,
+            "action": action,
+            "request_message": request.message
+        }
+    )
+    
+    # Send email notification to admin (simulated)
+    await send_email_notification_to_admin(
+        investor_name=investor["name"],
+        investor_email=investor["email"],
+        action=action,
+        current_status=current_status,
+        requested_status=request.requested_status,
+        message=request.message
+    )
+    
+    return {
+        "message": f"Trading {action} request submitted successfully. Admin will review your request.",
+        "requested_status": request.requested_status,
+        "current_status": current_status
+    }
+
 # Trading Performance Endpoints
 @api_router.post("/trading-periods", response_model=TradingPeriod)
 async def create_trading_period(period: TradingPeriodCreate):
