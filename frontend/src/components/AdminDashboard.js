@@ -142,9 +142,20 @@ const AdminDashboard = () => {
     logout();
   };
   
-  // Handle trading status toggle
+  // Handle trading status toggle with confirmation
   const handleTradingStatusToggle = async (investorId, currentStatus) => {
     const newStatus = currentStatus === "active" ? "inactive" : "active";
+    const action = newStatus === "active" ? "enable" : "disable";
+    
+    // Show confirmation dialog
+    const confirmed = window.confirm(
+      `Are you sure you want to ${action} trading for this investor?\n\n` +
+      `Current status: ${currentStatus}\n` +
+      `New status: ${newStatus}\n\n` +
+      `The investor will be notified of this change.`
+    );
+    
+    if (!confirmed) return;
     
     try {
       const backendUrl = process.env.REACT_APP_BACKEND_URL || 'http://localhost:8001';
@@ -159,15 +170,24 @@ const AdminDashboard = () => {
       });
       
       if (response.ok) {
-        // In a real app, you'd update the state with the response
-        // For now, we'll just show a success message
-        alert(`Trading status updated to ${newStatus} for investor`);
+        const result = await response.json();
+        
+        // Show success message
+        alert(
+          `✅ Trading Status Updated!\n\n` +
+          `${result.message}\n\n` +
+          `The investor has been notified of this change.`
+        );
+        
+        // In a real app, you would update the local state or reload the data
+        // For now, we'll just show the success message
       } else {
-        alert('Failed to update trading status');
+        const error = await response.json();
+        alert(`❌ Update Failed: ${error.detail || 'Unknown error'}`);
       }
     } catch (error) {
       console.error('Error updating trading status:', error);
-      alert('Error updating trading status');
+      alert('❌ Network Error: Could not update trading status. Please try again.');
     }
   };
 
