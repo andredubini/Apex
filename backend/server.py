@@ -509,6 +509,61 @@ async def get_investor(investor_id: str):
         raise HTTPException(status_code=404, detail="Investor not found")
     return Investor(**investor)
 
+# Trading Status Management Endpoints
+@api_router.patch("/investors/{investor_id}/trading-status")
+async def update_investor_trading_status(investor_id: str, status_update: TradingStatusUpdate):
+    """Update investor trading status (Admin only)"""
+    if status_update.trading_status not in ["active", "inactive"]:
+        raise HTTPException(status_code=400, detail="Trading status must be 'active' or 'inactive'")
+    
+    # Update investor trading status
+    update_result = await db.investors.update_one(
+        {"id": investor_id},
+        {
+            "$set": {
+                "trading_status": status_update.trading_status,
+                "updated_at": datetime.now(timezone.utc)
+            }
+        }
+    )
+    
+    if update_result.matched_count == 0:
+        raise HTTPException(status_code=404, detail="Investor not found")
+    
+    # Get updated investor data
+    investor = await db.investors.find_one({"id": investor_id})
+    
+    # Create notification for investor about trading status change
+    status_message = "enabled" if status_update.trading_status == "active" else "disabled"
+    await create_notification_for_user(
+        user_id=investor["email"],
+        user_type="investor",
+        title=f"Trading Status {status_message.title()}",
+        message=f"Your trading status has been {status_message}. You can now {'start' if status_update.trading_status == 'active' else 'no longer'} trade with your account.",
+        type=NotificationType.SYSTEM,
+        priority=NotificationPriority.HIGH,
+        metadata={
+            "trading_status": status_update.trading_status,
+            "changed_by": "admin"
+        }
+    )
+    
+    return {"message": f"Trading status updated to {status_update.trading_status}", "investor": Investor(**investor)}
+
+@api_router.get("/investors/{investor_id}/trading-status")
+async def get_investor_trading_status(investor_id: str):
+    """Get investor trading status"""
+    investor = await db.investors.find_one({"id": investor_id}, {"trading_status": 1, "email": 1, "name": 1})
+    if not investor:
+        raise HTTPException(status_code=404, detail="Investor not found")
+    
+    return {
+        "investor_id": investor_id,
+        "trading_status": investor.get("trading_status", "inactive"),
+        "name": investor.get("name"),
+        "email": investor.get("email")
+    }
+
 # Trading Performance Endpoints
 @api_router.post("/trading-periods", response_model=TradingPeriod)
 async def create_trading_period(period: TradingPeriodCreate):
