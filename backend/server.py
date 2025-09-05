@@ -725,6 +725,51 @@ async def send_email_notification_to_admin(
     
     return True
 
+async def send_email_notification_to_admin(
+    investor_name: str,
+    investor_email: str,
+    action: str,
+    current_status: str,
+    requested_status: str,
+    message: str = ""
+):
+    """Send email notification to admin about trading status request (simulated)"""
+    # This is a placeholder for actual email sending functionality
+    # In a real implementation, you would integrate with an email service like:
+    # - SendGrid
+    # - AWS SES
+    # - SMTP server
+    
+    email_subject = f"Trading Status Request from {investor_name}"
+    email_body = f"""
+    Dear Admin,
+    
+    Investor {investor_name} ({investor_email}) has requested to {action} trading.
+    
+    Current Status: {current_status}
+    Requested Status: {requested_status}
+    
+    {f'Message from investor: {message}' if message else ''}
+    
+    Please review and approve/deny this request in the admin panel.
+    
+    Best regards,
+    Apex Capital Management System
+    """
+    
+    # Simulate email sending
+    logger.info(f"EMAIL SENT TO ADMIN: {email_subject}")
+    logger.info(f"EMAIL BODY: {email_body}")
+    
+    # In real implementation, you would do something like:
+    # await email_service.send_email(
+    #     to="admin@apexcapital.com",
+    #     subject=email_subject,
+    #     body=email_body
+    # )
+    
+    return True
+
 # Notification Helper Functions
 async def create_notification_for_user(
     user_id: str,
