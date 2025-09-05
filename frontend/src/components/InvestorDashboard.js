@@ -614,6 +614,44 @@ const InvestorDashboard = () => {
         </div>
       </div>
 
+      {/* Trading Status Button - Prominent Display */}
+      <div className="mb-6">
+        <button
+          onClick={handleTradingStatusRequest}
+          className={`w-full py-4 px-6 rounded-2xl font-bold text-lg shadow-lg transition-all duration-300 transform hover:scale-105 ${
+            tradingStatus === "active" 
+              ? 'bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white' 
+              : 'bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white'
+          }`}
+          disabled={tradingStatusLoading}
+        >
+          <div className="flex items-center justify-center space-x-3">
+            {tradingStatus === "active" ? (
+              <>
+                <div className="w-3 h-3 bg-white rounded-full animate-pulse"></div>
+                <span>Stop Trading</span>
+                <div className="text-sm font-normal opacity-90">
+                  (Trading Active)
+                </div>
+              </>
+            ) : (
+              <>
+                <div className="w-3 h-3 bg-white rounded-full"></div>
+                <span>Start Trading</span>
+                <div className="text-sm font-normal opacity-90">
+                  (Trading Inactive)
+                </div>
+              </>
+            )}
+          </div>
+        </button>
+        <p className={`text-xs ${textSecondaryClass} mt-2 text-center`}>
+          {tradingStatus === "active" 
+            ? "Your account is actively trading. Click to request trading stop." 
+            : "Your trading is currently inactive. Click to request trading activation."}
+        </p>
+      </div>
+
       {/* Enhanced Quick Actions */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         <button
