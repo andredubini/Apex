@@ -542,7 +542,7 @@ Please thoroughly test the notification API endpoints, WebSocket connectivity, a
 
 ## test_plan:
   current_focus:
-    - "Admin Panel and Investor Cabinet Integration"
+    - "New Analytical Endpoints for Trading Status"
   stuck_tasks: []
   test_all: true
   test_priority: "high_first"
