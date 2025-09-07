@@ -620,7 +620,14 @@ async def get_trading_activity_trends():
         today = datetime.now(timezone.utc).date()
         
         for notification in recent_notifications:
-            created_date = datetime.fromisoformat(notification["created_at"].replace("Z", "+00:00")).date()
+            # Handle both datetime objects and string formats
+            created_at = notification["created_at"]
+            if isinstance(created_at, str):
+                created_date = datetime.fromisoformat(created_at.replace("Z", "+00:00")).date()
+            else:
+                # Already a datetime object
+                created_date = created_at.date()
+            
             if created_date == today:
                 if "request" in notification["title"].lower():
                     requests_today += 1
