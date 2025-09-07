@@ -51,6 +51,335 @@ class HedgeFundBackendTester:
         if details and not success:
             print(f"   Details: {details}")
     
+    def test_analytical_endpoints(self):
+        """Test new analytical endpoints for trading status in Apex Capital system"""
+        print("\n=== TESTING ANALYTICAL ENDPOINTS FOR TRADING STATUS ===")
+        
+        # First, ensure we have test data with different trading statuses
+        self.setup_analytical_test_data()
+        
+        # Test 1: GET /api/analytics/trading-status-summary
+        self.test_trading_status_summary()
+        
+        # Test 2: GET /api/analytics/trading-activity-trends  
+        self.test_trading_activity_trends()
+        
+        # Test 3: Verify calculation correctness
+        self.verify_analytical_calculations()
+        
+        # Test 4: Test error handling
+        self.test_analytical_error_handling()
+    
+    def setup_analytical_test_data(self):
+        """Setup test data for analytical endpoints"""
+        print("\n--- Setting up analytical test data ---")
+        
+        try:
+            # Get existing investors
+            response = requests.get(f"{self.base_url}/investors", timeout=10)
+            if response.status_code == 200:
+                investors = response.json()
+                
+                # Set different trading statuses for testing
+                if len(investors) >= 3:
+                    # Set first investor to active trading
+                    requests.patch(f"{self.base_url}/investors/{investors[0]['id']}/trading-status", 
+                                 json={"trading_status": "active"}, timeout=10)
+                    
+                    # Set second investor to inactive trading  
+                    requests.patch(f"{self.base_url}/investors/{investors[1]['id']}/trading-status", 
+                                 json={"trading_status": "inactive"}, timeout=10)
+                    
+                    # Set third investor to active trading
+                    if len(investors) > 2:
+                        requests.patch(f"{self.base_url}/investors/{investors[2]['id']}/trading-status", 
+                                     json={"trading_status": "active"}, timeout=10)
+                    
+                    self.log_test("Setup Analytical Test Data", True, 
+                                f"Set up {len(investors)} investors with mixed trading statuses")
+                else:
+                    self.log_test("Setup Analytical Test Data", False, 
+                                f"Not enough investors for testing: {len(investors)}")
+            else:
+                self.log_test("Setup Analytical Test Data", False, 
+                            f"Failed to get investors: HTTP {response.status_code}")
+        except Exception as e:
+            self.log_test("Setup Analytical Test Data", False, "Connection failed", str(e))
+    
+    def test_trading_status_summary(self):
+        """Test GET /api/analytics/trading-status-summary endpoint"""
+        print("\n--- Testing Trading Status Summary Endpoint ---")
+        
+        try:
+            response = requests.get(f"{self.base_url}/analytics/trading-status-summary", timeout=10)
+            if response.status_code == 200:
+                summary = response.json()
+                
+                # Check all required fields are present
+                required_fields = [
+                    "amount_in_progress", "amount_stopped", "total_amount",
+                    "active_trading_count", "inactive_trading_count", "total_investors",
+                    "active_percentage", "inactive_percentage", "timestamp"
+                ]
+                
+                missing_fields = [field for field in required_fields if field not in summary]
+                
+                if not missing_fields:
+                    self.log_test("Trading Status Summary - Fields", True, 
+                                "All required fields present in response")
+                    
+                    # Verify field types and values
+                    numeric_fields = ["amount_in_progress", "amount_stopped", "total_amount", 
+                                    "active_trading_count", "inactive_trading_count", "total_investors",
+                                    "active_percentage", "inactive_percentage"]
+                    
+                    valid_types = True
+                    for field in numeric_fields:
+                        if not isinstance(summary[field], (int, float)):
+                            valid_types = False
+                            break
+                    
+                    if valid_types:
+                        self.log_test("Trading Status Summary - Types", True, 
+                                    "All numeric fields have correct types")
+                        
+                        # Log the actual values for verification
+                        self.log_test("Trading Status Summary - Values", True, 
+                                    f"Amount in progress: ${summary['amount_in_progress']:,.2f}, "
+                                    f"Amount stopped: ${summary['amount_stopped']:,.2f}, "
+                                    f"Total: ${summary['total_amount']:,.2f}, "
+                                    f"Active: {summary['active_trading_count']}, "
+                                    f"Inactive: {summary['inactive_trading_count']}, "
+                                    f"Total investors: {summary['total_investors']}")
+                        
+                        # Verify percentages add up to 100% (allowing for rounding)
+                        total_percentage = summary['active_percentage'] + summary['inactive_percentage']
+                        if abs(total_percentage - 100.0) < 0.1:
+                            self.log_test("Trading Status Summary - Percentages", True, 
+                                        f"Percentages add up correctly: {total_percentage:.1f}%")
+                        else:
+                            self.log_test("Trading Status Summary - Percentages", False, 
+                                        f"Percentages don't add up to 100%: {total_percentage:.1f}%")
+                        
+                        # Verify timestamp format
+                        try:
+                            from datetime import datetime
+                            datetime.fromisoformat(summary['timestamp'].replace('Z', '+00:00'))
+                            self.log_test("Trading Status Summary - Timestamp", True, 
+                                        f"Valid timestamp format: {summary['timestamp']}")
+                        except:
+                            self.log_test("Trading Status Summary - Timestamp", False, 
+                                        f"Invalid timestamp format: {summary['timestamp']}")
+                    else:
+                        self.log_test("Trading Status Summary - Types", False, 
+                                    "Some fields have incorrect types")
+                else:
+                    self.log_test("Trading Status Summary - Fields", False, 
+                                f"Missing required fields: {missing_fields}")
+            else:
+                self.log_test("Trading Status Summary", False, 
+                            f"HTTP {response.status_code}", response.text)
+        except Exception as e:
+            self.log_test("Trading Status Summary", False, "Connection failed", str(e))
+    
+    def test_trading_activity_trends(self):
+        """Test GET /api/analytics/trading-activity-trends endpoint"""
+        print("\n--- Testing Trading Activity Trends Endpoint ---")
+        
+        try:
+            response = requests.get(f"{self.base_url}/analytics/trading-activity-trends", timeout=10)
+            if response.status_code == 200:
+                trends = response.json()
+                
+                # Check all required fields are present
+                required_fields = [
+                    "trading_requests_today", "trading_approvals_today", 
+                    "total_recent_activity", "timestamp"
+                ]
+                
+                missing_fields = [field for field in required_fields if field not in trends]
+                
+                if not missing_fields:
+                    self.log_test("Trading Activity Trends - Fields", True, 
+                                "All required fields present in response")
+                    
+                    # Verify field types
+                    numeric_fields = ["trading_requests_today", "trading_approvals_today", "total_recent_activity"]
+                    valid_types = True
+                    for field in numeric_fields:
+                        if not isinstance(trends[field], int):
+                            valid_types = False
+                            break
+                    
+                    if valid_types:
+                        self.log_test("Trading Activity Trends - Types", True, 
+                                    "All numeric fields have correct integer types")
+                        
+                        # Log the actual values
+                        self.log_test("Trading Activity Trends - Values", True, 
+                                    f"Requests today: {trends['trading_requests_today']}, "
+                                    f"Approvals today: {trends['trading_approvals_today']}, "
+                                    f"Total recent activity: {trends['total_recent_activity']}")
+                        
+                        # Verify timestamp format
+                        try:
+                            from datetime import datetime
+                            datetime.fromisoformat(trends['timestamp'].replace('Z', '+00:00'))
+                            self.log_test("Trading Activity Trends - Timestamp", True, 
+                                        f"Valid timestamp format: {trends['timestamp']}")
+                        except:
+                            self.log_test("Trading Activity Trends - Timestamp", False, 
+                                        f"Invalid timestamp format: {trends['timestamp']}")
+                    else:
+                        self.log_test("Trading Activity Trends - Types", False, 
+                                    "Some fields have incorrect types")
+                else:
+                    self.log_test("Trading Activity Trends - Fields", False, 
+                                f"Missing required fields: {missing_fields}")
+            else:
+                self.log_test("Trading Activity Trends", False, 
+                            f"HTTP {response.status_code}", response.text)
+        except Exception as e:
+            self.log_test("Trading Activity Trends", False, "Connection failed", str(e))
+    
+    def verify_analytical_calculations(self):
+        """Verify correctness of analytical calculations"""
+        print("\n--- Verifying Analytical Calculations ---")
+        
+        try:
+            # Get investors data directly
+            investors_response = requests.get(f"{self.base_url}/investors", timeout=10)
+            summary_response = requests.get(f"{self.base_url}/analytics/trading-status-summary", timeout=10)
+            
+            if investors_response.status_code == 200 and summary_response.status_code == 200:
+                investors = investors_response.json()
+                summary = summary_response.json()
+                
+                # Calculate expected values manually
+                active_investors = [inv for inv in investors if inv.get('status') == 'active']
+                
+                expected_amount_in_progress = sum(
+                    inv.get('current_balance', 0) for inv in active_investors 
+                    if inv.get('trading_status') == 'active'
+                )
+                
+                expected_amount_stopped = sum(
+                    inv.get('current_balance', 0) for inv in active_investors 
+                    if inv.get('trading_status') == 'inactive'
+                )
+                
+                expected_total_amount = expected_amount_in_progress + expected_amount_stopped
+                
+                expected_active_count = len([inv for inv in active_investors if inv.get('trading_status') == 'active'])
+                expected_inactive_count = len([inv for inv in active_investors if inv.get('trading_status') == 'inactive'])
+                expected_total_investors = len(active_investors)
+                
+                # Verify calculations
+                amount_in_progress_correct = abs(summary['amount_in_progress'] - expected_amount_in_progress) < 0.01
+                amount_stopped_correct = abs(summary['amount_stopped'] - expected_amount_stopped) < 0.01
+                total_amount_correct = abs(summary['total_amount'] - expected_total_amount) < 0.01
+                
+                if amount_in_progress_correct and amount_stopped_correct and total_amount_correct:
+                    self.log_test("Amount Calculations", True, 
+                                f"All amount calculations correct: In progress=${expected_amount_in_progress:,.2f}, "
+                                f"Stopped=${expected_amount_stopped:,.2f}, Total=${expected_total_amount:,.2f}")
+                else:
+                    self.log_test("Amount Calculations", False, 
+                                f"Amount calculation mismatch. Expected: In progress=${expected_amount_in_progress:,.2f}, "
+                                f"Stopped=${expected_amount_stopped:,.2f}, Got: In progress=${summary['amount_in_progress']:,.2f}, "
+                                f"Stopped=${summary['amount_stopped']:,.2f}")
+                
+                # Verify counts
+                counts_correct = (summary['active_trading_count'] == expected_active_count and
+                                summary['inactive_trading_count'] == expected_inactive_count and
+                                summary['total_investors'] == expected_total_investors)
+                
+                if counts_correct:
+                    self.log_test("Count Calculations", True, 
+                                f"All count calculations correct: Active={expected_active_count}, "
+                                f"Inactive={expected_inactive_count}, Total={expected_total_investors}")
+                else:
+                    self.log_test("Count Calculations", False, 
+                                f"Count calculation mismatch. Expected: Active={expected_active_count}, "
+                                f"Inactive={expected_inactive_count}, Total={expected_total_investors}, "
+                                f"Got: Active={summary['active_trading_count']}, "
+                                f"Inactive={summary['inactive_trading_count']}, Total={summary['total_investors']}")
+                
+                # Verify percentages
+                if expected_total_investors > 0:
+                    expected_active_percentage = (expected_active_count / expected_total_investors) * 100
+                    expected_inactive_percentage = (expected_inactive_count / expected_total_investors) * 100
+                    
+                    active_percentage_correct = abs(summary['active_percentage'] - expected_active_percentage) < 0.1
+                    inactive_percentage_correct = abs(summary['inactive_percentage'] - expected_inactive_percentage) < 0.1
+                    
+                    if active_percentage_correct and inactive_percentage_correct:
+                        self.log_test("Percentage Calculations", True, 
+                                    f"Percentage calculations correct: Active={expected_active_percentage:.1f}%, "
+                                    f"Inactive={expected_inactive_percentage:.1f}%")
+                    else:
+                        self.log_test("Percentage Calculations", False, 
+                                    f"Percentage calculation mismatch. Expected: Active={expected_active_percentage:.1f}%, "
+                                    f"Inactive={expected_inactive_percentage:.1f}%, "
+                                    f"Got: Active={summary['active_percentage']:.1f}%, "
+                                    f"Inactive={summary['inactive_percentage']:.1f}%")
+                else:
+                    self.log_test("Percentage Calculations", True, "No investors to calculate percentages")
+                    
+            else:
+                self.log_test("Verify Calculations", False, 
+                            "Failed to get data for verification")
+        except Exception as e:
+            self.log_test("Verify Calculations", False, "Calculation verification failed", str(e))
+    
+    def test_analytical_error_handling(self):
+        """Test error handling for analytical endpoints"""
+        print("\n--- Testing Analytical Error Handling ---")
+        
+        # Test endpoints should handle empty database gracefully
+        # Since we can't easily empty the database, we'll test that endpoints return valid responses
+        
+        try:
+            # Test trading status summary with current data
+            response = requests.get(f"{self.base_url}/analytics/trading-status-summary", timeout=10)
+            if response.status_code == 200:
+                summary = response.json()
+                # Should handle case where all values might be 0
+                if all(isinstance(summary.get(field, 0), (int, float)) for field in 
+                      ["amount_in_progress", "amount_stopped", "total_amount", 
+                       "active_trading_count", "inactive_trading_count", "total_investors"]):
+                    self.log_test("Trading Status Summary Error Handling", True, 
+                                "Endpoint handles data gracefully and returns valid numeric values")
+                else:
+                    self.log_test("Trading Status Summary Error Handling", False, 
+                                "Endpoint returns invalid data types")
+            else:
+                self.log_test("Trading Status Summary Error Handling", False, 
+                            f"Endpoint error: HTTP {response.status_code}")
+        except Exception as e:
+            self.log_test("Trading Status Summary Error Handling", False, 
+                        "Connection failed", str(e))
+        
+        try:
+            # Test trading activity trends
+            response = requests.get(f"{self.base_url}/analytics/trading-activity-trends", timeout=10)
+            if response.status_code == 200:
+                trends = response.json()
+                # Should handle case where there might be no recent activity
+                if all(isinstance(trends.get(field, 0), int) for field in 
+                      ["trading_requests_today", "trading_approvals_today", "total_recent_activity"]):
+                    self.log_test("Trading Activity Trends Error Handling", True, 
+                                "Endpoint handles data gracefully and returns valid integer values")
+                else:
+                    self.log_test("Trading Activity Trends Error Handling", False, 
+                                "Endpoint returns invalid data types")
+            else:
+                self.log_test("Trading Activity Trends Error Handling", False, 
+                            f"Endpoint error: HTTP {response.status_code}")
+        except Exception as e:
+            self.log_test("Trading Activity Trends Error Handling", False, 
+                        "Connection failed", str(e))
+
     def test_api_health(self):
         """Test basic API health endpoints"""
         print("\n=== TESTING API HEALTH ===")
