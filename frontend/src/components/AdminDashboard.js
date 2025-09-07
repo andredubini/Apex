@@ -838,6 +838,99 @@ const AdminDashboard = () => {
         </div>
       </div>
 
+      {/* Trading Status Analytics - NEW INDICATORS */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className={`${cardBgClass} backdrop-blur-md p-6 rounded-xl border ${borderClass} shadow-sm`}>
+          <div className="flex items-center justify-between">
+            <div>
+              <p className={`${textSecondaryClass} text-sm`}>Amount in Progress</p>
+              <p className={`text-2xl font-bold text-green-400`}>
+                ${tradingAnalytics.amount_in_progress.toLocaleString()}
+              </p>
+            </div>
+            <div className="bg-green-600 p-3 rounded-full">
+              <TrendingUp className="w-6 h-6 text-white" />
+            </div>
+          </div>
+          <div className="mt-4 flex items-center justify-between">
+            <div className="flex items-center text-green-400">
+              <Activity className="w-4 h-4 mr-1" />
+              <span className="text-sm">{tradingAnalytics.active_trading_count} Active Traders</span>
+            </div>
+            <span className="text-xs text-green-400 font-medium">
+              {tradingAnalytics.active_percentage}%
+            </span>
+          </div>
+        </div>
+
+        <div className={`${cardBgClass} backdrop-blur-md p-6 rounded-xl border ${borderClass} shadow-sm`}>
+          <div className="flex items-center justify-between">
+            <div>
+              <p className={`${textSecondaryClass} text-sm`}>Amount Stopped</p>
+              <p className={`text-2xl font-bold text-red-400`}>
+                ${tradingAnalytics.amount_stopped.toLocaleString()}
+              </p>
+            </div>
+            <div className="bg-red-600 p-3 rounded-full">
+              <TrendingDown className="w-6 h-6 text-white" />
+            </div>
+          </div>
+          <div className="mt-4 flex items-center justify-between">
+            <div className="flex items-center text-red-400">
+              <AlertTriangle className="w-4 h-4 mr-1" />
+              <span className="text-sm">{tradingAnalytics.inactive_trading_count} Inactive</span>
+            </div>
+            <span className="text-xs text-red-400 font-medium">
+              {tradingAnalytics.inactive_percentage}%
+            </span>
+          </div>
+        </div>
+
+        <div className={`${cardBgClass} backdrop-blur-md p-6 rounded-xl border ${borderClass} shadow-sm`}>
+          <div className="flex items-center justify-between">
+            <div>
+              <p className={`${textSecondaryClass} text-sm`}>Total Trading Capital</p>
+              <p className={`text-2xl font-bold ${textClass}`}>
+                ${tradingAnalytics.total_amount.toLocaleString()}
+              </p>
+            </div>
+            <div className="bg-blue-600 p-3 rounded-full">
+              <DollarSign className="w-6 h-6 text-white" />
+            </div>
+          </div>
+          <div className="mt-4 flex items-center text-blue-400">
+            <Users className="w-4 h-4 mr-1" />
+            <span className="text-sm">{tradingAnalytics.total_investors} Total Investors</span>
+          </div>
+        </div>
+
+        <div className={`${cardBgClass} backdrop-blur-md p-6 rounded-xl border ${borderClass} shadow-sm`}>
+          <div className="flex items-center justify-between">
+            <div>
+              <p className={`${textSecondaryClass} text-sm`}>Trading Activity</p>
+              <p className={`text-2xl font-bold text-purple-400`}>
+                {tradingAnalytics.active_percentage > tradingAnalytics.inactive_percentage ? 'High' : 'Moderate'}
+              </p>
+            </div>
+            <div className="bg-purple-600 p-3 rounded-full">
+              <BarChart3 className="w-6 h-6 text-white" />
+            </div>
+          </div>
+          <div className="mt-4 flex items-center justify-between">
+            <div className="flex items-center text-purple-400">
+              <Target className="w-4 h-4 mr-1" />
+              <span className="text-sm">Activity Level</span>
+            </div>
+            <button 
+              onClick={loadTradingAnalytics}
+              className="text-xs text-purple-400 hover:text-purple-300 font-medium"
+            >
+              Refresh
+            </button>
+          </div>
+        </div>
+      </div>
+
       {/* Performance Overview Chart */}
       <div className={`${cardBgClass} backdrop-blur-md p-6 rounded-xl border ${borderClass} shadow-sm`}>
         <h3 className={`text-xl font-semibold ${textClass} mb-4`}>Fund Performance Overview</h3>
