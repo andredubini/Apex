@@ -82,6 +82,33 @@ const AdminDashboard = () => {
     successRate: "",
     notes: ""
   });
+  
+  // Trading status analytics
+  const [tradingAnalytics, setTradingAnalytics] = useState({
+    amount_in_progress: 0,
+    amount_stopped: 0,
+    total_amount: 0,
+    active_trading_count: 0,
+    inactive_trading_count: 0,
+    total_investors: 0,
+    active_percentage: 0,
+    inactive_percentage: 0
+  });
+  
+  // Load trading status analytics
+  const loadTradingAnalytics = async () => {
+    try {
+      const backendUrl = process.env.REACT_APP_BACKEND_URL || 'http://localhost:8001';
+      const response = await fetch(`${backendUrl}/api/analytics/trading-status-summary`);
+      
+      if (response.ok) {
+        const data = await response.json();
+        setTradingAnalytics(data);
+      }
+    } catch (error) {
+      console.error('Error loading trading analytics:', error);
+    }
+  };
 
   // Hide the Emergent badge on mount
   useEffect(() => {
