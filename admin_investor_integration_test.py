@@ -10,19 +10,8 @@ import json
 import time
 from datetime import datetime, timezone
 
-# Backend URL configuration
-try:
-    import os
-    # Try to get from environment variable first
-    backend_url = os.environ.get('REACT_APP_BACKEND_URL')
-    if backend_url and backend_url != 'https://None.preview.emergentagent.com':
-        BACKEND_URL = f"{backend_url}/api"
-    else:
-        # Fallback to hostname-based URL
-        hostname = os.environ.get('HOSTNAME', 'agent-env-2028b814-2835-4f1c-b676-f5848bc305b9')
-        BACKEND_URL = f"https://{hostname}.preview.emergentagent.com/api"
-except:
-    BACKEND_URL = "https://agent-env-2028b814-2835-4f1c-b676-f5848bc305b9.preview.emergentagent.com/api"
+# Backend URL configuration - use local backend
+BACKEND_URL = "http://localhost:8001/api"
 
 class AdminInvestorIntegrationTester:
     def __init__(self):
