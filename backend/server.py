@@ -554,6 +554,89 @@ async def update_investor_trading_status(investor_id: str, status_update: Tradin
     
     return {"message": f"Trading status updated to {status_update.trading_status}", "investor": Investor(**investor)}
 
+# Trading Analytics Endpoints
+@api_router.get("/analytics/trading-status-summary")
+async def get_trading_status_summary():
+    """Get summary of trading status amounts for admin dashboard"""
+    try:
+        # Get all active investors
+        investors = await db.investors.find({"status": "active"}).to_list(1000)
+        
+        # Calculate amounts by trading status
+        amount_in_progress = 0  # active trading investors
+        amount_stopped = 0      # inactive trading investors
+        total_investors = len(investors)
+        active_trading_count = 0
+        inactive_trading_count = 0
+        
+        for investor in investors:
+            trading_status = investor.get("trading_status", "inactive")
+            current_balance = investor.get("current_balance", 0)
+            
+            if trading_status == "active":
+                amount_in_progress += current_balance
+                active_trading_count += 1
+            else:
+                amount_stopped += current_balance
+                inactive_trading_count += 1
+        
+        # Calculate additional metrics
+        total_amount = amount_in_progress + amount_stopped
+        active_percentage = (active_trading_count / total_investors * 100) if total_investors > 0 else 0
+        inactive_percentage = (inactive_trading_count / total_investors * 100) if total_investors > 0 else 0
+        
+        return {
+            "amount_in_progress": amount_in_progress,
+            "amount_stopped": amount_stopped,
+            "total_amount": total_amount,
+            "active_trading_count": active_trading_count,
+            "inactive_trading_count": inactive_trading_count,
+            "total_investors": total_investors,
+            "active_percentage": round(active_percentage, 2),
+            "inactive_percentage": round(inactive_percentage, 2),
+            "timestamp": datetime.now(timezone.utc).isoformat()
+        }
+    except Exception as e:
+        logger.error(f"Error getting trading status summary: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@api_router.get("/analytics/trading-activity-trends")
+async def get_trading_activity_trends():
+    """Get trading activity trends for admin analytics"""
+    try:
+        # Get recent notifications related to trading status changes
+        recent_notifications = await db.notifications.find({
+            "user_type": "admin",
+            "type": "system",
+            "$or": [
+                {"title": {"$regex": "Trading Status", "$options": "i"}},
+                {"message": {"$regex": "trading", "$options": "i"}}
+            ]
+        }).sort("created_at", -1).limit(50).to_list(50)
+        
+        # Analyze recent activity
+        requests_today = 0
+        approvals_today = 0
+        today = datetime.now(timezone.utc).date()
+        
+        for notification in recent_notifications:
+            created_date = datetime.fromisoformat(notification["created_at"].replace("Z", "+00:00")).date()
+            if created_date == today:
+                if "request" in notification["title"].lower():
+                    requests_today += 1
+                elif "updated" in notification["message"].lower():
+                    approvals_today += 1
+        
+        return {
+            "trading_requests_today": requests_today,
+            "trading_approvals_today": approvals_today,
+            "total_recent_activity": len(recent_notifications),
+            "timestamp": datetime.now(timezone.utc).isoformat()
+        }
+    except Exception as e:
+        logger.error(f"Error getting trading activity trends: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
 @api_router.get("/investors/{investor_id}/trading-status")
 async def get_investor_trading_status(investor_id: str):
     """Get investor trading status"""
