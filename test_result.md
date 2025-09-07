@@ -542,10 +542,7 @@ Please thoroughly test the notification API endpoints, WebSocket connectivity, a
 
 ## test_plan:
   current_focus:
-    - "Real-time Notification System"
-    - "Notification Settings System"
-    - "Broadcast Notification System"
-    - "Enhanced Notification Features"
+    - "Admin Panel and Investor Cabinet Integration"
   stuck_tasks: []
   test_all: true
   test_priority: "high_first"
