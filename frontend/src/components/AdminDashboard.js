@@ -130,6 +130,9 @@ const AdminDashboard = () => {
       { id: 3, type: 'system', message: 'System backup completed successfully', time: '2 days ago', read: true },
       { id: 4, type: 'withdrawal', message: 'Withdrawal request from Sarah Miller - $25,000', time: '3 days ago', read: false }
     ]);
+    
+    // Load trading analytics
+    loadTradingAnalytics();
   }, []);
 
   // Mock investor data - updated minimum investment references
