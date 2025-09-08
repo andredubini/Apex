@@ -1804,6 +1804,18 @@ async def process_monthly_profit_distribution():
                 }
             )
             
+            # Send email notification for profit distribution
+            try:
+                await email_service.send_transaction_email(
+                    user_email=investor["email"],
+                    user_name=investor["name"],
+                    transaction_type="profit_distribution",
+                    amount=payment.total_payment,
+                    status="processed"
+                )
+            except Exception as e:
+                logger.error(f"Failed to send profit distribution email to {investor['email']}: {e}")
+            
             logger.info(f"Processed payment for investor {investor['name']}: ${payment.total_payment:.2f}")
         
         # Update distribution record
