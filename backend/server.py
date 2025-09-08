@@ -2002,8 +2002,18 @@ async def startup_event():
         max_instances=1
     )
     
+    # Schedule weekly reports (every Sunday at 8:00 PM)
+    scheduler.add_job(
+        send_weekly_reports_to_all,
+        CronTrigger(day_of_week=6, hour=20, minute=0),  # Sunday at 8:00 PM
+        id="weekly_reports",
+        replace_existing=True,
+        coalesce=True,
+        max_instances=1
+    )
+    
     scheduler.start()
-    logger.info("Scheduler started - Monthly profit distribution scheduled for 9:00 AM on 1st of each month")
+    logger.info("Scheduler started - Monthly profit distribution scheduled for 9:00 AM on 1st of each month, Weekly reports scheduled for Sundays at 8:00 PM")
     
     # Create sample data for testing
     await create_sample_data()
