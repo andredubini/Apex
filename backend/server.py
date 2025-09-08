@@ -1715,33 +1715,61 @@ async def send_admin_notification_endpoint(subject: str, message: str):
 # CRM Integration Endpoints
 @api_router.post("/crm/contacts")
 async def create_crm_contact(contact_data: dict):
-    """Create or update contact in CRM system"""
+    """Create or update contact in CRM system with enhanced validation"""
     try:
+        # Enhanced validation
+        required_fields = ["email", "first_name", "last_name"]
+        for field in required_fields:
+            if not contact_data.get(field):
+                raise HTTPException(status_code=400, detail=f"Missing required field: {field}")
+        
+        # Validate email
+        if not validate_email(contact_data["email"]):
+            raise HTTPException(status_code=400, detail="Invalid email address format")
+        
+        # Validate phone if provided
+        if contact_data.get("phone") and not validate_phone(contact_data["phone"]):
+            raise HTTPException(status_code=400, detail="Invalid phone number format")
+        
+        # Sanitize string inputs
+        contact_data["first_name"] = sanitize_string(contact_data["first_name"], 50)
+        contact_data["last_name"] = sanitize_string(contact_data["last_name"], 50)
+        
+        # Validate enum values
+        try:
+            investor_type = InvestorType(contact_data.get("investor_type", "individual"))
+            status = ContactStatus(contact_data.get("status", "prospect"))
+        except ValueError as e:
+            raise HTTPException(status_code=400, detail=f"Invalid enum value: {e}")
+        
         # Create CRM contact object
         crm_contact = CRMContact(
             email=contact_data["email"],
-            first_name=contact_data.get("first_name", ""),
-            last_name=contact_data.get("last_name", ""),
+            first_name=contact_data["first_name"],
+            last_name=contact_data["last_name"],
             phone=contact_data.get("phone"),
-            investor_type=InvestorType(contact_data.get("investor_type", "individual")),
-            status=ContactStatus(contact_data.get("status", "prospect")),
-            investment_capacity=contact_data.get("investment_capacity"),
-            risk_tolerance=contact_data.get("risk_tolerance"),
-            kyc_status=contact_data.get("kyc_status"),
-            aml_cleared=contact_data.get("aml_cleared", False)
+            investor_type=investor_type,
+            status=status,
+            investment_capacity=float(contact_data.get("investment_capacity", 0)) if contact_data.get("investment_capacity") else None,
+            risk_tolerance=sanitize_string(contact_data.get("risk_tolerance", ""), 50),
+            kyc_status=sanitize_string(contact_data.get("kyc_status", ""), 50),
+            aml_cleared=bool(contact_data.get("aml_cleared", False))
         )
         
         # Create in SendPulse CRM
         success = await crm_service.create_contact(crm_contact)
         
-        if success:
-            return {"message": "CRM contact created successfully", "contact_id": crm_contact.id}
-        else:
-            raise HTTPException(status_code=500, detail="Failed to create CRM contact")
+        return {
+            "message": "CRM contact created successfully",
+            "contact_id": crm_contact.id,
+            "sync_status": "completed" if success else "pending_retry"
+        }
     
+    except HTTPException:
+        raise
     except Exception as e:
         logger.error(f"Error creating CRM contact: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail=f"Internal server error: {str(e)}")
 
 @api_router.post("/crm/activities")
 async def log_crm_activity(activity_data: dict):
