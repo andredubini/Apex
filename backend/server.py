@@ -1276,6 +1276,7 @@ async def update_investor_trading_status(investor_id: str, status_update: Tradin
     
     # Get updated investor data
     investor = await db.investors.find_one({"id": investor_id})
+    current_status = investor.get("trading_status", "inactive")
     
     # Create notification for investor about trading status change
     status_message = "enabled" if status_update.trading_status == "active" else "disabled"
