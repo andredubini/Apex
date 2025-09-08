@@ -843,6 +843,64 @@ class SendPulseCRMService:
 # Initialize CRM service
 crm_service = SendPulseCRMService()
 
+# CRM Retry and Sync Functions
+async def retry_failed_crm_operations():
+    """Retry failed CRM operations from fallback logs"""
+    try:
+        # Get pending CRM operations
+        pending_logs = await db.crm_fallback_logs.find({"sync_status": "pending", "retry_count": {"$lt": 3}}).to_list(100)
+        
+        for log_entry in pending_logs:
+            try:
+                if log_entry["action"] == "create_contact":
+                    contact_data = log_entry["data"]
+                    contact = CRMContact(**contact_data)
+                    success = await crm_service.create_contact(contact)
+                    
+                    if success:
+                        await db.crm_fallback_logs.update_one(
+                            {"_id": log_entry["_id"]},
+                            {"$set": {"sync_status": "completed", "completed_at": datetime.now(timezone.utc)}}
+                        )
+                        logger.info(f"Successfully synced fallback contact: {contact.email}")
+                    else:
+                        await db.crm_fallback_logs.update_one(
+                            {"_id": log_entry["_id"]},
+                            {"$inc": {"retry_count": 1}, "$set": {"last_retry": datetime.now(timezone.utc)}}
+                        )
+                
+            except Exception as e:
+                logger.error(f"Error retrying CRM operation {log_entry['id']}: {e}")
+                await db.crm_fallback_logs.update_one(
+                    {"_id": log_entry["_id"]},
+                    {"$inc": {"retry_count": 1}, "$set": {"last_error": str(e)}}
+                )
+    
+    except Exception as e:
+        logger.error(f"Error in retry_failed_crm_operations: {e}")
+
+# Enhanced validation functions
+def validate_email(email: str) -> bool:
+    """Enhanced email validation"""
+    pattern = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
+    return bool(re.match(pattern, email))
+
+def validate_phone(phone: str) -> bool:
+    """Enhanced phone validation"""
+    if not phone:
+        return True  # Optional field
+    # Allow various international formats
+    pattern = r'^[\+]?[\d\s\-\(\)]{10,20}$'
+    return bool(re.match(pattern, phone))
+
+def sanitize_string(value: str, max_length: int = 255) -> str:
+    """Sanitize string input"""
+    if not value:
+        return ""
+    # Remove potentially harmful characters and trim
+    sanitized = re.sub(r'[<>"\']', '', str(value))
+    return sanitized[:max_length].strip()
+
 # Trading Performance Model
 class TradingPeriod(BaseModel):
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
