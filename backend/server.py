@@ -1912,15 +1912,9 @@ async def manual_retry_crm_sync():
 
 @api_router.get("/admin/crm-sync-status")
 async def get_crm_sync_status():
-    """Get CRM synchronization status (Admin only)"""
+    """Get CRM synchronization status (Admin only) - Fixed with graceful error handling"""
     try:
-        # Check if crm_fallback_logs collection exists
-        collections = await db.list_collection_names()
-        if "crm_fallback_logs" not in collections:
-            # Create the collection if it doesn't exist
-            await db.crm_fallback_logs.create_index("created_at")
-            
-        # Get sync statistics
+        # Get sync statistics with graceful error handling
         total_logs = await db.crm_fallback_logs.count_documents({})
         pending_logs = await db.crm_fallback_logs.count_documents({"sync_status": "pending"})
         completed_logs = await db.crm_fallback_logs.count_documents({"sync_status": "completed"})
@@ -1946,7 +1940,7 @@ async def get_crm_sync_status():
         }
     except Exception as e:
         logger.error(f"Error getting CRM sync status: {e}")
-        # Return graceful response even on error
+        # Return graceful response even on error - NEVER return HTTP 500
         return {
             "success": False,
             "sync_statistics": {
