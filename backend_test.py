@@ -3294,5 +3294,6 @@ class HedgeFundBackendTester(EnhancedApexCapitalTester):
             print("❌ Some critical systems have issues")
 
 if __name__ == "__main__":
-    tester = HedgeFundBackendTester()
-    tester.run_comprehensive_tests()
+    # Run Enhanced Testing for Apex Capital Management System
+    tester = EnhancedApexCapitalTester()
+    tester.run_comprehensive_enhanced_tests()
