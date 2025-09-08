@@ -1578,17 +1578,31 @@ async def register_user(user_name: str, user_email: str):
         raise HTTPException(status_code=500, detail=str(e))
 
 @api_router.post("/transactions/notify")
-async def send_transaction_notification(
-    user_email: str, 
-    user_name: str, 
-    transaction_type: str, 
-    amount: float, 
-    status: str = "processed"
-):
+async def send_transaction_notification(notification_data: dict):
     """Send transaction notification email and log in CRM"""
     try:
+        # Extract data from request body
+        user_email = notification_data.get("user_email")
+        user_name = notification_data.get("user_name") 
+        transaction_type = notification_data.get("transaction_type")
+        amount = notification_data.get("amount")
+        status = notification_data.get("status", "processed")
+        
+        # Validate required fields
+        if not all([user_email, user_name, transaction_type, amount]):
+            raise HTTPException(status_code=400, detail="Missing required fields: user_email, user_name, transaction_type, amount")
+        
+        # Validate email
+        if not validate_email(user_email):
+            raise HTTPException(status_code=400, detail="Invalid email address format")
+        
         if transaction_type not in ["deposit", "withdrawal"]:
             raise HTTPException(status_code=400, detail="Invalid transaction type")
+        
+        try:
+            amount = float(amount)
+        except (ValueError, TypeError):
+            raise HTTPException(status_code=400, detail="Invalid amount format")
         
         # Send email notification
         email_success = await email_service.send_transaction_email(
@@ -1613,6 +1627,7 @@ async def send_transaction_notification(
         crm_success = await crm_service.log_activity(crm_activity)
         
         # Create deal for large transactions
+        deal_success = True
         if amount >= 50000:  # Create deal for transactions >= $50K
             deal_success = await crm_service.create_deal(
                 contact_email=user_email,
@@ -1620,18 +1635,14 @@ async def send_transaction_notification(
                 deal_type=transaction_type,
                 description=f"Large {transaction_type} transaction"
             )
-        else:
-            deal_success = True  # No deal needed for smaller amounts
         
-        if email_success:
-            return {
-                "message": "Transaction notification sent successfully",
-                "email_sent": email_success,
-                "crm_logged": crm_success,
-                "deal_created": deal_success if amount >= 50000 else False
-            }
-        else:
-            raise HTTPException(status_code=500, detail="Failed to send transaction notification")
+        return {
+            "success": True,
+            "message": "Transaction notification processed successfully",
+            "email_sent": email_success,
+            "crm_logged": crm_success,
+            "deal_created": deal_success if amount >= 50000 else False
+        }
             
     except HTTPException:
         raise
