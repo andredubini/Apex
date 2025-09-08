@@ -2708,8 +2708,18 @@ async def startup_event():
         max_instances=1
     )
     
+    # Schedule CRM retry operations (every 2 hours)
+    scheduler.add_job(
+        retry_failed_crm_operations,
+        CronTrigger(hour="*/2", minute=15),  # Every 2 hours at :15 minutes
+        id="crm_retry_operations",
+        replace_existing=True,
+        coalesce=True,
+        max_instances=1
+    )
+    
     scheduler.start()
-    logger.info("Scheduler started - Monthly profit distribution scheduled for 9:00 AM on 1st of each month, Weekly reports scheduled for Sundays at 8:00 PM")
+    logger.info("Scheduler started - Monthly profit distribution scheduled for 9:00 AM on 1st of each month, Weekly reports scheduled for Sundays at 8:00 PM, CRM retry operations scheduled every 2 hours")
     
     # Create sample data for testing
     await create_sample_data()
