@@ -23,6 +23,7 @@ import base64
 from jinja2 import Template
 import aiohttp
 import asyncio
+import re
 
 
 ROOT_DIR = Path(__file__).parent
