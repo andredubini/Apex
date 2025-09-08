@@ -1299,6 +1299,35 @@ async def update_investor_trading_status(investor_id: str, status_update: Tradin
         }
     )
     
+    # Log trading status change in CRM
+    try:
+        trading_activity = CRMActivity(
+            contact_email=investor["email"],
+            activity_type=CommunicationType.SYSTEM_NOTIFICATION,
+            title=f"Trading Status Changed",
+            description=f"Trading status changed to {status_update.trading_status} by admin",
+            status=status_update.trading_status,
+            metadata={
+                "previous_status": current_status,
+                "new_status": status_update.trading_status,
+                "changed_by": "admin",
+                "change_reason": "admin_action"
+            }
+        )
+        await crm_service.log_activity(trading_activity)
+    except Exception as e:
+        logger.warning(f"Failed to log trading status change in CRM: {e}")
+    
+    # Send email notification to admin (simulated)
+    await send_email_notification_to_admin(
+        investor_name=investor["name"],
+        investor_email=investor["email"],
+        action=status_message,
+        current_status=current_status,
+        requested_status=status_update.trading_status,
+        message=""
+    )
+    
     return {"message": f"Trading status updated to {status_update.trading_status}", "investor": Investor(**investor)}
 
 # Email and Authentication Endpoints
