@@ -1260,6 +1260,13 @@ async def update_investor_trading_status(investor_id: str, status_update: Tradin
     if status_update.trading_status not in ["active", "inactive"]:
         raise HTTPException(status_code=400, detail="Trading status must be 'active' or 'inactive'")
     
+    # Get current investor data to track status change
+    investor = await db.investors.find_one({"id": investor_id})
+    if not investor:
+        raise HTTPException(status_code=404, detail="Investor not found")
+    
+    current_status = investor.get("trading_status", "inactive")
+    
     # Update investor trading status
     update_result = await db.investors.update_one(
         {"id": investor_id},
