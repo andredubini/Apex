@@ -656,7 +656,8 @@ class SendPulseCRMService:
         try:
             token = await self.get_access_token()
             if not token:
-                return False
+                logger.warning("SendPulse CRM token unavailable - using fallback logging")
+                return await self._fallback_log_contact(contact)
             
             url = f"{self.base_url}/crm/contacts"
             headers = {
@@ -664,36 +665,65 @@ class SendPulseCRMService:
                 "Content-Type": "application/json"
             }
             
+            # Enhanced contact data with validation
             contact_data = {
-                "name": f"{contact.first_name} {contact.last_name}",
+                "name": f"{contact.first_name} {contact.last_name}".strip(),
                 "email": contact.email,
                 "phone": contact.phone or "",
                 "custom_fields": {
-                    "investor_type": contact.investor_type.value,
-                    "status": contact.status.value,
-                    "investment_capacity": str(contact.investment_capacity or 0),
-                    "risk_tolerance": contact.risk_tolerance or "",
-                    "kyc_status": contact.kyc_status or "pending",
+                    "investor_type": str(contact.investor_type.value),
+                    "status": str(contact.status.value),
+                    "investment_capacity": str(float(contact.investment_capacity or 0)),
+                    "risk_tolerance": str(contact.risk_tolerance or ""),
+                    "kyc_status": str(contact.kyc_status or "pending"),
                     "aml_cleared": "yes" if contact.aml_cleared else "no",
-                    "total_interactions": str(contact.total_interactions),
-                    "total_investments": str(contact.total_investments),
+                    "total_interactions": str(int(contact.total_interactions)),
+                    "total_investments": str(float(contact.total_investments)),
                     "created_at": contact.created_at.isoformat(),
-                    "last_interaction": contact.last_interaction_date.isoformat() if contact.last_interaction_date else ""
+                    "last_interaction": contact.last_interaction_date.isoformat() if contact.last_interaction_date else "",
+                    "platform": "apex_capital_management"
                 }
             }
             
             async with aiohttp.ClientSession() as session:
-                async with session.post(url, headers=headers, json=contact_data) as response:
+                async with session.post(url, headers=headers, json=contact_data, timeout=30) as response:
                     if response.status in [200, 201]:
                         logger.info(f"Successfully created/updated CRM contact: {contact.email}")
                         return True
+                    elif response.status == 429:  # Rate limited
+                        logger.warning(f"CRM API rate limited, using fallback for {contact.email}")
+                        return await self._fallback_log_contact(contact)
                     else:
                         error_text = await response.text()
                         logger.error(f"Failed to create CRM contact {contact.email}: {response.status} - {error_text}")
-                        return False
+                        return await self._fallback_log_contact(contact)
         
+        except asyncio.TimeoutError:
+            logger.warning(f"CRM API timeout for contact {contact.email} - using fallback")
+            return await self._fallback_log_contact(contact)
         except Exception as e:
-            logger.error(f"Error creating CRM contact {contact.email}: {e}")
+            logger.warning(f"CRM API error for contact {contact.email}: {e} - using fallback")
+            return await self._fallback_log_contact(contact)
+    
+    async def _fallback_log_contact(self, contact: CRMContact) -> bool:
+        """Fallback logging when CRM API is unavailable"""
+        try:
+            # Log to database for later sync
+            contact_log = {
+                "id": contact.id,
+                "email": contact.email,
+                "name": f"{contact.first_name} {contact.last_name}",
+                "action": "create_contact",
+                "data": contact.dict(),
+                "sync_status": "pending",
+                "created_at": datetime.now(timezone.utc),
+                "retry_count": 0
+            }
+            await db.crm_fallback_logs.insert_one(contact_log)
+            logger.info(f"Contact {contact.email} queued for later CRM sync")
+            return True
+        except Exception as e:
+            logger.error(f"Failed to log contact fallback: {e}")
             return False
     
     async def log_activity(self, activity: CRMActivity) -> bool:
