@@ -1440,6 +1440,137 @@ async def send_admin_notification_endpoint(subject: str, message: str):
         logger.error(f"Error sending admin notification: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
+@api_router.post("/admin/send-notification")
+async def send_admin_notification_endpoint(subject: str, message: str):
+    """Send notification to admin email"""
+    try:
+        success = await email_service.send_admin_notification(subject, message)
+        
+        if success:
+            return {"message": "Admin notification sent successfully"}
+        else:
+            raise HTTPException(status_code=500, detail="Failed to send admin notification")
+    except Exception as e:
+        logger.error(f"Error sending admin notification: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+# CRM Integration Endpoints
+@api_router.post("/crm/contacts")
+async def create_crm_contact(contact_data: dict):
+    """Create or update contact in CRM system"""
+    try:
+        # Create CRM contact object
+        crm_contact = CRMContact(
+            email=contact_data["email"],
+            first_name=contact_data.get("first_name", ""),
+            last_name=contact_data.get("last_name", ""),
+            phone=contact_data.get("phone"),
+            investor_type=InvestorType(contact_data.get("investor_type", "individual")),
+            status=ContactStatus(contact_data.get("status", "prospect")),
+            investment_capacity=contact_data.get("investment_capacity"),
+            risk_tolerance=contact_data.get("risk_tolerance"),
+            kyc_status=contact_data.get("kyc_status"),
+            aml_cleared=contact_data.get("aml_cleared", False)
+        )
+        
+        # Create in SendPulse CRM
+        success = await crm_service.create_contact(crm_contact)
+        
+        if success:
+            return {"message": "CRM contact created successfully", "contact_id": crm_contact.id}
+        else:
+            raise HTTPException(status_code=500, detail="Failed to create CRM contact")
+    
+    except Exception as e:
+        logger.error(f"Error creating CRM contact: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@api_router.post("/crm/activities")
+async def log_crm_activity(activity_data: dict):
+    """Log activity/interaction in CRM system"""
+    try:
+        # Create CRM activity object
+        crm_activity = CRMActivity(
+            contact_email=activity_data["contact_email"],
+            activity_type=CommunicationType(activity_data["activity_type"]),
+            title=activity_data["title"],
+            description=activity_data["description"],
+            amount=activity_data.get("amount"),
+            status=activity_data.get("status"),
+            metadata=activity_data.get("metadata", {})
+        )
+        
+        # Log in SendPulse CRM
+        success = await crm_service.log_activity(crm_activity)
+        
+        if success:
+            # Update interaction count
+            await crm_service.update_contact_interaction_count(activity_data["contact_email"])
+            return {"message": "CRM activity logged successfully", "activity_id": crm_activity.id}
+        else:
+            raise HTTPException(status_code=500, detail="Failed to log CRM activity")
+    
+    except Exception as e:
+        logger.error(f"Error logging CRM activity: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@api_router.post("/crm/deals")
+async def create_crm_deal(deal_data: dict):
+    """Create deal/opportunity in CRM system"""
+    try:
+        success = await crm_service.create_deal(
+            contact_email=deal_data["contact_email"],
+            amount=deal_data["amount"],
+            deal_type=deal_data["deal_type"],
+            description=deal_data.get("description", "")
+        )
+        
+        if success:
+            return {"message": "CRM deal created successfully"}
+        else:
+            raise HTTPException(status_code=500, detail="Failed to create CRM deal")
+    
+    except Exception as e:
+        logger.error(f"Error creating CRM deal: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@api_router.post("/crm/sync-investor")
+async def sync_investor_to_crm(investor_email: str):
+    """Sync existing investor data to CRM"""
+    try:
+        # Get investor data from database
+        investor = await db.investors.find_one({"email": investor_email})
+        if not investor:
+            raise HTTPException(status_code=404, detail="Investor not found")
+        
+        # Create CRM contact
+        crm_contact = CRMContact(
+            email=investor["email"],
+            first_name=investor.get("name", "").split(" ")[0] if investor.get("name") else "",
+            last_name=" ".join(investor.get("name", "").split(" ")[1:]) if investor.get("name") else "",
+            phone=investor.get("phone", ""),
+            investor_type=InvestorType.INDIVIDUAL,  # Default, can be enhanced
+            status=ContactStatus.ACTIVE if investor.get("status") == "active" else ContactStatus.INACTIVE,
+            investment_capacity=investor.get("current_balance"),
+            risk_tolerance=investor.get("risk_profile", "moderate"),
+            aml_cleared=True,  # Assuming existing investors are cleared
+            total_investments=investor.get("total_invested", 0)
+        )
+        
+        # Sync to CRM
+        success = await crm_service.create_contact(crm_contact)
+        
+        if success:
+            return {"message": f"Investor {investor_email} synced to CRM successfully"}
+        else:
+            raise HTTPException(status_code=500, detail="Failed to sync investor to CRM")
+    
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error syncing investor to CRM: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
 # Trading Analytics Endpoints
 @api_router.get("/analytics/trading-status-summary")
 async def get_trading_status_summary():
