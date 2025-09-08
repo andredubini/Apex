@@ -556,6 +556,262 @@ class EmailService:
 # Initialize email service
 email_service = EmailService()
 
+# CRM Models and Services
+class InvestorType(str, Enum):
+    INDIVIDUAL = "individual"
+    INSTITUTIONAL = "institutional"
+    ACCREDITED = "accredited"
+    QUALIFIED = "qualified"
+    HIGH_NET_WORTH = "high_net_worth"
+
+class ContactStatus(str, Enum):
+    PROSPECT = "prospect"
+    QUALIFIED = "qualified"
+    ACTIVE = "active"
+    INACTIVE = "inactive"
+    SUSPENDED = "suspended"
+
+class CommunicationType(str, Enum):
+    EMAIL = "email"
+    PHONE_CALL = "phone_call"
+    MEETING = "meeting"
+    SYSTEM_NOTIFICATION = "system_notification"
+    TRANSACTION = "transaction"
+
+class CRMContact(BaseModel):
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    email: str = Field(..., description="Primary email address")
+    first_name: str = Field(..., description="First name")
+    last_name: str = Field(..., description="Last name")
+    phone: Optional[str] = Field(None, description="Phone number")
+    investor_type: InvestorType = Field(..., description="Type of investor")
+    status: ContactStatus = Field(default=ContactStatus.PROSPECT)
+    investment_capacity: Optional[float] = Field(None, description="Investment capacity in USD")
+    risk_tolerance: Optional[str] = Field(None, description="Risk tolerance level")
+    kyc_status: Optional[str] = Field(None, description="KYC verification status")
+    aml_cleared: bool = Field(default=False, description="AML clearance status")
+    total_interactions: int = Field(default=0, description="Total number of interactions")
+    last_interaction_date: Optional[datetime] = Field(None, description="Last interaction date")
+    total_investments: float = Field(default=0.0, description="Total investments made")
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+
+class CRMActivity(BaseModel):
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    contact_email: str = Field(..., description="Associated contact email")
+    activity_type: CommunicationType = Field(..., description="Type of activity")
+    title: str = Field(..., description="Activity title")
+    description: str = Field(..., description="Activity description")
+    amount: Optional[float] = Field(None, description="Associated amount (for transactions)")
+    status: Optional[str] = Field(None, description="Activity status")
+    metadata: Dict[str, str] = Field(default_factory=dict, description="Additional metadata")
+    timestamp: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+
+class SendPulseCRMService:
+    def __init__(self):
+        self.api_id = os.environ.get('SENDPULSE_API_ID')
+        self.api_secret = os.environ.get('SENDPULSE_API_SECRET')
+        self.access_token = None
+        self.token_expires_at = None
+        self.base_url = "https://api.sendpulse.com"
+    
+    async def get_access_token(self):
+        """Get access token for SendPulse CRM API"""
+        if self.access_token and self.token_expires_at and datetime.now() < self.token_expires_at:
+            return self.access_token
+        
+        url = f"{self.base_url}/oauth/access_token"
+        
+        auth_string = f"{self.api_id}:{self.api_secret}"
+        auth_bytes = auth_string.encode('ascii')
+        auth_b64 = base64.b64encode(auth_bytes).decode('ascii')
+        
+        headers = {
+            "Content-Type": "application/json",
+            "Authorization": f"Basic {auth_b64}"
+        }
+        
+        data = {
+            "grant_type": "client_credentials"
+        }
+        
+        try:
+            async with aiohttp.ClientSession() as session:
+                async with session.post(url, headers=headers, json=data) as response:
+                    if response.status == 200:
+                        token_data = await response.json()
+                        self.access_token = token_data['access_token']
+                        expires_in = token_data.get('expires_in', 3600)
+                        self.token_expires_at = datetime.now() + timedelta(seconds=expires_in)
+                        return self.access_token
+                    else:
+                        logger.error(f"Failed to get SendPulse CRM access token: {response.status}")
+                        return None
+        except Exception as e:
+            logger.error(f"Error getting SendPulse CRM access token: {e}")
+            return None
+    
+    async def create_contact(self, contact: CRMContact) -> bool:
+        """Create or update contact in SendPulse CRM"""
+        try:
+            token = await self.get_access_token()
+            if not token:
+                return False
+            
+            url = f"{self.base_url}/crm/contacts"
+            headers = {
+                "Authorization": f"Bearer {token}",
+                "Content-Type": "application/json"
+            }
+            
+            contact_data = {
+                "name": f"{contact.first_name} {contact.last_name}",
+                "email": contact.email,
+                "phone": contact.phone or "",
+                "custom_fields": {
+                    "investor_type": contact.investor_type.value,
+                    "status": contact.status.value,
+                    "investment_capacity": str(contact.investment_capacity or 0),
+                    "risk_tolerance": contact.risk_tolerance or "",
+                    "kyc_status": contact.kyc_status or "pending",
+                    "aml_cleared": "yes" if contact.aml_cleared else "no",
+                    "total_interactions": str(contact.total_interactions),
+                    "total_investments": str(contact.total_investments),
+                    "created_at": contact.created_at.isoformat(),
+                    "last_interaction": contact.last_interaction_date.isoformat() if contact.last_interaction_date else ""
+                }
+            }
+            
+            async with aiohttp.ClientSession() as session:
+                async with session.post(url, headers=headers, json=contact_data) as response:
+                    if response.status in [200, 201]:
+                        logger.info(f"Successfully created/updated CRM contact: {contact.email}")
+                        return True
+                    else:
+                        error_text = await response.text()
+                        logger.error(f"Failed to create CRM contact {contact.email}: {response.status} - {error_text}")
+                        return False
+        
+        except Exception as e:
+            logger.error(f"Error creating CRM contact {contact.email}: {e}")
+            return False
+    
+    async def log_activity(self, activity: CRMActivity) -> bool:
+        """Log activity/interaction in SendPulse CRM"""
+        try:
+            token = await self.get_access_token()
+            if not token:
+                return False
+            
+            url = f"{self.base_url}/crm/activities"
+            headers = {
+                "Authorization": f"Bearer {token}",
+                "Content-Type": "application/json"
+            }
+            
+            activity_data = {
+                "contact_email": activity.contact_email,
+                "type": activity.activity_type.value,
+                "title": activity.title,
+                "description": activity.description,
+                "timestamp": activity.timestamp.isoformat(),
+                "custom_fields": {
+                    "amount": str(activity.amount or 0),
+                    "status": activity.status or "",
+                    **activity.metadata
+                }
+            }
+            
+            async with aiohttp.ClientSession() as session:
+                async with session.post(url, headers=headers, json=activity_data) as response:
+                    if response.status in [200, 201]:
+                        logger.info(f"Successfully logged CRM activity for {activity.contact_email}: {activity.title}")
+                        return True
+                    else:
+                        error_text = await response.text()
+                        logger.error(f"Failed to log CRM activity: {response.status} - {error_text}")
+                        return False
+        
+        except Exception as e:
+            logger.error(f"Error logging CRM activity: {e}")
+            return False
+    
+    async def update_contact_interaction_count(self, email: str) -> bool:
+        """Update contact's interaction count"""
+        try:
+            token = await self.get_access_token()
+            if not token:
+                return False
+            
+            url = f"{self.base_url}/crm/contacts/{email}"
+            headers = {
+                "Authorization": f"Bearer {token}",
+                "Content-Type": "application/json"
+            }
+            
+            update_data = {
+                "custom_fields": {
+                    "last_interaction": datetime.now().isoformat(),
+                    "total_interactions": "{{total_interactions + 1}}"  # SendPulse increment syntax
+                }
+            }
+            
+            async with aiohttp.ClientSession() as session:
+                async with session.patch(url, headers=headers, json=update_data) as response:
+                    if response.status == 200:
+                        return True
+                    else:
+                        logger.warning(f"Failed to update interaction count for {email}")
+                        return False
+        
+        except Exception as e:
+            logger.error(f"Error updating interaction count: {e}")
+            return False
+    
+    async def create_deal(self, contact_email: str, amount: float, deal_type: str, description: str) -> bool:
+        """Create a deal/opportunity in SendPulse CRM"""
+        try:
+            token = await self.get_access_token()
+            if not token:
+                return False
+            
+            url = f"{self.base_url}/crm/deals"
+            headers = {
+                "Authorization": f"Bearer {token}",
+                "Content-Type": "application/json"
+            }
+            
+            deal_data = {
+                "name": f"{deal_type.title()} - {contact_email}",
+                "contact_email": contact_email,
+                "amount": amount,
+                "currency": "USD",
+                "stage": "new",
+                "description": description,
+                "custom_fields": {
+                    "deal_type": deal_type,
+                    "created_by": "system",
+                    "created_at": datetime.now().isoformat()
+                }
+            }
+            
+            async with aiohttp.ClientSession() as session:
+                async with session.post(url, headers=headers, json=deal_data) as response:
+                    if response.status in [200, 201]:
+                        logger.info(f"Successfully created CRM deal for {contact_email}: {deal_type} ${amount}")
+                        return True
+                    else:
+                        error_text = await response.text()
+                        logger.error(f"Failed to create CRM deal: {response.status} - {error_text}")
+                        return False
+        
+        except Exception as e:
+            logger.error(f"Error creating CRM deal: {e}")
+            return False
+
+# Initialize CRM service
+crm_service = SendPulseCRMService()
+
 # Trading Performance Model
 class TradingPeriod(BaseModel):
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
