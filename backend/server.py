@@ -1852,6 +1852,27 @@ async def request_trading_status_change(investor_id: str, request: TradingStatus
         }
     )
     
+    # Log trading request in CRM
+    try:
+        request_activity = CRMActivity(
+            contact_email=investor["email"],
+            activity_type=CommunicationType.SYSTEM_NOTIFICATION,
+            title=f"Trading {action.title()} Request",
+            description=f"Investor requested to {action} trading. Current: {current_status}, Requested: {request.requested_status}. {request.message}",
+            status="pending_admin_review",
+            metadata={
+                "request_type": "trading_status_change",
+                "requested_status": request.requested_status,
+                "current_status": current_status,
+                "action": action,
+                "request_message": request.message or "",
+                "requires_admin_approval": "true"
+            }
+        )
+        await crm_service.log_activity(request_activity)
+    except Exception as e:
+        logger.warning(f"Failed to log trading request in CRM: {e}")
+    
     # Create notification for admin
     await create_notification_for_user(
         user_id="admin@apexcapital.com",
