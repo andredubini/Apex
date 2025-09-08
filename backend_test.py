@@ -1,7 +1,9 @@
 #!/usr/bin/env python3
 """
-Comprehensive Backend Testing for Hedge Fund Automated Profit-Sharing System
-Tests all API endpoints, profit calculation logic, and database operations
+ENHANCED Comprehensive Backend Testing for Apex Capital Management System
+Tests all API endpoints, enhanced CRM integration, validation systems, and improved features
+Focus on Enhanced CRM Integration with Fallback System, Enhanced Email System, 
+Enhanced Validation System, and Improved API Endpoints
 """
 
 import requests
@@ -11,6 +13,7 @@ import websocket
 import threading
 from datetime import datetime, timezone
 from decimal import Decimal
+import re
 
 # Backend URL - try local first, then external
 try:
