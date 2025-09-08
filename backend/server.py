@@ -1437,19 +1437,54 @@ async def send_transaction_notification(
     amount: float, 
     status: str = "processed"
 ):
-    """Send transaction notification email"""
+    """Send transaction notification email and log in CRM"""
     try:
         if transaction_type not in ["deposit", "withdrawal"]:
             raise HTTPException(status_code=400, detail="Invalid transaction type")
         
-        success = await email_service.send_transaction_email(
+        # Send email notification
+        email_success = await email_service.send_transaction_email(
             user_email, user_name, transaction_type, amount, status
         )
         
-        if success:
-            return {"message": "Transaction notification sent successfully"}
+        # Log transaction activity in CRM
+        crm_activity = CRMActivity(
+            contact_email=user_email,
+            activity_type=CommunicationType.TRANSACTION,
+            title=f"{transaction_type.title()} {status.title()}",
+            description=f"{transaction_type.title()} of ${amount:,.2f} has been {status}",
+            amount=amount,
+            status=status,
+            metadata={
+                "transaction_type": transaction_type,
+                "currency": "USD",
+                "processed_at": datetime.now(timezone.utc).isoformat()
+            }
+        )
+        
+        crm_success = await crm_service.log_activity(crm_activity)
+        
+        # Create deal for large transactions
+        if amount >= 50000:  # Create deal for transactions >= $50K
+            deal_success = await crm_service.create_deal(
+                contact_email=user_email,
+                amount=amount,
+                deal_type=transaction_type,
+                description=f"Large {transaction_type} transaction"
+            )
+        else:
+            deal_success = True  # No deal needed for smaller amounts
+        
+        if email_success:
+            return {
+                "message": "Transaction notification sent successfully",
+                "email_sent": email_success,
+                "crm_logged": crm_success,
+                "deal_created": deal_success if amount >= 50000 else False
+            }
         else:
             raise HTTPException(status_code=500, detail="Failed to send transaction notification")
+            
     except HTTPException:
         raise
     except Exception as e:
