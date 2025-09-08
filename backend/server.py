@@ -1857,6 +1857,56 @@ async def sync_investor_to_crm(investor_email: str):
         logger.error(f"Error syncing investor to CRM: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
+@api_router.post("/admin/retry-crm-sync")
+async def manual_retry_crm_sync():
+    """Manual trigger for CRM retry operations (Admin only)"""
+    try:
+        await retry_failed_crm_operations()
+        
+        # Get stats
+        pending_count = await db.crm_fallback_logs.count_documents({"sync_status": "pending"})
+        completed_count = await db.crm_fallback_logs.count_documents({"sync_status": "completed"})
+        
+        return {
+            "message": "CRM retry operations completed successfully",
+            "pending_operations": pending_count,
+            "completed_operations": completed_count,
+            "timestamp": datetime.now(timezone.utc).isoformat()
+        }
+    except Exception as e:
+        logger.error(f"Error in manual CRM retry: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@api_router.get("/admin/crm-sync-status")
+async def get_crm_sync_status():
+    """Get CRM synchronization status (Admin only)"""
+    try:
+        # Get sync statistics
+        total_logs = await db.crm_fallback_logs.count_documents({})
+        pending_logs = await db.crm_fallback_logs.count_documents({"sync_status": "pending"})
+        completed_logs = await db.crm_fallback_logs.count_documents({"sync_status": "completed"})
+        failed_logs = await db.crm_fallback_logs.count_documents({"retry_count": {"$gte": 3}})
+        
+        # Get recent activity
+        recent_logs = await db.crm_fallback_logs.find({}).sort("created_at", -1).limit(10).to_list(10)
+        
+        success_rate = (completed_logs / total_logs * 100) if total_logs > 0 else 100
+        
+        return {
+            "sync_statistics": {
+                "total_operations": total_logs,
+                "pending_operations": pending_logs,
+                "completed_operations": completed_logs,
+                "failed_operations": failed_logs,
+                "success_rate": round(success_rate, 2)
+            },
+            "recent_activity": recent_logs,
+            "last_updated": datetime.now(timezone.utc).isoformat()
+        }
+    except Exception as e:
+        logger.error(f"Error getting CRM sync status: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
 # Trading Analytics Endpoints
 @api_router.get("/analytics/trading-status-summary")
 async def get_trading_status_summary():
