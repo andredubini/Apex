@@ -1493,14 +1493,43 @@ async def send_transaction_notification(
 
 @api_router.post("/reports/send-weekly")
 async def send_weekly_report(user_email: str, user_name: str, report_data: dict):
-    """Send weekly trading report to user"""
+    """Send weekly trading report to user and log in CRM"""
     try:
-        success = await email_service.send_weekly_report_email(user_email, user_name, report_data)
+        # Send weekly report email
+        email_success = await email_service.send_weekly_report_email(user_email, user_name, report_data)
         
-        if success:
-            return {"message": "Weekly report sent successfully"}
+        # Log report activity in CRM
+        profit_loss = report_data.get("profit_loss", 0)
+        return_percentage = report_data.get("return_percentage", 0)
+        
+        crm_activity = CRMActivity(
+            contact_email=user_email,
+            activity_type=CommunicationType.EMAIL,
+            title="Weekly Trading Report Sent",
+            description=f"Weekly report: {return_percentage:+.2f}% return (${profit_loss:+,.2f})",
+            amount=abs(profit_loss),
+            status="positive" if profit_loss >= 0 else "negative",
+            metadata={
+                "report_type": "weekly_trading",
+                "return_percentage": str(return_percentage),
+                "profit_loss": str(profit_loss),
+                "period": report_data.get("period", ""),
+                "total_trades": str(report_data.get("total_trades", 0)),
+                "success_rate": str(report_data.get("success_rate", 0))
+            }
+        )
+        
+        crm_success = await crm_service.log_activity(crm_activity)
+        
+        if email_success:
+            return {
+                "message": "Weekly report sent successfully",
+                "email_sent": email_success,
+                "crm_logged": crm_success
+            }
         else:
             raise HTTPException(status_code=500, detail="Failed to send weekly report")
+            
     except HTTPException:
         raise
     except Exception as e:
