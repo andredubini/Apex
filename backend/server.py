@@ -1036,6 +1036,152 @@ async def update_investor_trading_status(investor_id: str, status_update: Tradin
     
     return {"message": f"Trading status updated to {status_update.trading_status}", "investor": Investor(**investor)}
 
+# Email and Authentication Endpoints
+@api_router.post("/auth/generate-otp")
+async def generate_otp_for_login(user_email: str):
+    """Generate and send OTP for user login"""
+    try:
+        # Generate OTP
+        otp = email_service.generate_otp()
+        
+        # Store OTP in database
+        otp_record = OneTimePassword(
+            user_email=user_email,
+            password=otp,
+            expires_at=datetime.now(timezone.utc) + timedelta(minutes=10)
+        )
+        
+        await db.one_time_passwords.insert_one(otp_record.dict())
+        
+        # Send OTP email
+        success = await email_service.send_otp_email(user_email, otp)
+        
+        if success:
+            return {"message": "OTP sent successfully", "expires_in": 600}
+        else:
+            raise HTTPException(status_code=500, detail="Failed to send OTP email")
+    except Exception as e:
+        logger.error(f"Error generating OTP for {user_email}: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@api_router.post("/auth/verify-otp")
+async def verify_otp(user_email: str, otp: str):
+    """Verify OTP for user login"""
+    try:
+        # Find valid OTP
+        otp_record = await db.one_time_passwords.find_one({
+            "user_email": user_email,
+            "password": otp,
+            "used": False,
+            "expires_at": {"$gt": datetime.now(timezone.utc)}
+        })
+        
+        if not otp_record:
+            raise HTTPException(status_code=400, detail="Invalid or expired OTP")
+        
+        # Mark OTP as used
+        await db.one_time_passwords.update_one(
+            {"id": otp_record["id"]},
+            {"$set": {"used": True}}
+        )
+        
+        return {"message": "OTP verified successfully", "valid": True}
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error verifying OTP for {user_email}: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@api_router.post("/users/register")
+async def register_user(user_name: str, user_email: str):
+    """Register new user and send welcome email"""
+    try:
+        # Check if user already exists
+        existing_user = await db.users.find_one({"email": user_email})
+        if existing_user:
+            raise HTTPException(status_code=400, detail="User already exists")
+        
+        # Create user record
+        user_record = {
+            "id": str(uuid.uuid4()),
+            "name": user_name,
+            "email": user_email,
+            "registered_at": datetime.now(timezone.utc),
+            "status": "active"
+        }
+        
+        await db.users.insert_one(user_record)
+        
+        # Send welcome email
+        success = await email_service.send_welcome_email(user_email, user_name)
+        
+        if success:
+            return {"message": "User registered successfully", "welcome_email_sent": True}
+        else:
+            return {"message": "User registered successfully", "welcome_email_sent": False}
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error registering user {user_email}: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@api_router.post("/transactions/notify")
+async def send_transaction_notification(
+    user_email: str, 
+    user_name: str, 
+    transaction_type: str, 
+    amount: float, 
+    status: str = "processed"
+):
+    """Send transaction notification email"""
+    try:
+        if transaction_type not in ["deposit", "withdrawal"]:
+            raise HTTPException(status_code=400, detail="Invalid transaction type")
+        
+        success = await email_service.send_transaction_email(
+            user_email, user_name, transaction_type, amount, status
+        )
+        
+        if success:
+            return {"message": "Transaction notification sent successfully"}
+        else:
+            raise HTTPException(status_code=500, detail="Failed to send transaction notification")
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error sending transaction notification: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@api_router.post("/reports/send-weekly")
+async def send_weekly_report(user_email: str, user_name: str, report_data: dict):
+    """Send weekly trading report to user"""
+    try:
+        success = await email_service.send_weekly_report_email(user_email, user_name, report_data)
+        
+        if success:
+            return {"message": "Weekly report sent successfully"}
+        else:
+            raise HTTPException(status_code=500, detail="Failed to send weekly report")
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error sending weekly report: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@api_router.post("/admin/send-notification")
+async def send_admin_notification_endpoint(subject: str, message: str):
+    """Send notification to admin email"""
+    try:
+        success = await email_service.send_admin_notification(subject, message)
+        
+        if success:
+            return {"message": "Admin notification sent successfully"}
+        else:
+            raise HTTPException(status_code=500, detail="Failed to send admin notification")
+    except Exception as e:
+        logger.error(f"Error sending admin notification: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
 # Trading Analytics Endpoints
 @api_router.get("/analytics/trading-status-summary")
 async def get_trading_status_summary():
