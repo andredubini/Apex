@@ -1370,13 +1370,59 @@ async def register_user(user_name: str, user_email: str):
         
         await db.users.insert_one(user_record)
         
-        # Send welcome email
-        success = await email_service.send_welcome_email(user_email, user_name)
+        # Create CRM contact
+        name_parts = user_name.split(" ", 1)
+        first_name = name_parts[0] if name_parts else ""
+        last_name = name_parts[1] if len(name_parts) > 1 else ""
         
-        if success:
-            return {"message": "User registered successfully", "welcome_email_sent": True}
-        else:
-            return {"message": "User registered successfully", "welcome_email_sent": False}
+        crm_contact = CRMContact(
+            email=user_email,
+            first_name=first_name,
+            last_name=last_name,
+            investor_type=InvestorType.INDIVIDUAL,
+            status=ContactStatus.PROSPECT
+        )
+        
+        # Sync to CRM
+        crm_success = await crm_service.create_contact(crm_contact)
+        
+        # Log registration activity in CRM
+        if crm_success:
+            registration_activity = CRMActivity(
+                contact_email=user_email,
+                activity_type=CommunicationType.SYSTEM_NOTIFICATION,
+                title="User Registration",
+                description=f"New user {user_name} registered on the platform",
+                metadata={
+                    "registration_date": datetime.now(timezone.utc).isoformat(),
+                    "source": "web_platform"
+                }
+            )
+            await crm_service.log_activity(registration_activity)
+        
+        # Send welcome email
+        email_success = await email_service.send_welcome_email(user_email, user_name)
+        
+        # Log email activity in CRM
+        if crm_success and email_success:
+            email_activity = CRMActivity(
+                contact_email=user_email,
+                activity_type=CommunicationType.EMAIL,
+                title="Welcome Email Sent",
+                description="Welcome email sent to new user",
+                metadata={
+                    "email_type": "welcome",
+                    "sent_at": datetime.now(timezone.utc).isoformat()
+                }
+            )
+            await crm_service.log_activity(email_activity)
+        
+        return {
+            "message": "User registered successfully", 
+            "welcome_email_sent": email_success,
+            "crm_synced": crm_success
+        }
+        
     except HTTPException:
         raise
     except Exception as e:
