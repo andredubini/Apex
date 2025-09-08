@@ -77,6 +77,483 @@ class TradingStatusRequest(BaseModel):
     requested_status: str  # "active" or "inactive"
     message: str = ""  # Optional message from investor
 
+# Email Models
+class EmailTemplate(BaseModel):
+    template_type: str
+    subject: str
+    content: str
+    variables: Dict[str, str] = Field(default_factory=dict)
+
+class OneTimePassword(BaseModel):
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    user_email: str
+    password: str
+    expires_at: datetime
+    used: bool = False
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+
+# SendPulse Email Service
+class EmailService:
+    def __init__(self):
+        self.api_id = os.environ.get('SENDPULSE_API_ID')
+        self.api_secret = os.environ.get('SENDPULSE_API_SECRET')
+        self.sender_email = os.environ.get('SENDER_EMAIL')
+        self.admin_email = os.environ.get('ADMIN_EMAIL')
+        self.access_token = None
+        self.token_expires_at = None
+    
+    async def get_access_token(self):
+        """Get access token from SendPulse API"""
+        if self.access_token and self.token_expires_at and datetime.now() < self.token_expires_at:
+            return self.access_token
+        
+        url = "https://api.sendpulse.com/oauth/access_token"
+        
+        auth_string = f"{self.api_id}:{self.api_secret}"
+        auth_bytes = auth_string.encode('ascii')
+        auth_b64 = base64.b64encode(auth_bytes).decode('ascii')
+        
+        headers = {
+            "Content-Type": "application/json",
+            "Authorization": f"Basic {auth_b64}"
+        }
+        
+        data = {
+            "grant_type": "client_credentials"
+        }
+        
+        try:
+            response = requests.post(url, headers=headers, json=data)
+            if response.status_code == 200:
+                token_data = response.json()
+                self.access_token = token_data['access_token']
+                expires_in = token_data.get('expires_in', 3600)
+                self.token_expires_at = datetime.now() + timezone.utc.replace(seconds=expires_in)
+                return self.access_token
+            else:
+                logger.error(f"Failed to get SendPulse access token: {response.text}")
+                return None
+        except Exception as e:
+            logger.error(f"Error getting SendPulse access token: {e}")
+            return None
+    
+    async def send_email(self, to_email: str, subject: str, html_content: str, text_content: str = None):
+        """Send email via SendPulse API"""
+        token = await self.get_access_token()
+        if not token:
+            return False
+        
+        url = "https://api.sendpulse.com/smtp/emails"
+        
+        headers = {
+            "Content-Type": "application/json",
+            "Authorization": f"Bearer {token}"
+        }
+        
+        email_data = {
+            "email": {
+                "html": html_content,
+                "text": text_content or html_content,
+                "subject": subject,
+                "from": {
+                    "name": "Apex Capital Management",
+                    "email": self.sender_email
+                },
+                "to": [
+                    {
+                        "name": to_email.split('@')[0],
+                        "email": to_email
+                    }
+                ]
+            }
+        }
+        
+        try:
+            response = requests.post(url, headers=headers, json=email_data)
+            if response.status_code == 200:
+                logger.info(f"Email sent successfully to {to_email}")
+                return True
+            else:
+                logger.error(f"Failed to send email to {to_email}: {response.text}")
+                return False
+        except Exception as e:
+            logger.error(f"Error sending email to {to_email}: {e}")
+            return False
+    
+    def generate_otp(self):
+        """Generate one-time password: 1 letter + 7 digits"""
+        letter = random.choice(string.ascii_uppercase)
+        digits = ''.join(random.choices(string.digits, k=7))
+        return f"{letter}{digits}"
+    
+    async def send_welcome_email(self, user_email: str, user_name: str):
+        """Send welcome email on registration"""
+        template = Template("""
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <meta charset="UTF-8">
+            <title>Welcome to Apex Capital Management</title>
+        </head>
+        <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
+            <div style="max-width: 600px; margin: 0 auto; padding: 20px;">
+                <div style="text-align: center; margin-bottom: 30px;">
+                    <h1 style="color: #2563eb;">Apex Capital Management</h1>
+                </div>
+                
+                <h2 style="color: #1f2937;">Welcome, {{ user_name }}!</h2>
+                
+                <p>Thank you for registering with Apex Capital Management. We are excited to have you join our exclusive investment platform.</p>
+                
+                <div style="background: #f3f4f6; padding: 20px; border-radius: 8px; margin: 20px 0;">
+                    <h3 style="margin-top: 0; color: #1f2937;">What's Next?</h3>
+                    <ul>
+                        <li>Complete your investor profile verification</li>
+                        <li>Review our investment strategies and risk management</li>
+                        <li>Contact our team for personalized consultation</li>
+                        <li>Monitor your portfolio through our secure dashboard</li>
+                    </ul>
+                </div>
+                
+                <div style="background: #dbeafe; padding: 15px; border-radius: 6px; margin: 20px 0;">
+                    <h4 style="margin-top: 0; color: #1e40af;">Security Notice</h4>
+                    <p>For your security, you will receive a one-time password via email each time you log in to your account.</p>
+                </div>
+                
+                <p>If you have any questions, please don't hesitate to contact our support team.</p>
+                
+                <div style="text-align: center; margin-top: 30px; padding-top: 20px; border-top: 1px solid #e5e7eb;">
+                    <p style="color: #6b7280; font-size: 14px;">
+                        Best regards,<br>
+                        The Apex Capital Management Team<br>
+                        <a href="mailto:{{ sender_email }}" style="color: #2563eb;">{{ sender_email }}</a>
+                    </p>
+                </div>
+            </div>
+        </body>
+        </html>
+        """)
+        
+        html_content = template.render(
+            user_name=user_name,
+            sender_email=self.sender_email
+        )
+        
+        success = await self.send_email(
+            user_email,
+            "Welcome to Apex Capital Management",
+            html_content
+        )
+        
+        # Send copy to admin
+        if success:
+            await self.send_admin_notification(
+                f"New Registration: {user_name}",
+                f"New user {user_name} ({user_email}) has registered on the platform."
+            )
+        
+        return success
+    
+    async def send_otp_email(self, user_email: str, otp: str):
+        """Send one-time password for login"""
+        template = Template("""
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <meta charset="UTF-8">
+            <title>Your Login Code - Apex Capital</title>
+        </head>
+        <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
+            <div style="max-width: 500px; margin: 0 auto; padding: 20px;">
+                <div style="text-align: center; margin-bottom: 30px;">
+                    <h1 style="color: #2563eb;">Apex Capital Management</h1>
+                </div>
+                
+                <h2 style="color: #1f2937;">Your Login Code</h2>
+                
+                <p>Use this one-time password to access your account:</p>
+                
+                <div style="text-align: center; margin: 30px 0;">
+                    <div style="display: inline-block; background: #1f2937; color: white; padding: 20px 40px; font-size: 32px; font-weight: bold; letter-spacing: 3px; border-radius: 8px;">
+                        {{ otp }}
+                    </div>
+                </div>
+                
+                <div style="background: #fef3c7; padding: 15px; border-radius: 6px; margin: 20px 0; border-left: 4px solid #f59e0b;">
+                    <p style="margin: 0; color: #92400e;">
+                        <strong>Important:</strong> This code expires in 10 minutes and can only be used once.
+                    </p>
+                </div>
+                
+                <p style="color: #6b7280; font-size: 14px;">
+                    If you didn't request this code, please contact our support team immediately.
+                </p>
+                
+                <div style="text-align: center; margin-top: 30px; padding-top: 20px; border-top: 1px solid #e5e7eb;">
+                    <p style="color: #6b7280; font-size: 14px;">
+                        Apex Capital Management Security Team
+                    </p>
+                </div>
+            </div>
+        </body>
+        </html>
+        """)
+        
+        html_content = template.render(otp=otp)
+        
+        return await self.send_email(
+            user_email,
+            f"Your Login Code: {otp}",
+            html_content
+        )
+    
+    async def send_transaction_email(self, user_email: str, user_name: str, transaction_type: str, amount: float, status: str = "processed"):
+        """Send email for deposits and withdrawals"""
+        template = Template("""
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <meta charset="UTF-8">
+            <title>{{ transaction_type.title() }} {{ status.title() }} - Apex Capital</title>
+        </head>
+        <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
+            <div style="max-width: 600px; margin: 0 auto; padding: 20px;">
+                <div style="text-align: center; margin-bottom: 30px;">
+                    <h1 style="color: #2563eb;">Apex Capital Management</h1>
+                </div>
+                
+                <h2 style="color: #1f2937;">{{ transaction_type.title() }} {{ status.title() }}</h2>
+                
+                <p>Dear {{ user_name }},</p>
+                
+                <p>Your {{ transaction_type }} has been {{ status }}.</p>
+                
+                <div style="background: #f3f4f6; padding: 20px; border-radius: 8px; margin: 20px 0;">
+                    <h3 style="margin-top: 0; color: #1f2937;">Transaction Details</h3>
+                    <table style="width: 100%; border-collapse: collapse;">
+                        <tr>
+                            <td style="padding: 8px 0; font-weight: bold;">Type:</td>
+                            <td style="padding: 8px 0;">{{ transaction_type.title() }}</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 8px 0; font-weight: bold;">Amount:</td>
+                            <td style="padding: 8px 0; font-size: 18px; font-weight: bold; color: {% if transaction_type == 'deposit' %}#059669{% else %}#dc2626{% endif %};">
+                                ${{ "{:,.2f}".format(amount) }}
+                            </td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 8px 0; font-weight: bold;">Status:</td>
+                            <td style="padding: 8px 0; color: #059669; font-weight: bold;">{{ status.title() }}</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 8px 0; font-weight: bold;">Date:</td>
+                            <td style="padding: 8px 0;">{{ current_date }}</td>
+                        </tr>
+                    </table>
+                </div>
+                
+                {% if transaction_type == 'deposit' %}
+                <div style="background: #dbeafe; padding: 15px; border-radius: 6px; margin: 20px 0;">
+                    <p style="margin: 0; color: #1e40af;">
+                        Your funds are now available in your trading account and will be included in our next trading cycle.
+                    </p>
+                </div>
+                {% else %}
+                <div style="background: #fef3c7; padding: 15px; border-radius: 6px; margin: 20px 0;">
+                    <p style="margin: 0; color: #92400e;">
+                        Your withdrawal will be processed within 1-2 business days and transferred to your registered account.
+                    </p>
+                </div>
+                {% endif %}
+                
+                <p>You can view your updated account balance and transaction history in your investor dashboard.</p>
+                
+                <div style="text-align: center; margin-top: 30px; padding-top: 20px; border-top: 1px solid #e5e7eb;">
+                    <p style="color: #6b7280; font-size: 14px;">
+                        Best regards,<br>
+                        The Apex Capital Management Team
+                    </p>
+                </div>
+            </div>
+        </body>
+        </html>
+        """)
+        
+        html_content = template.render(
+            transaction_type=transaction_type,
+            status=status,
+            user_name=user_name,
+            amount=amount,
+            current_date=datetime.now().strftime("%B %d, %Y at %I:%M %p")
+        )
+        
+        success = await self.send_email(
+            user_email,
+            f"{transaction_type.title()} {status.title()} - ${amount:,.2f}",
+            html_content
+        )
+        
+        # Send copy to admin
+        if success:
+            await self.send_admin_notification(
+                f"{transaction_type.title()} {status.title()}: {user_name}",
+                f"User {user_name} ({user_email}) {transaction_type} of ${amount:,.2f} has been {status}."
+            )
+        
+        return success
+    
+    async def send_weekly_report_email(self, user_email: str, user_name: str, report_data: dict):
+        """Send weekly trading report"""
+        template = Template("""
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <meta charset="UTF-8">
+            <title>Weekly Trading Report - Apex Capital</title>
+        </head>
+        <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
+            <div style="max-width: 700px; margin: 0 auto; padding: 20px;">
+                <div style="text-align: center; margin-bottom: 30px;">
+                    <h1 style="color: #2563eb;">Apex Capital Management</h1>
+                    <h2 style="color: #1f2937;">Weekly Trading Report</h2>
+                    <p style="color: #6b7280;">{{ report_period }}</p>
+                </div>
+                
+                <p>Dear {{ user_name }},</p>
+                
+                <p>Here is your weekly trading performance report:</p>
+                
+                <div style="background: #f3f4f6; padding: 25px; border-radius: 8px; margin: 25px 0;">
+                    <h3 style="margin-top: 0; color: #1f2937; text-align: center;">Performance Summary</h3>
+                    <table style="width: 100%; border-collapse: collapse;">
+                        <tr>
+                            <td style="padding: 12px; border-bottom: 1px solid #d1d5db; font-weight: bold;">Starting Balance:</td>
+                            <td style="padding: 12px; border-bottom: 1px solid #d1d5db; text-align: right;">${{ "{:,.2f}".format(report_data.start_balance) }}</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 12px; border-bottom: 1px solid #d1d5db; font-weight: bold;">Ending Balance:</td>
+                            <td style="padding: 12px; border-bottom: 1px solid #d1d5db; text-align: right; font-weight: bold;">${{ "{:,.2f}".format(report_data.end_balance) }}</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 12px; border-bottom: 1px solid #d1d5db; font-weight: bold;">Weekly Profit/Loss:</td>
+                            <td style="padding: 12px; border-bottom: 1px solid #d1d5db; text-align: right; font-weight: bold; color: {% if report_data.profit_loss >= 0 %}#059669{% else %}#dc2626{% endif %};">
+                                {% if report_data.profit_loss >= 0 %}+{% endif %}${{ "{:,.2f}".format(report_data.profit_loss) }}
+                            </td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 12px; border-bottom: 1px solid #d1d5db; font-weight: bold;">Return %:</td>
+                            <td style="padding: 12px; border-bottom: 1px solid #d1d5db; text-align: right; font-weight: bold; color: {% if report_data.return_percentage >= 0 %}#059669{% else %}#dc2626{% endif %};">
+                                {% if report_data.return_percentage >= 0 %}+{% endif %}{{ "{:.2f}".format(report_data.return_percentage) }}%
+                            </td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 12px; font-weight: bold;">Total Trades:</td>
+                            <td style="padding: 12px; text-align: right;">{{ report_data.total_trades }}</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 12px; font-weight: bold;">Success Rate:</td>
+                            <td style="padding: 12px; text-align: right; color: #059669; font-weight: bold;">{{ "{:.1f}".format(report_data.success_rate) }}%</td>
+                        </tr>
+                    </table>
+                </div>
+                
+                {% if report_data.profit_loss >= 0 %}
+                <div style="background: #d1fae5; padding: 15px; border-radius: 6px; margin: 20px 0; border-left: 4px solid #10b981;">
+                    <p style="margin: 0; color: #047857;">
+                        <strong>Excellent performance this week!</strong> Your portfolio generated positive returns while maintaining our strict risk management protocols.
+                    </p>
+                </div>
+                {% else %}
+                <div style="background: #fef3c7; padding: 15px; border-radius: 6px; margin: 20px 0; border-left: 4px solid #f59e0b;">
+                    <p style="margin: 0; color: #92400e;">
+                        <strong>Market volatility impact:</strong> This week saw challenging market conditions. Our risk management protocols limited exposure and preserved capital.
+                    </p>
+                </div>
+                {% endif %}
+                
+                <div style="background: #f9fafb; padding: 20px; border-radius: 8px; margin: 20px 0;">
+                    <h4 style="margin-top: 0; color: #1f2937;">Risk Management Metrics</h4>
+                    <ul style="margin: 0; padding-left: 20px; color: #374151;">
+                        <li>Maximum risk per trading period: 1%</li>
+                        <li>Portfolio volatility: {{ "{:.1f}".format(report_data.volatility or 8.2) }}%</li>
+                        <li>Sharpe ratio: {{ "{:.2f}".format(report_data.sharpe_ratio or 1.85) }}</li>
+                        <li>Maximum drawdown: {{ "{:.1f}".format(report_data.max_drawdown or -2.1) }}%</li>
+                    </ul>
+                </div>
+                
+                <p>You can view detailed performance charts and analytics in your investor dashboard.</p>
+                
+                <div style="text-align: center; margin-top: 30px; padding-top: 20px; border-top: 1px solid #e5e7eb;">
+                    <p style="color: #6b7280; font-size: 14px;">
+                        Best regards,<br>
+                        The Apex Capital Management Team<br>
+                        Professional Trading Division
+                    </p>
+                </div>
+            </div>
+        </body>
+        </html>
+        """)
+        
+        html_content = template.render(
+            user_name=user_name,
+            report_data=report_data,
+            report_period=report_data.get('period', f"Week ending {datetime.now().strftime('%B %d, %Y')}")
+        )
+        
+        return await self.send_email(
+            user_email,
+            f"Weekly Trading Report - {report_data.get('period', datetime.now().strftime('%B %d, %Y'))}",
+            html_content
+        )
+    
+    async def send_admin_notification(self, subject: str, message: str):
+        """Send notification to admin email"""
+        template = Template("""
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <meta charset="UTF-8">
+            <title>{{ subject }}</title>
+        </head>
+        <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
+            <div style="max-width: 600px; margin: 0 auto; padding: 20px;">
+                <div style="text-align: center; margin-bottom: 30px;">
+                    <h1 style="color: #dc2626;">Apex Capital Admin Notification</h1>
+                </div>
+                
+                <h2 style="color: #1f2937;">{{ subject }}</h2>
+                
+                <div style="background: #f3f4f6; padding: 20px; border-radius: 8px; margin: 20px 0;">
+                    {{ message }}
+                </div>
+                
+                <div style="text-align: center; margin-top: 30px; padding-top: 20px; border-top: 1px solid #e5e7eb;">
+                    <p style="color: #6b7280; font-size: 14px;">
+                        Automated notification from Apex Capital Management System<br>
+                        {{ current_time }}
+                    </p>
+                </div>
+            </div>
+        </body>
+        </html>
+        """)
+        
+        html_content = template.render(
+            subject=subject,
+            message=message,
+            current_time=datetime.now().strftime("%B %d, %Y at %I:%M %p")
+        )
+        
+        return await self.send_email(
+            self.admin_email,
+            f"[Apex Capital Admin] {subject}",
+            html_content
+        )
+
+# Initialize email service
+email_service = EmailService()
+
 # Trading Performance Model
 class TradingPeriod(BaseModel):
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
