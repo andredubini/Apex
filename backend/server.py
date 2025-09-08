@@ -128,7 +128,7 @@ class EmailService:
                 token_data = response.json()
                 self.access_token = token_data['access_token']
                 expires_in = token_data.get('expires_in', 3600)
-                self.token_expires_at = datetime.now() + timezone.utc.replace(seconds=expires_in)
+                self.token_expires_at = datetime.now() + timedelta(seconds=expires_in)
                 return self.access_token
             else:
                 logger.error(f"Failed to get SendPulse access token: {response.text}")
