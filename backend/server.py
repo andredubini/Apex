@@ -141,9 +141,15 @@ class EmailService:
             return None
     
     async def send_email(self, to_email: str, subject: str, html_content: str, text_content: str = None):
-        """Send email via SendPulse API"""
+        """Send email via SendPulse API with enhanced error handling"""
+        # Validate email before sending
+        if not validate_email(to_email):
+            logger.error(f"Invalid email address: {to_email}")
+            return False
+        
         token = await self.get_access_token()
         if not token:
+            logger.error("SendPulse email token unavailable")
             return False
         
         url = "https://api.sendpulse.com/smtp/emails"
@@ -153,32 +159,49 @@ class EmailService:
             "Authorization": f"Bearer {token}"
         }
         
+        # Sanitize content
+        safe_subject = sanitize_string(subject, 200)
+        safe_html_content = html_content  # HTML content should be pre-validated
+        safe_text_content = text_content or html_content
+        
         email_data = {
             "email": {
-                "html": html_content,
-                "text": text_content or html_content,
-                "subject": subject,
+                "html": safe_html_content,
+                "text": safe_text_content,
+                "subject": safe_subject,
                 "from": {
                     "name": "Apex Capital Management",
                     "email": self.sender_email
                 },
                 "to": [
                     {
-                        "name": to_email.split('@')[0],
+                        "name": sanitize_string(to_email.split('@')[0], 50),
                         "email": to_email
                     }
-                ]
+                ],
+                "headers": {
+                    "X-Priority": "1",
+                    "X-Mailer": "Apex Capital Management System"
+                }
             }
         }
         
         try:
-            response = requests.post(url, headers=headers, json=email_data)
+            response = requests.post(url, headers=headers, json=email_data, timeout=30)
             if response.status_code == 200:
-                logger.info(f"Email sent successfully to {to_email}")
-                return True
+                result = response.json()
+                if result.get("result", False):
+                    logger.info(f"Email sent successfully to {to_email}")
+                    return True
+                else:
+                    logger.error(f"SendPulse email API error for {to_email}: {result}")
+                    return False
             else:
-                logger.error(f"Failed to send email to {to_email}: {response.text}")
+                logger.error(f"Failed to send email to {to_email}: HTTP {response.status_code} - {response.text}")
                 return False
+        except requests.exceptions.Timeout:
+            logger.error(f"Email sending timeout for {to_email}")
+            return False
         except Exception as e:
             logger.error(f"Error sending email to {to_email}: {e}")
             return False
