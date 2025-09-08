@@ -105,39 +105,56 @@
 # Testing Data - Main Agent and testing sub agent should log testing data below this section
 #====================================================================================================
 
+# Testing Data - Main Agent and testing sub agent should log testing data below this section
+#====================================================================================================
+
 ## user_problem_statement: 
-Complete the improvements for the Investor Dashboard and Admin Panel notification systems with priorities and extended settings.
+Настройка комплексной email-системы с SendPulse API для Apex Capital Management:
 
-Testing the newly implemented real-time notification system with WebSocket support:
+1. Email приветствие при регистрации пользователей
+2. Система одноразовых паролей (OTP) для каждого входа: 1 буква + 7 цифр 
+3. Email-уведомления для всех депозитов и выводов
+4. Еженедельные отчеты результатов торгов
+5. Сервисные уведомления админу на dubinigroup@gmail.com
+6. Отправитель: info@aleftraders.com
 
-1. Test API Health:
-   - GET /api/ (root endpoint)
-   - GET /api/status (basic functionality)
+Testing the comprehensive SendPulse email integration system:
 
-2. Test Real-time Notification System:
-   - WebSocket connection to /ws/{user_id} 
-   - POST /api/notifications (create notifications)
-   - GET /api/notifications/{user_id} (retrieve user notifications)
-   - PATCH /api/notifications/{notification_id}/read (mark as read)
-   - PATCH /api/notifications/{user_id}/mark-all-read (mark all as read)
-   - GET /api/notifications/{user_id}/unread-count (get unread count)
+1. Test Email System Health:
+   - SendPulse API authentication and token management
+   - Email template rendering with Jinja2
+   - SMTP email delivery via SendPulse
 
-3. Test Notification Settings System:
-   - GET /api/notification-settings/{user_id} (get settings with defaults)
-   - PATCH /api/notification-settings/{user_id} (update settings)
+2. Test OTP (One-Time Password) System:
+   - POST /api/auth/generate-otp (генерация OTP в формате [A-Z][0-9]{7})
+   - POST /api/auth/verify-otp (верификация OTP с expiration)
+   - OTP хранение в MongoDB с истечением через 10 минут
 
-4. Test Broadcast Notifications:
-   - POST /api/notifications/broadcast (admin broadcast)
+3. Test Registration & Welcome Emails:
+   - POST /api/users/register (регистрация с welcome email)
+   - Отправка приветственных email с брендингом Apex Capital
+   - Admin notifications о новых регистрациях
 
-5. Verify Enhanced Features:
-   - Priority-based notifications (critical, high, medium, low)
-   - Category filtering (profit, deposit, withdrawal, alert, security, report, system, trade, risk, performance)
-   - Real-time WebSocket delivery
-   - Notification settings with categories and priority preferences
-   - Quiet hours functionality
-   - Frequency limits
+4. Test Transaction Notifications:
+   - POST /api/transactions/notify для депозитов и выводов
+   - Email-шаблоны с transaction details и status
+   - Admin копии всех транзакционных уведомлений
 
-Please thoroughly test the notification API endpoints, WebSocket connectivity, and ensure all notification management features work correctly. Focus on the real-time delivery system and comprehensive notification preferences.
+5. Test Weekly Trading Reports:
+   - POST /api/reports/send-weekly (детальные торговые отчеты)
+   - Scheduled weekly reports каждое воскресенье в 8:00 PM
+   - Метрики: profit/loss, success rate, risk management, Sharpe ratio
+
+6. Test Admin Notifications:
+   - POST /api/admin/send-notification на dubinigroup@gmail.com
+   - Service notifications для всех системных событий
+
+7. Test Frontend OTP Integration:
+   - Двухэтапная аутентификация в LoginPage
+   - OTP input с форматированием и валидацией
+   - Real-time countdown и resend functionality
+
+Please thoroughly test the entire email system with SendPulse API integration, OTP authentication flow, and all automated email notifications. Verify that all emails are properly formatted with Apex Capital branding and sent from info@aleftraders.com.
 
 ## frontend:
   - task: "Landing Page UX/UI Analysis"
