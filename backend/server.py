@@ -1933,8 +1933,20 @@ async def get_crm_sync_status():
         completed_logs = await db.crm_fallback_logs.count_documents({"sync_status": "completed"})
         failed_logs = await db.crm_fallback_logs.count_documents({"retry_count": {"$gte": 3}})
         
-        # Get recent activity (limit to available logs)
-        recent_logs = await db.crm_fallback_logs.find({}).sort("created_at", -1).limit(5).to_list(5)
+        # Get recent activity (limit to available logs) - Fix ObjectId serialization
+        recent_logs_raw = await db.crm_fallback_logs.find({}).sort("created_at", -1).limit(5).to_list(5)
+        recent_logs = []
+        for log in recent_logs_raw:
+            # Convert ObjectId to string and handle datetime serialization
+            safe_log = {
+                "id": str(log.get("id", "")),
+                "email": log.get("email", ""),
+                "action": log.get("action", ""),
+                "sync_status": log.get("sync_status", ""),
+                "retry_count": log.get("retry_count", 0),
+                "created_at": log.get("created_at").isoformat() if log.get("created_at") else ""
+            }
+            recent_logs.append(safe_log)
         
         success_rate = (completed_logs / total_logs * 100) if total_logs > 0 else 100
         
