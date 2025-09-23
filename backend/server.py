@@ -34,6 +34,12 @@ mongo_url = os.environ['MONGO_URL']
 client = AsyncIOMotorClient(mongo_url)
 db = client[os.environ['DB_NAME']]
 
+
+# Deployment runtime toggles
+SCHEDULER_ENABLED = os.environ.get('SCHEDULER_ENABLED', 'true').lower() == 'true'
+SCHEDULER_TZ = os.environ.get('SCHEDULER_TZ', 'America/New_York')
+SKIP_SAMPLE_DATA = os.environ.get('SKIP_SAMPLE_DATA', 'false').lower() == 'true'
+
 # Create the main app without a prefix
 app = FastAPI()
 
