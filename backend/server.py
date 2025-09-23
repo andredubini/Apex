@@ -2267,7 +2267,7 @@ async def send_email_notification_to_admin(
     
     # In real implementation, you would do something like:
     # await email_service.send_email(
-    #     to="admin@apexcapital.com",
+    #     to=os.environ.get('ADMIN_EMAIL', 'admin@apexcapital.com'),
     #     subject=email_subject,
     #     body=email_body
     # )
@@ -2312,7 +2312,7 @@ async def send_email_notification_to_admin(
     
     # In real implementation, you would do something like:
     # await email_service.send_email(
-    #     to="admin@apexcapital.com",
+    #     to=os.environ.get('ADMIN_EMAIL', 'admin@apexcapital.com'),
     #     subject=email_subject,
     #     body=email_body
     # )
