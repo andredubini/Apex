@@ -105,7 +105,7 @@ function App() {
 
   // Legacy demo login (kept for compatibility, not used in OTP flow)
   const login = (email, password) => {
-    const foundUser = sampleUsers.find(u => u.email === email &amp;&amp; u.password === password);
+    const foundUser = sampleUsers.find(u => u.email === email && u.password === password);
     if (foundUser) {
       setUser(foundUser);
       localStorage.setItem('apexUser', JSON.stringify(foundUser));
@@ -176,11 +176,11 @@ function App() {
             />
             <Route 
               path="/dashboard" 
-              element={user &amp;&amp; user.role === 'investor' ? <InvestorDashboard /> : <Navigate to="/login" />} 
+              element={user && user.role === 'investor' ? <InvestorDashboard /> : <Navigate to="/login" />} 
             />
             <Route 
               path="/admin" 
-              element={user &amp;&amp; user.role === 'admin' ? <AdminDashboard /> : <Navigate to="/login" />} 
+              element={user && user.role === 'admin' ? <AdminDashboard /> : <Navigate to="/login" />} 
             />
             <Route path="/faq" element={<FAQ />} />
             <Route path="/privacy" element={<PrivacyPolicy />} />
