@@ -146,7 +146,7 @@ const LoginPage = () => {
   };
 
   const isOtpExpired = () => {
-    return otpExpiry &amp;&amp; Date.now() > otpExpiry;
+    return otpExpiry && Date.now() > otpExpiry;
   };
 
   const getRemainingTime = () => {
@@ -169,7 +169,7 @@ const LoginPage = () => {
           <p className="mt-2 text-center text-sm text-gray-400">
             We've sent a security code to {otpData.email}
           </p>
-          {getRemainingTime() > 0 &amp;&amp; (
+          {getRemainingTime() > 0 && (
             <p className="mt-1 text-center text-xs text-green-400">
               Code expires in {Math.floor(getRemainingTime() / 60)}:{(getRemainingTime() % 60).toString().padStart(2, '0')}
             </p>
@@ -196,7 +196,7 @@ const LoginPage = () => {
             </p>
           </div>
 
-          {error &amp;&amp; (
+          {error && (
             <div className="text-red-400 text-sm text-center bg-red-900/20 py-2 px-4 rounded">
               {error}
             </div>
@@ -214,7 +214,7 @@ const LoginPage = () => {
                   Verifying...
                 </div>
               ) : (
-                "Verify &amp; Continue"
+                "Verify & Continue"
               )}
             </button>
           </div>
@@ -223,7 +223,7 @@ const LoginPage = () => {
             <button
               type="button"
               onClick={resendOTP}
-              disabled={isLoading || (!isOtpExpired() &amp;&amp; getRemainingTime() > 540)} // Allow resend in last 60 seconds or if expired
+              disabled={isLoading || (!isOtpExpired() && getRemainingTime() > 540)} // Allow resend in last 60 seconds or if expired
               className="text-blue-400 hover:text-blue-300 text-sm disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {isOtpExpired() ? "Code Expired - Resend" : "Didn't receive code? Resend"}
@@ -306,7 +306,7 @@ const LoginPage = () => {
 
         <div className="bg-slate-800/50 backdrop-blur-md p-8 rounded-2xl border border-slate-700">
           <form className="space-y-6" onSubmit={handleSubmit}>
-            {error &amp;&amp; (
+            {error && (
               <div className="bg-red-900/50 border border-red-600 text-red-200 px-4 py-3 rounded-lg">
                 {error}
               </div>
