@@ -904,11 +904,15 @@ class EnhancedApexCapitalTester:
         print("\n--- Testing User Registration Smoke Test ---")
         
         try:
+            # Use a unique email with timestamp to avoid conflicts
+            import time
+            unique_email = f"test.user.{int(time.time())}@example.com"
+            
             response = requests.post(
                 f"{self.base_url}/users/register",
                 params={
                     "user_name": "Test User",
-                    "user_email": "test.user@example.com"
+                    "user_email": unique_email
                 },
                 timeout=10
             )
