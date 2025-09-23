@@ -39,7 +39,7 @@ const sampleUsers = [
   },
   {
     id: 2,
-    email: "admin@apexcapital.com",
+    email: "dubinigroup@gmail.com",
     password: "admin123",
     name: "Admin User",
     role: "admin"
@@ -55,7 +55,7 @@ const generateSampleData = () => {
   let currentBalance = 100000;
   let weeklyReturns = [];
   
-  for (let i = 0; i < 52; i++) {
+  for (let i = 0; i &lt; 52; i++) {
     const weekStart = new Date(startDate);
     weekStart.setDate(startDate.getDate() + (i * 7));
     
@@ -103,8 +103,9 @@ function App() {
     setIsLoading(false);
   }, []);
 
+  // Legacy demo login (kept for compatibility, not used in OTP flow)
   const login = (email, password) => {
-    const foundUser = sampleUsers.find(u => u.email === email && u.password === password);
+    const foundUser = sampleUsers.find(u => u.email === email &amp;&amp; u.password === password);
     if (foundUser) {
       setUser(foundUser);
       localStorage.setItem('apexUser', JSON.stringify(foundUser));
@@ -129,6 +130,17 @@ function App() {
     return true;
   };
 
+  // New: finalize session after successful OTP verification
+  const completeOtpLogin = (email) => {
+    const isAdmin = email.toLowerCase() === 'dubinigroup@gmail.com';
+    const sessionUser = isAdmin
+      ? { id: email, email, name: 'Admin', role: 'admin' }
+      : { id: email, email, name: email.split('@')[0], role: 'investor', accountBalance: 0, totalInvested: 0, totalProfits: 0, joinDate: new Date().toISOString().split('T')[0] };
+    setUser(sessionUser);
+    localStorage.setItem('apexUser', JSON.stringify(sessionUser));
+    return true;
+  };
+
   const logout = () => {
     setUser(null);
     localStorage.removeItem('apexUser');
@@ -142,42 +154,42 @@ function App() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-slate-900 flex items-center justify-center">
-        <div className="text-white text-xl">Loading...</div>
-      </div>
+      &lt;div className="min-h-screen bg-slate-900 flex items-center justify-center"&gt;
+        &lt;div className="text-white text-xl"&gt;Loading...&lt;/div&gt;
+      &lt;/div&gt;
     );
   }
 
   return (
-    <AuthContext.Provider value={{ user, login, register, logout, sampleTradingData }}>
-      <ThemeContext.Provider value={{ theme, toggleTheme }}>
-        <Router>
-          <Routes>
-            <Route path="/" element={<LandingPage />} />
-            <Route 
+    &lt;AuthContext.Provider value={{ user, login, register, logout, sampleTradingData, completeOtpLogin }}&gt;
+      &lt;ThemeContext.Provider value={{ theme, toggleTheme }}&gt;
+        &lt;Router&gt;
+          &lt;Routes&gt;
+            &lt;Route path="/" element={&lt;LandingPage /&gt;} /&gt;
+            &lt;Route 
               path="/login" 
-              element={user ? <Navigate to={user.role === 'admin' ? '/admin' : '/dashboard'} /> : <LoginPage />} 
-            />
-            <Route 
+              element={user ? &lt;Navigate to={user.role === 'admin' ? '/admin' : '/dashboard'} /&gt; : &lt;LoginPage /&gt;} 
+            /&gt;
+            &lt;Route 
               path="/register" 
-              element={user ? <Navigate to="/dashboard" /> : <RegisterPage />} 
-            />
-            <Route 
+              element={user ? &lt;Navigate to="/dashboard" /&gt; : &lt;RegisterPage /&gt;} 
+            /&gt;
+            &lt;Route 
               path="/dashboard" 
-              element={user && user.role === 'investor' ? <InvestorDashboard /> : <Navigate to="/login" />} 
-            />
-            <Route 
+              element={user &amp;&amp; user.role === 'investor' ? &lt;InvestorDashboard /&gt; : &lt;Navigate to="/login" /&gt;} 
+            /&gt;
+            &lt;Route 
               path="/admin" 
-              element={user && user.role === 'admin' ? <AdminDashboard /> : <Navigate to="/login" />} 
-            />
-            <Route path="/faq" element={<FAQ />} />
-            <Route path="/privacy" element={<PrivacyPolicy />} />
-            <Route path="/terms" element={<TermsOfUse />} />
-            <Route path="/blog" element={<Blog />} />
-          </Routes>
-        </Router>
-      </ThemeContext.Provider>
-    </AuthContext.Provider>
+              element={user &amp;&amp; user.role === 'admin' ? &lt;AdminDashboard /&gt; : &lt;Navigate to="/login" /&gt;} 
+            /&gt;
+            &lt;Route path="/faq" element={&lt;FAQ /&gt;} /&gt;
+            &lt;Route path="/privacy" element={&lt;PrivacyPolicy /&gt;} /&gt;
+            &lt;Route path="/terms" element={&lt;TermsOfUse /&gt;} /&gt;
+            &lt;Route path="/blog" element={&lt;Blog /&gt;} /&gt;
+          &lt;/Routes&gt;
+        &lt;/Router&gt;
+      &lt;/ThemeContext.Provider&gt;
+    &lt;/AuthContext.Provider&gt;
   );
 }
 
