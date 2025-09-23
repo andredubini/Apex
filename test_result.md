@@ -2204,6 +2204,31 @@ Please thoroughly test the entire email system with SendPulse API integration, O
                    • Proper error handling and graceful degradation implemented ✅
                    • Rate limiting properly handled (4 failures due to API quota exceeded) ✅
                    • Complete OTP workflow: generation, validation, expiration, single-use ✅
+
+
+## frontend:
+  - task: "OTP Login and Registration UI Smoke Tests"
+    implemented: true
+    working: "NA"
+    file: "frontend/src/components/LoginPage.js, frontend/src/components/RegisterPage.js, frontend/src/App.js"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+        - working: "NA"
+          agent: "main"
+          comment: "Run automated UI tests for Registration -> welcome notice -> redirect to login, Login -> OTP step transition, OTP input formatting/validation, resend control, route guards (/admin, /dashboard) with localStorage session, and navigation from Landing page. Do not attempt to read real emails; only verify UI transitions and network calls to /api/auth/generate-otp."
+
+## test_plan:
+  current_focus:
+    - "OTP Login and Registration UI Smoke Tests"
+  stuck_tasks: []
+  test_all: false
+  test_priority: "high_first"
+
+## agent_communication:
+    - agent: "main"
+      message: "Proceeding with automated frontend UI testing focusing on registration and OTP login flows, plus route guard redirects. Avoid OTP verification success that requires reading email; validate UI states and network calls only."
                 
                 📈 PRODUCTION READINESS:
                    • Email system exceeds industry standards for hedge fund platforms ✅
