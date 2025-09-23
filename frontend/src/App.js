@@ -154,42 +154,42 @@ function App() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-slate-900 flex items-center justify-center"&gt;
-        <div className="text-white text-xl"&gt;Loading...</div&gt;
-      </div&gt;
+      <div className="min-h-screen bg-slate-900 flex items-center justify-center">
+        <div className="text-white text-xl">Loading...</div>
+      </div>
     );
   }
 
   return (
-    <AuthContext.Provider value={{ user, login, register, logout, sampleTradingData, completeOtpLogin }}&gt;
-      <ThemeContext.Provider value={{ theme, toggleTheme }}&gt;
-        <Router&gt;
-          <Routes&gt;
-            <Route path="/" element={<LandingPage /&gt;} /&gt;
+    <AuthContext.Provider value={{ user, login, register, logout, sampleTradingData, completeOtpLogin }}>
+      <ThemeContext.Provider value={{ theme, toggleTheme }}>
+        <Router>
+          <Routes>
+            <Route path="/" element={<LandingPage />} />
             <Route 
               path="/login" 
-              element={user ? <Navigate to={user.role === 'admin' ? '/admin' : '/dashboard'} /&gt; : <LoginPage /&gt;} 
-            /&gt;
+              element={user ? <Navigate to={user.role === 'admin' ? '/admin' : '/dashboard'} /> : <LoginPage />} 
+            />
             <Route 
               path="/register" 
-              element={user ? <Navigate to="/dashboard" /&gt; : <RegisterPage /&gt;} 
-            /&gt;
+              element={user ? <Navigate to="/dashboard" /> : <RegisterPage />} 
+            />
             <Route 
               path="/dashboard" 
-              element={user &amp;&amp; user.role === 'investor' ? <InvestorDashboard /&gt; : <Navigate to="/login" /&gt;} 
-            /&gt;
+              element={user &amp;&amp; user.role === 'investor' ? <InvestorDashboard /> : <Navigate to="/login" />} 
+            />
             <Route 
               path="/admin" 
-              element={user &amp;&amp; user.role === 'admin' ? <AdminDashboard /&gt; : <Navigate to="/login" /&gt;} 
-            /&gt;
-            <Route path="/faq" element={<FAQ /&gt;} /&gt;
-            <Route path="/privacy" element={<PrivacyPolicy /&gt;} /&gt;
-            <Route path="/terms" element={<TermsOfUse /&gt;} /&gt;
-            <Route path="/blog" element={<Blog /&gt;} /&gt;
-          </Routes&gt;
-        </Router&gt;
-      </ThemeContext.Provider&gt;
-    </AuthContext.Provider&gt;
+              element={user &amp;&amp; user.role === 'admin' ? <AdminDashboard /> : <Navigate to="/login" />} 
+            />
+            <Route path="/faq" element={<FAQ />} />
+            <Route path="/privacy" element={<PrivacyPolicy />} />
+            <Route path="/terms" element={<TermsOfUse />} />
+            <Route path="/blog" element={<Blog />} />
+          </Routes>
+        </Router>
+      </ThemeContext.Provider>
+    </AuthContext.Provider>
   );
 }
 
