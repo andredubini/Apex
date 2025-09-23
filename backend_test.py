@@ -3423,6 +3423,41 @@ class HedgeFundBackendTester(EnhancedApexCapitalTester):
             print("❌ Some critical systems have issues")
 
 if __name__ == "__main__":
-    # Run Enhanced Testing for Apex Capital Management System
+    import sys
     tester = EnhancedApexCapitalTester()
-    tester.run_comprehensive_enhanced_tests()
+    
+    # Check if we should run only smoke tests
+    if len(sys.argv) > 1 and sys.argv[1] == "smoke":
+        print("🚀 RUNNING BACKEND OTP AND REGISTRATION SMOKE TESTS")
+        print(f"Backend URL: {tester.base_url}")
+        print("=" * 80)
+        tester.test_otp_and_registration_smoke_tests()
+        
+        # Generate smoke test report
+        print("\n" + "=" * 80)
+        print("📊 SMOKE TEST RESULTS SUMMARY")
+        print("=" * 80)
+        
+        total_tests = len(tester.test_results)
+        passed_tests = len([r for r in tester.test_results if "✅ PASS" in r["status"]])
+        failed_tests = len([r for r in tester.test_results if "❌ FAIL" in r["status"]])
+        
+        success_rate = (passed_tests / total_tests * 100) if total_tests > 0 else 0
+        
+        print(f"📈 SMOKE TEST SUCCESS RATE: {success_rate:.1f}% ({passed_tests}/{total_tests} tests passed)")
+        print(f"✅ PASSED: {passed_tests}")
+        print(f"❌ FAILED: {failed_tests}")
+        
+        if failed_tests > 0:
+            print(f"\n🚨 FAILED TESTS:")
+            for result in tester.test_results:
+                if "❌ FAIL" in result["status"]:
+                    print(f"  ❌ {result['test']}: {result['message']}")
+                    if result.get('details'):
+                        print(f"     Details: {result['details']}")
+        
+        print(f"\n🏁 SMOKE TESTING COMPLETED at {datetime.now().isoformat()}")
+        print("=" * 80)
+    else:
+        # Run Enhanced Testing for Apex Capital Management System
+        tester.run_comprehensive_enhanced_tests()
