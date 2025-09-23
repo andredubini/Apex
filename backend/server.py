@@ -147,6 +147,11 @@ class EmailService:
             logger.error(f"Invalid email address: {to_email}")
             return False
         
+        # Check if we're in test mode (using test credentials)
+        if self.api_id == "test_api_id" or self.api_secret == "test_api_secret":
+            logger.info(f"TEST MODE: Email would be sent to {to_email} with subject: {subject}")
+            return True
+        
         token = await self.get_access_token()
         if not token:
             logger.error("SendPulse email token unavailable")
