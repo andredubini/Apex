@@ -2391,7 +2391,7 @@ async def create_system_notifications():
             "metadata": {"success_rate": 95.2, "period": "week-3"}
         },
         {
-            "user_id": "admin@apexcapital.com",
+            "user_id": os.environ.get('ADMIN_EMAIL', 'admin@apexcapital.com'),
             "user_type": "admin",
             "title": "New Investor Application",
             "message": "New investor application received from Michael Chen ($500,000)",
