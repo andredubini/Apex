@@ -2765,7 +2765,7 @@ async def send_weekly_reports_to_all():
         
         # Send summary notification to admin
         await create_notification_for_user(
-            user_id="admin@apexcapital.com",
+            user_id=os.environ.get('ADMIN_EMAIL', 'admin@apexcapital.com'),
             user_type="admin",
             title="Weekly Reports Distribution Complete",
             message=f"Weekly reports sent to {reports_sent} investors. {reports_failed} failed.",
