@@ -9,9 +9,19 @@ import json
 import time
 from datetime import datetime
 
-# Backend URL configuration
-HOSTNAME = "agent-env-3e23e700-a99f-4c53-9b5a-ba85259b09ef"
-BACKEND_URL = f"https://project-preview-35.preview.emergentagent.com/api"
+# Backend URL configuration - try local first
+try:
+    import requests
+    # Test local connection first
+    response = requests.get("http://localhost:8001/api/", timeout=5)
+    if response.status_code == 200:
+        BACKEND_URL = "http://localhost:8001/api"
+    else:
+        raise Exception("Local connection failed")
+except:
+    # Fallback to external URL pattern
+    HOSTNAME = "agent-env-3e23e700-a99f-4c53-9b5a-ba85259b09ef"
+    BACKEND_URL = f"https://project-preview-35.preview.emergentagent.com/api"
 
 class SmokeTestRunner:
     def __init__(self):
