@@ -90,7 +90,7 @@ const RegisterPage = () => {
 
         <div className="bg-slate-800/50 backdrop-blur-md p-8 rounded-2xl border border-slate-700">
           <form className="space-y-6" onSubmit={handleSubmit}>
-            {error &amp;&amp; (
+            {error && (
               <div className="bg-red-900/50 border border-red-600 text-red-200 px-4 py-3 rounded-lg">
                 {error}
               </div>
