@@ -2150,7 +2150,7 @@ async def request_trading_status_change(investor_id: str, request: TradingStatus
     
     # Create notification for admin
     await create_notification_for_user(
-        user_id="admin@apexcapital.com",
+        user_id=os.environ.get('ADMIN_EMAIL', 'admin@apexcapital.com'),
         user_type="admin",
         title=f"Trading Status Request from {investor['name']}",
         message=f"{investor['name']} has requested to {action} trading. Current status: {current_status}, Requested: {request.requested_status}. {request.message if request.message else ''}",
