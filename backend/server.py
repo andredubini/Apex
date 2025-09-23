@@ -2786,7 +2786,7 @@ async def send_weekly_reports_to_all():
         
         # Send error notification to admin
         await create_notification_for_user(
-            user_id="admin@apexcapital.com",
+            user_id=os.environ.get('ADMIN_EMAIL', 'admin@apexcapital.com'),
             user_type="admin",
             title="Weekly Reports Distribution Failed",
             message=f"Weekly report distribution encountered an error: {str(e)}",
