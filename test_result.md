@@ -2204,3 +2204,21 @@ Please thoroughly test the entire email system with SendPulse API integration, O
                 
                 🏆 FINAL ASSESSMENT: PRODUCTION-READY SENDPULSE CRM INTEGRATION
                 The comprehensive SendPulse CRM integration is successfully implemented and ready for production use. All major CRM operations (contact management, activity logging, deal creation, investor sync) are working correctly with proper SendPulse API integration. The system demonstrates excellent error handling and graceful degradation when external CRM services are unavailable."
+
+
+## backend:
+  - task: "Backend Smoke Health Check (manual)"
+    implemented: false
+    working: "NA"
+    file: "backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+        - working: "NA"
+          agent: "main"
+          comment: "Requesting deep_testing_backend_v2 to run smoke checks for health, investors, notifications, and analytics endpoints without mutating data."
+
+## agent_communication:
+    - agent: "main"
+      message: "Initiating backend smoke test: GET /api/, GET /api/status, GET /api/investors, GET /api/notifications/{user_id}/unread-count, GET /api/analytics/trading-status-summary, GET /api/analytics/trading-activity-trends. Avoiding external email/CRM calls."
