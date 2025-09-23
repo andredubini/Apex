@@ -2823,47 +2823,54 @@ scheduler = AsyncIOScheduler()
 @app.on_event("startup")
 async def startup_event():
     """Initialize scheduler on startup"""
-    # Schedule monthly profit distribution for 9:00 AM on the 1st of every month
-    scheduler.add_job(
-        process_monthly_profit_distribution,
-        CronTrigger(day=1, hour=9, minute=0),
-        id="monthly_profit_distribution",
-        replace_existing=True,
-        coalesce=True,
-        max_instances=1
-    )
+    if SCHEDULER_ENABLED:
+        # Schedule monthly profit distribution for 9:00 AM on the 1st of every month (NY timezone)
+        scheduler.add_job(
+            process_monthly_profit_distribution,
+            CronTrigger(day=1, hour=9, minute=0, timezone=SCHEDULER_TZ),
+            id="monthly_profit_distribution",
+            replace_existing=True,
+            coalesce=True,
+            max_instances=1
+        )
+        
+        # Schedule weekly reports (every Sunday at 8:00 PM) (NY timezone)
+        scheduler.add_job(
+            send_weekly_reports_to_all,
+            CronTrigger(day_of_week=6, hour=20, minute=0, timezone=SCHEDULER_TZ),  # Sunday at 8:00 PM
+            id="weekly_reports",
+            replace_existing=True,
+            coalesce=True,
+            max_instances=1
+        )
+        
+        # Schedule CRM retry operations (every 2 hours) (NY timezone)
+        scheduler.add_job(
+            retry_failed_crm_operations,
+            CronTrigger(hour="*/2", minute=15, timezone=SCHEDULER_TZ),  # Every 2 hours at :15 minutes
+            id="crm_retry_operations",
+            replace_existing=True,
+            coalesce=True,
+            max_instances=1
+        )
+        
+        scheduler.start()
+        logger.info(f"Scheduler started (tz={SCHEDULER_TZ}) - Monthly profit distribution 1st 09:00, Weekly reports Sun 20:00, CRM retry every 2h @ :15")
+    else:
+        logger.info("Scheduler disabled by environment variable SCHEDULER_ENABLED=false")
     
-    # Schedule weekly reports (every Sunday at 8:00 PM)
-    scheduler.add_job(
-        send_weekly_reports_to_all,
-        CronTrigger(day_of_week=6, hour=20, minute=0),  # Sunday at 8:00 PM
-        id="weekly_reports",
-        replace_existing=True,
-        coalesce=True,
-        max_instances=1
-    )
-    
-    # Schedule CRM retry operations (every 2 hours)
-    scheduler.add_job(
-        retry_failed_crm_operations,
-        CronTrigger(hour="*/2", minute=15),  # Every 2 hours at :15 minutes
-        id="crm_retry_operations",
-        replace_existing=True,
-        coalesce=True,
-        max_instances=1
-    )
-    
-    scheduler.start()
-    logger.info("Scheduler started - Monthly profit distribution scheduled for 9:00 AM on 1st of each month, Weekly reports scheduled for Sundays at 8:00 PM, CRM retry operations scheduled every 2 hours")
-    
-    # Create sample data for testing
-    await create_sample_data()
-    await create_system_notifications()
+    # Create sample data for testing (skip in production)
+    if not SKIP_SAMPLE_DATA:
+        await create_sample_data()
+        await create_system_notifications()
 
 @app.on_event("shutdown")
 async def shutdown_db_client():
-    scheduler.shutdown()
-    client.close()
+    try:
+        if SCHEDULER_ENABLED:
+            scheduler.shutdown()
+    finally:
+        client.close()
 
 async def create_sample_data():
     """Create sample investors and trading data for testing"""
