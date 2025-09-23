@@ -55,7 +55,7 @@ const generateSampleData = () => {
   let currentBalance = 100000;
   let weeklyReturns = [];
   
-  for (let i = 0; i &lt; 52; i++) {
+  for (let i = 0; i < 52; i++) {
     const weekStart = new Date(startDate);
     weekStart.setDate(startDate.getDate() + (i * 7));
     
@@ -154,42 +154,42 @@ function App() {
 
   if (isLoading) {
     return (
-      &lt;div className="min-h-screen bg-slate-900 flex items-center justify-center"&gt;
-        &lt;div className="text-white text-xl"&gt;Loading...&lt;/div&gt;
-      &lt;/div&gt;
+      <div className="min-h-screen bg-slate-900 flex items-center justify-center"&gt;
+        <div className="text-white text-xl"&gt;Loading...</div&gt;
+      </div&gt;
     );
   }
 
   return (
-    &lt;AuthContext.Provider value={{ user, login, register, logout, sampleTradingData, completeOtpLogin }}&gt;
-      &lt;ThemeContext.Provider value={{ theme, toggleTheme }}&gt;
-        &lt;Router&gt;
-          &lt;Routes&gt;
-            &lt;Route path="/" element={&lt;LandingPage /&gt;} /&gt;
-            &lt;Route 
+    <AuthContext.Provider value={{ user, login, register, logout, sampleTradingData, completeOtpLogin }}&gt;
+      <ThemeContext.Provider value={{ theme, toggleTheme }}&gt;
+        <Router&gt;
+          <Routes&gt;
+            <Route path="/" element={<LandingPage /&gt;} /&gt;
+            <Route 
               path="/login" 
-              element={user ? &lt;Navigate to={user.role === 'admin' ? '/admin' : '/dashboard'} /&gt; : &lt;LoginPage /&gt;} 
+              element={user ? <Navigate to={user.role === 'admin' ? '/admin' : '/dashboard'} /&gt; : <LoginPage /&gt;} 
             /&gt;
-            &lt;Route 
+            <Route 
               path="/register" 
-              element={user ? &lt;Navigate to="/dashboard" /&gt; : &lt;RegisterPage /&gt;} 
+              element={user ? <Navigate to="/dashboard" /&gt; : <RegisterPage /&gt;} 
             /&gt;
-            &lt;Route 
+            <Route 
               path="/dashboard" 
-              element={user &amp;&amp; user.role === 'investor' ? &lt;InvestorDashboard /&gt; : &lt;Navigate to="/login" /&gt;} 
+              element={user &amp;&amp; user.role === 'investor' ? <InvestorDashboard /&gt; : <Navigate to="/login" /&gt;} 
             /&gt;
-            &lt;Route 
+            <Route 
               path="/admin" 
-              element={user &amp;&amp; user.role === 'admin' ? &lt;AdminDashboard /&gt; : &lt;Navigate to="/login" /&gt;} 
+              element={user &amp;&amp; user.role === 'admin' ? <AdminDashboard /&gt; : <Navigate to="/login" /&gt;} 
             /&gt;
-            &lt;Route path="/faq" element={&lt;FAQ /&gt;} /&gt;
-            &lt;Route path="/privacy" element={&lt;PrivacyPolicy /&gt;} /&gt;
-            &lt;Route path="/terms" element={&lt;TermsOfUse /&gt;} /&gt;
-            &lt;Route path="/blog" element={&lt;Blog /&gt;} /&gt;
-          &lt;/Routes&gt;
-        &lt;/Router&gt;
-      &lt;/ThemeContext.Provider&gt;
-    &lt;/AuthContext.Provider&gt;
+            <Route path="/faq" element={<FAQ /&gt;} /&gt;
+            <Route path="/privacy" element={<PrivacyPolicy /&gt;} /&gt;
+            <Route path="/terms" element={<TermsOfUse /&gt;} /&gt;
+            <Route path="/blog" element={<Blog /&gt;} /&gt;
+          </Routes&gt;
+        </Router&gt;
+      </ThemeContext.Provider&gt;
+    </AuthContext.Provider&gt;
   );
 }
 
