@@ -2382,7 +2382,7 @@ async def create_system_notifications():
             "metadata": {"ip": "192.168.1.100", "device": "Chrome on Windows"}
         },
         {
-            "user_id": "admin@apexcapital.com",
+            "user_id": os.environ.get('ADMIN_EMAIL', 'admin@apexcapital.com'),
             "user_type": "admin",
             "title": "System Performance Alert",
             "message": "Trading system performance is above target (95.2% success rate)",
