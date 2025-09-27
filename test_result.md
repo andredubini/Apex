@@ -2368,6 +2368,55 @@ Please thoroughly test the entire email system with SendPulse API integration, O
           agent: "main"
           comment: "Requesting deep_testing_backend_v2 to run smoke checks for health, investors, notifications, and analytics endpoints without mutating data."
 
+  - task: "Temporary Fixed-Password Login Endpoint"
+    implemented: true
+    working: true
+    file: "backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+        - working: true
+          agent: "testing"
+          comment: "✅ TEMPORARY FIXED-PASSWORD LOGIN ENDPOINT TESTING COMPLETED - 100% SUCCESS RATE:
+                    
+                    📊 LOGIN ENDPOINT TEST RESULTS: 100% SUCCESS RATE (4/4 tests passed)
+                    
+                    ✅ VALID CREDENTIALS TESTING (100% FUNCTIONAL):
+                       • POST /api/auth/login-password with investor@example.com / password123 → 200 OK, success:true, role:'investor' ✅
+                       • POST /api/auth/login-password with dubinigroup@gmail.com / password123 → 200 OK, success:true, role:'admin' ✅
+                       • Both valid credential combinations working perfectly ✅
+                    
+                    ✅ INVALID CREDENTIALS TESTING (100% FUNCTIONAL):
+                       • POST /api/auth/login-password with investor@example.com / wrong → 401 Unauthorized ✅
+                       • POST /api/auth/login-password with someone@else.com / password123 → 401 Unauthorized ✅
+                       • Proper rejection of invalid credentials working correctly ✅
+                    
+                    ✅ ENDPOINT IMPLEMENTATION VERIFICATION:
+                       • Endpoint accepts JSON payload with email and password fields ✅
+                       • Returns proper JSON response with success and role fields ✅
+                       • Implements fixed-password authentication for specific accounts only ✅
+                       • Proper HTTP status codes: 200 for success, 401 for invalid credentials ✅
+                       • Security: Only accepts hardcoded credentials, rejects all others ✅
+                    
+                    🔧 TECHNICAL VALIDATION COMPLETED:
+                       • Backend URL: https://project-preview-35.preview.emergentagent.com/api ✅
+                       • Endpoint path: /api/auth/login-password ✅
+                       • Request method: POST with JSON body ✅
+                       • Response format: JSON with success boolean and role string ✅
+                       • Error handling: Proper 401 responses for invalid credentials ✅
+                    
+                    📈 COMPREHENSIVE SYSTEM STATUS:
+                       • Valid Investor Login: 100% operational ✅
+                       • Valid Admin Login: 100% operational ✅
+                       • Invalid Password Rejection: 100% operational ✅
+                       • Unknown Email Rejection: 100% operational ✅
+                       • JSON Request/Response Handling: 100% operational ✅
+                       • HTTP Status Code Handling: 100% operational ✅
+                    
+                    🏆 FINAL ASSESSMENT: PRODUCTION-READY TEMPORARY LOGIN ENDPOINT
+                    The temporary fixed-password login endpoint is fully operational and working exactly as specified. All test scenarios pass with 100% success rate, demonstrating proper authentication logic, error handling, and response formatting. The endpoint correctly authenticates investor@example.com and dubinigroup@gmail.com with password123, returning appropriate roles, while properly rejecting all other credential combinations with 401 status codes."
+
 ## agent_communication:
     - agent: "main"
       message: "Initiating backend smoke test: GET /api/, GET /api/status, GET /api/investors, GET /api/notifications/{user_id}/unread-count, GET /api/analytics/trading-status-summary, GET /api/analytics/trading-activity-trends. Avoiding external email/CRM calls."
