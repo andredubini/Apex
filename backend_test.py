@@ -1016,6 +1016,128 @@ class EnhancedApexCapitalTester:
         except Exception as e:
             self.log_test("Verify Invalid OTP", False, "Connection failed", str(e))
 
+    def test_temporary_fixed_password_login(self):
+        """Test the new temporary fixed-password login endpoint"""
+        print("\n=== TESTING TEMPORARY FIXED-PASSWORD LOGIN ENDPOINT ===")
+        
+        # Test 1: POST /api/auth/login-password with investor@example.com / password123 → expect 200, success:true, role:"investor"
+        self.test_login_investor_valid()
+        
+        # Test 2: POST /api/auth/login-password with dubinigroup@gmail.com / password123 → expect 200, success:true, role:"admin"
+        self.test_login_admin_valid()
+        
+        # Test 3: POST /api/auth/login-password with investor@example.com / wrong → expect 401
+        self.test_login_wrong_password()
+        
+        # Test 4: POST /api/auth/login-password with someone@else.com / password123 → expect 401
+        self.test_login_unknown_email()
+
+    def test_login_investor_valid(self):
+        """Test valid investor login"""
+        print("\n--- Testing Valid Investor Login ---")
+        
+        try:
+            response = requests.post(
+                f"{self.base_url}/auth/login-password",
+                json={
+                    "email": "investor@example.com",
+                    "password": "password123"
+                },
+                timeout=10
+            )
+            
+            if response.status_code == 200:
+                result = response.json()
+                
+                # Check if success is true and role is investor
+                if result.get("success") is True and result.get("role") == "investor":
+                    self.log_test("Login Investor Valid", True, 
+                                f"Successful investor login: {result}")
+                else:
+                    self.log_test("Login Investor Valid", False, 
+                                f"Expected success:true, role:'investor', got: {result}")
+            else:
+                self.log_test("Login Investor Valid", False, 
+                            f"Expected 200, got HTTP {response.status_code}", response.text)
+        except Exception as e:
+            self.log_test("Login Investor Valid", False, "Connection failed", str(e))
+
+    def test_login_admin_valid(self):
+        """Test valid admin login"""
+        print("\n--- Testing Valid Admin Login ---")
+        
+        try:
+            response = requests.post(
+                f"{self.base_url}/auth/login-password",
+                json={
+                    "email": "dubinigroup@gmail.com",
+                    "password": "password123"
+                },
+                timeout=10
+            )
+            
+            if response.status_code == 200:
+                result = response.json()
+                
+                # Check if success is true and role is admin
+                if result.get("success") is True and result.get("role") == "admin":
+                    self.log_test("Login Admin Valid", True, 
+                                f"Successful admin login: {result}")
+                else:
+                    self.log_test("Login Admin Valid", False, 
+                                f"Expected success:true, role:'admin', got: {result}")
+            else:
+                self.log_test("Login Admin Valid", False, 
+                            f"Expected 200, got HTTP {response.status_code}", response.text)
+        except Exception as e:
+            self.log_test("Login Admin Valid", False, "Connection failed", str(e))
+
+    def test_login_wrong_password(self):
+        """Test login with wrong password"""
+        print("\n--- Testing Login with Wrong Password ---")
+        
+        try:
+            response = requests.post(
+                f"{self.base_url}/auth/login-password",
+                json={
+                    "email": "investor@example.com",
+                    "password": "wrong"
+                },
+                timeout=10
+            )
+            
+            if response.status_code == 401:
+                self.log_test("Login Wrong Password", True, 
+                            f"Correctly rejected wrong password with 401")
+            else:
+                self.log_test("Login Wrong Password", False, 
+                            f"Expected 401, got HTTP {response.status_code}", response.text)
+        except Exception as e:
+            self.log_test("Login Wrong Password", False, "Connection failed", str(e))
+
+    def test_login_unknown_email(self):
+        """Test login with unknown email"""
+        print("\n--- Testing Login with Unknown Email ---")
+        
+        try:
+            response = requests.post(
+                f"{self.base_url}/auth/login-password",
+                json={
+                    "email": "someone@else.com",
+                    "password": "password123"
+                },
+                timeout=10
+            )
+            
+            if response.status_code == 401:
+                self.log_test("Login Unknown Email", True, 
+                            f"Correctly rejected unknown email with 401")
+            else:
+                self.log_test("Login Unknown Email", False, 
+                            f"Expected 401, got HTTP {response.status_code}", response.text)
+        except Exception as e:
+            self.log_test("Login Unknown Email", False, "Connection failed", str(e))
+
     def run_comprehensive_enhanced_tests(self):
         """Run all enhanced system tests"""
         print("🚀 STARTING COMPREHENSIVE ENHANCED APEX CAPITAL BACKEND TESTING")
