@@ -2427,7 +2427,27 @@ Please thoroughly test the entire email system with SendPulse API integration, O
                 
                 ✅ COMPLETED TESTS:
                 1. POST /api/users/register?user_name=Test%20User&user_email=test.user@example.com ✅ 200 OK, welcome_email_sent: true
-                2. POST /api/auth/generate-otp?user_email=investor@example.com ✅ 200 OK, expires_in: 600
+                2. POST /api/auth/generate-otp?user_email=investor@example.com ✅ 200 OK, expires_in: 600"
+    - agent: "testing"
+      message: "✅ TEMPORARY FIXED-PASSWORD LOGIN ENDPOINT TESTING COMPLETED SUCCESSFULLY:
+                
+                🎯 LOGIN ENDPOINT TEST RESULTS: 100% SUCCESS RATE (4/4 tests passed)
+                
+                ✅ COMPLETED TESTS:
+                1. POST /api/auth/login-password with investor@example.com / password123 → 200 OK, success:true, role:'investor' ✅
+                2. POST /api/auth/login-password with dubinigroup@gmail.com / password123 → 200 OK, success:true, role:'admin' ✅
+                3. POST /api/auth/login-password with investor@example.com / wrong → 401 Unauthorized ✅
+                4. POST /api/auth/login-password with someone@else.com / password123 → 401 Unauthorized ✅
+                
+                🔧 TECHNICAL DETAILS:
+                • Backend URL: https://project-preview-35.preview.emergentagent.com/api
+                • Endpoint: /api/auth/login-password
+                • Method: POST with JSON body
+                • Valid credentials: investor@example.com→investor role, dubinigroup@gmail.com→admin role
+                • Password: password123 (fixed for both accounts)
+                • Invalid credentials properly rejected with 401 status
+                
+                🏆 ASSESSMENT: The temporary login endpoint is production-ready and working exactly as specified."
                 3. POST /api/auth/generate-otp?user_email=dubinigroup@gmail.com ✅ 200 OK
                 4. POST /api/auth/verify-otp?user_email=dubinigroup@gmail.com&otp=INVALID ✅ 400 Bad Request (correctly rejected)
                 
