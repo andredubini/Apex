@@ -420,12 +420,12 @@ const LoginPage = () => {
         </div>
 
         <div className="text-center text-sm text-slate-400">
-          <p>Demo Accounts:</p>
+          <p>Temporary login (no extra confirmations):</p>
           <p className="mt-1">
-            <span className="text-blue-400">Investor:</span> investor@example.com (OTP via email)
+            <span className="text-blue-400">Investor:</span> investor@example.com / password123
           </p>
           <p>
-            <span className="text-green-400">Admin:</span> dubinigroup@gmail.com (OTP via email)
+            <span className="text-green-400">Admin:</span> dubinigroup@gmail.com / password123
           </p>
         </div>
       </div>
