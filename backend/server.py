@@ -1442,6 +1442,35 @@ async def update_investor_trading_status(investor_id: str, status_update: Tradin
         logger.warning(f"Failed to log trading status change in CRM: {e}")
     
     # Send email notification to admin (simulated)
+
+class PasswordLogin(BaseModel):
+    email: str
+    password: str
+
+@api_router.post("/auth/login-password")
+async def login_with_password(payload: PasswordLogin):
+    """Temporary fixed-password login for specific accounts.
+    Allows login with password 'password123' for:
+      - investor@example.com -> investor role
+      - dubinigroup@gmail.com -> admin role
+    Returns 401 for any other credentials.
+    """
+    try:
+        email = payload.email.strip().lower()
+        password = payload.password
+        if password != "password123":
+            raise HTTPException(status_code=401, detail="Invalid credentials")
+        if email == "dubinigroup@gmail.com":
+            return {"success": True, "role": "admin"}
+        if email == "investor@example.com":
+            return {"success": True, "role": "investor"}
+        raise HTTPException(status_code=401, detail="Invalid credentials")
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error in login_with_password: {e}")
+        raise HTTPException(status_code=500, detail="Server error")
+
     await send_email_notification_to_admin(
         investor_name=investor["name"],
         investor_email=investor["email"],
