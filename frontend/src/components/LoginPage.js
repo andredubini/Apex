@@ -350,7 +350,7 @@ const LoginPage = () => {
 
             <div>
               <label htmlFor="password" className="block text-sm font-medium text-slate-300 mb-2">
-                Password (you will receive a one-time code via email)
+                Password (temporary fixed password enabled)
               </label>
               <input
                 id="password"
