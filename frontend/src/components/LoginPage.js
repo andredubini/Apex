@@ -82,7 +82,27 @@ const LoginPage = () => {
     setError("");
 
     try {
-      // Start OTP login flow immediately using email
+      // Temporary: try fixed-password login first
+      const backendUrl = process.env.REACT_APP_BACKEND_URL;
+      if (!backendUrl) throw new Error("Backend URL not configured");
+      const resp = await fetch(`${backendUrl}/api/auth/login-password`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: formData.email, password: formData.password })
+      });
+
+      if (resp.ok) {
+        const data = await resp.json();
+        if (data.success) {
+          // finalize session locally
+          completeOtpLogin(formData.email);
+          const isAdmin = (data.role === 'admin') || (formData.email.toLowerCase() === 'dubinigroup@gmail.com');
+          navigate(isAdmin ? '/admin' : '/dashboard');
+          return;
+        }
+      }
+
+      // Fallback to OTP flow if password login failed
       await generateOTP(formData.email);
       setOtpData({ ...otpData, email: formData.email });
       setStep("otp");
