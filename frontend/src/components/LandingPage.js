@@ -358,8 +358,7 @@ const LandingPage = () => {
               </div>
               <h3 className="text-2xl font-bold text-white mb-4">Tiered Profit Distribution</h3>
               <p className="text-slate-300 leading-relaxed">
-                Our progressive profit-sharing model benefits you: First 4% annually (80/20 split), 
-                second 4% (70/30), next 4% (60/40), above 12% (50/50). Automated calculations in your dashboard.
+                Profit-sharing by invested amount: up to $99,999 → 50/50, $100,000–$999,999 → 60/40, $1,000,000+ → 70/30. Automated calculations in your dashboard.
               </p>
             </div>
 
