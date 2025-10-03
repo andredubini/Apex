@@ -2856,10 +2856,17 @@ async def send_weekly_reports_to_all():
 # Include the router in the main app
 app.include_router(api_router)
 
+# Configure CORS dynamically from environment (comma-separated origins)
+allowed_origins_env = os.environ.get('ALLOWED_ORIGINS', '*')
+if allowed_origins_env.strip() == '*':
+    cors_origins = ["*"]
+else:
+    cors_origins = [origin.strip() for origin in allowed_origins_env.split(',') if origin.strip()]
+
 app.add_middleware(
     CORSMiddleware,
     allow_credentials=True,
-    allow_origins=["*"],
+    allow_origins=cors_origins,
     allow_methods=["*"],
     allow_headers=["*"],
 )
