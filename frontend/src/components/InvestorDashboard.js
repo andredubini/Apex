@@ -39,7 +39,8 @@ import {
   User,
   Sun,
   Moon,
-  Target
+  Target,
+  Info
 } from "lucide-react";
 
 const InvestorDashboard = () => {
