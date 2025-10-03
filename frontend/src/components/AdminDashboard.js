@@ -625,7 +625,7 @@ const AdminDashboard = () => {
               </div>
               <div className="flex items-center justify-between">
                 <span className={textSecondaryClass}>Profit Sharing Model:</span>
-                <span className={`font-medium ${textClass}`}>Multi-tier (80/70/60/50%)</span>
+                <span className={`font-medium ${textClass}`}>By Amount Tier (50/60/70%)</span>
               </div>
               <div className="flex items-center justify-between">
                 <span className={textSecondaryClass}>Carry-over Losses:</span>
