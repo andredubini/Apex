@@ -118,6 +118,25 @@ const InvestorDashboard = () => {
   
   const websocketRef = useRef(null);
   const reconnectTimeoutRef = useRef(null);
+
+  // Load initial weekly risk from backend
+  useEffect(() => {
+    const fetchInvestor = async () => {
+      if (!user?.email) return;
+      try {
+        const backendUrl = process.env.REACT_APP_BACKEND_URL || 'http://localhost:8001';
+        const resp = await fetch(`${backendUrl}/api/investors/${user.email}`);
+        if (resp.ok) {
+          const data = await resp.json();
+          setUserProfile((prev) => ({ ...prev, weeklyRisk: data.weekly_risk_percent || 1.0 }));
+        }
+      } catch (e) {
+        console.error('Failed to load weekly risk');
+      }
+    };
+    fetchInvestor();
+  }, [user?.email]);
+
   const [connectionStatus, setConnectionStatus] = useState("disconnected"); // "connected", "connecting", "disconnected"
   const [unreadCount, setUnreadCount] = useState(0);
   
