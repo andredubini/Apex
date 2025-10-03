@@ -98,6 +98,16 @@ const TermsOfUse = () => {
                     </div>
                   </div>
                 </div>
+
+                <div>
+                  <h3 className="text-lg font-semibold text-blue-400 mb-3">Profit Distribution</h3>
+                  <ul className="text-slate-300 space-y-2 ml-4">
+                    <li>• Up to $99,999 — 50/50 (Investor/Fund)</li>
+                    <li>• $100,000 – $999,999 — 60/40 (Investor/Fund)</li>
+                    <li>• $1,000,000+ — 70/30 (Investor/Fund)</li>
+                  </ul>
+                </div>
+
               </div>
             </div>
 
