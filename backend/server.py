@@ -2764,6 +2764,7 @@ async def send_weekly_reports_to_all():
                 successful_trades = int(total_trades * random.uniform(0.75, 0.95))
                 success_rate = (successful_trades / total_trades) * 100 if total_trades > 0 else 0
                 
+                # Include investor-selected weekly risk percent in report
                 report_data = {
                     "start_balance": start_balance,
                     "end_balance": current_balance,
@@ -2774,7 +2775,8 @@ async def send_weekly_reports_to_all():
                     "period": f"Week ending {now.strftime('%B %d, %Y')}",
                     "volatility": random.uniform(6.0, 12.0),
                     "sharpe_ratio": random.uniform(1.2, 2.5),
-                    "max_drawdown": random.uniform(-3.5, -0.5)
+                    "max_drawdown": random.uniform(-3.5, -0.5),
+                    "weekly_risk_percent": investor.get("weekly_risk_percent", 1.0)
                 }
                 
                 # Send weekly report email
