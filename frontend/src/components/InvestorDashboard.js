@@ -278,6 +278,19 @@ const InvestorDashboard = () => {
     try {
       const backendUrl = process.env.REACT_APP_BACKEND_URL || 'http://localhost:8001';
       const response = await fetch(`${backendUrl}/api/notifications/${user.email}/mark-all-read`, {
+        method: 'PATCH'
+      });
+      
+      if (response.ok) {
+        setNotifications(prev => 
+          prev.map(n => ({ ...n, status: 'read', read_at: new Date().toISOString() }))
+        );
+        setUnreadCount(0);
+      }
+    } catch (error) {
+      console.error('Error marking all notifications as read:', error);
+    }
+  };
 
   const calculateSplit = (amount) => {
     if (amount >= 1000000) return { investorPct: 0.70, fundPct: 0.30, tier: "$1,000,000+" };
