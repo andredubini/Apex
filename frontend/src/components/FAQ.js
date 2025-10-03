@@ -68,7 +68,7 @@ const FAQ = () => {
         },
         {
           q: "What makes your strategy different?",
-          a: "Our combination of experienced human judgment and advanced technology, strict 1% per-trade risk limits, and transparent weekly reporting sets us apart. We focus on consistent returns rather than high-risk, high-reward strategies."
+          a: "Our combination of experienced human judgment and advanced technology, flexible weekly risk selection (0.5%–5%), and transparent weekly reporting sets us apart. We focus on consistent returns rather than high-risk, high-reward strategies."
         }
       ]
     },
