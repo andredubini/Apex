@@ -1273,13 +1273,19 @@ class EnhancedApexCapitalTester:
         """Test weekly risk validation boundaries (0.5% to 5.0%)"""
         print("\n--- Testing Weekly Risk Validation ---")
         
+        # Get the investor ID
+        investor_id = self.get_investor_id_by_email("investor@example.com")
+        if not investor_id:
+            self.log_test("Weekly Risk Validation Setup", False, "Could not find investor ID for validation tests")
+            return
+        
         # Test valid boundary values
         valid_values = [0.5, 1.0, 2.5, 5.0]
         for value in valid_values:
             try:
                 update_data = {"weekly_risk_percent": value}
                 response = requests.patch(
-                    f"{self.base_url}/investors/investor@example.com/weekly-risk",
+                    f"{self.base_url}/investors/{investor_id}/weekly-risk",
                     json=update_data,
                     timeout=10
                 )
