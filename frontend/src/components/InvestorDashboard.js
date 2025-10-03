@@ -306,20 +306,6 @@ const InvestorDashboard = () => {
     const fundShare = grossProfit * fundPct;
     return { grossProfit, investorShare, fundShare, tier, investorPct, fundPct };
   };
-
-        method: 'PATCH'
-      });
-      
-      if (response.ok) {
-        setNotifications(prev => 
-          prev.map(n => ({ ...n, status: 'read', read_at: new Date().toISOString() }))
-        );
-        setUnreadCount(0);
-      }
-    } catch (error) {
-      console.error('Error marking all notifications as read:', error);
-    }
-  };
   
   // Update notification settings
   const updateNotificationSettings = async (newSettings) => {
