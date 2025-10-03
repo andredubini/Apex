@@ -2355,8 +2355,10 @@ Please thoroughly test the entire email system with SendPulse API integration, O
 
 ## test_plan:
   current_focus:
-    - "OTP Login and Registration UI Smoke Tests"
-  stuck_tasks: []
+    - "UI Verification Completed"
+  stuck_tasks:
+    - "FAQ Risk Answer Text"
+    - "Admin Login Timeout Issues"
   test_all: false
   test_priority: "high_first"
 
