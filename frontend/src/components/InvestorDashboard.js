@@ -455,40 +455,13 @@ const InvestorDashboard = () => {
   const totalReturn = ((latestWeek.endBalance - firstWeek.startBalance) / firstWeek.startBalance) * 100;
   const avgWeeklyReturn = totalReturn / totalWeeks;
 
-  // Calculate profit distribution based on annual return
+  // Calculate profit distribution based on invested amount tiers
   const calculateProfitDistribution = (totalProfit, initialInvestment) => {
     const annualReturn = (totalProfit / initialInvestment) * 100;
-    let investorShare = 0;
-    let fundShare = 0;
-    
-    if (annualReturn <= 4) {
-      // 0-4%: 80/20 split
-      investorShare = totalProfit * 0.8;
-      fundShare = totalProfit * 0.2;
-    } else if (annualReturn <= 8) {
-      // First 4% at 80/20, next 4% at 70/30
-      const first4Percent = initialInvestment * 0.04;
-      const remainder = totalProfit - first4Percent;
-      investorShare = (first4Percent * 0.8) + (remainder * 0.7);
-      fundShare = (first4Percent * 0.2) + (remainder * 0.3);
-    } else if (annualReturn <= 12) {
-      // First 4% at 80/20, second 4% at 70/30, next 4% at 60/40
-      const first4Percent = initialInvestment * 0.04;
-      const second4Percent = initialInvestment * 0.04;
-      const remainder = totalProfit - first4Percent - second4Percent;
-      investorShare = (first4Percent * 0.8) + (second4Percent * 0.7) + (remainder * 0.6);
-      fundShare = (first4Percent * 0.2) + (second4Percent * 0.3) + (remainder * 0.4);
-    } else {
-      // First 4% at 80/20, second 4% at 70/30, third 4% at 60/40, rest at 50/50
-      const first4Percent = initialInvestment * 0.04;
-      const second4Percent = initialInvestment * 0.04;
-      const third4Percent = initialInvestment * 0.04;
-      const remainder = totalProfit - first4Percent - second4Percent - third4Percent;
-      investorShare = (first4Percent * 0.8) + (second4Percent * 0.7) + (third4Percent * 0.6) + (remainder * 0.5);
-      fundShare = (first4Percent * 0.2) + (second4Percent * 0.3) + (third4Percent * 0.4) + (remainder * 0.5);
-    }
-    
-    return { investorShare, fundShare, annualReturn };
+    const { investorPct, fundPct, tier } = calculateSplit(initialInvestment);
+    const investorShare = totalProfit * investorPct;
+    const fundShare = totalProfit * fundPct;
+    return { investorShare, fundShare, annualReturn, tier, investorPct, fundPct };
   };
 
   const initialInvestment = user.totalInvested || 100000;
