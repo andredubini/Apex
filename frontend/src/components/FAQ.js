@@ -35,7 +35,7 @@ const FAQ = () => {
       questions: [
         {
           q: "How do you manage investment risk?",
-          a: "We employ a multi-level risk management system where investors can select weekly risk within 0.5%–5% per trading period, diversified portfolio allocation, automated stop-losses, and continuous market monitoring. Our Chief Risk Officer oversees all risk protocols."
+          a: "We employ a multi-level risk management system where investors can select weekly risk within 0.5%–5% (0.5%-5%) per trading period, diversified portfolio allocation, automated stop-losses, and continuous market monitoring. Our Chief Risk Officer oversees all risk protocols."
         },
         {
           q: "What happens if there are losses?",
