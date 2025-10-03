@@ -1194,13 +1194,19 @@ class EnhancedApexCapitalTester:
             self.log_test("GET Investor Weekly Risk", False, "Connection failed", str(e))
     
     def test_update_investor_weekly_risk(self):
-        """Test PATCH /api/investors/investor@example.com/weekly-risk with {"weekly_risk_percent": 2.5}"""
+        """Test PATCH /api/investors/{investor_id}/weekly-risk with {"weekly_risk_percent": 2.5}"""
         print("\n--- Testing PATCH Investor Weekly Risk ---")
+        
+        # First get the investor ID
+        investor_id = self.get_investor_id_by_email("investor@example.com")
+        if not investor_id:
+            self.log_test("PATCH Weekly Risk", False, "Could not find investor ID for investor@example.com")
+            return
         
         try:
             update_data = {"weekly_risk_percent": 2.5}
             response = requests.patch(
-                f"{self.base_url}/investors/investor@example.com/weekly-risk",
+                f"{self.base_url}/investors/{investor_id}/weekly-risk",
                 json=update_data,
                 timeout=10
             )
