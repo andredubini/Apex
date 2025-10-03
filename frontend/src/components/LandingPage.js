@@ -827,7 +827,7 @@ const LandingPage = () => {
               <p className="text-slate-300 text-lg leading-relaxed">
                 At Apex Capital, we believe in combining disciplined risk management with innovative trading strategies. 
                 Our traders operate within a collaborative framework where individual expertise contributes to collective success. 
-                We maintain strict risk controls with a maximum 1% risk per trading period, ensuring sustainable long-term growth 
+                Investors can choose weekly risk within 0.5%–5% range for each trading period, ensuring sustainable long-term growth 
                 while providing traders with the freedom to execute their proven strategies within our institutional framework.
               </p>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-8">
