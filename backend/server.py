@@ -1373,7 +1373,10 @@ async def get_investors():
 
 @api_router.get("/investors/{investor_id}", response_model=Investor)
 async def get_investor(investor_id: str):
+    # Try by id, then fallback to email for compatibility
     investor = await db.investors.find_one({"id": investor_id})
+    if not investor:
+        investor = await db.investors.find_one({"email": investor_id})
     if not investor:
         raise HTTPException(status_code=404, detail="Investor not found")
     return Investor(**investor)
