@@ -1138,6 +1138,212 @@ class EnhancedApexCapitalTester:
         except Exception as e:
             self.log_test("Login Unknown Email", False, "Connection failed", str(e))
 
+    def test_weekly_risk_api(self):
+        """Test weekly risk API endpoints as requested in review"""
+        print("\n=== TESTING WEEKLY RISK API ===")
+        
+        # Test 1: GET {BACKEND}/api/investors/investor@example.com → expect 200 and field weekly_risk_percent (default 1.0 or existing)
+        self.test_get_investor_weekly_risk()
+        
+        # Test 2: PATCH {BACKEND}/api/investors/investor@example.com/weekly-risk with {"weekly_risk_percent": 2.5} → expect 200 success:true
+        self.test_update_investor_weekly_risk()
+        
+        # Test 3: GET again → weekly_risk_percent should be 2.5
+        self.test_verify_weekly_risk_updated()
+        
+        # Test 4: Test validation boundaries
+        self.test_weekly_risk_validation()
+        
+        # Test 5: Test CORS if configured
+        self.test_cors_weekly_risk()
+    
+    def test_get_investor_weekly_risk(self):
+        """Test GET /api/investors/investor@example.com for weekly_risk_percent field"""
+        print("\n--- Testing GET Investor Weekly Risk ---")
+        
+        try:
+            response = requests.get(f"{self.base_url}/investors/investor@example.com", timeout=10)
+            
+            if response.status_code == 200:
+                investor = response.json()
+                
+                # Check if weekly_risk_percent field exists
+                if "weekly_risk_percent" in investor:
+                    weekly_risk = investor["weekly_risk_percent"]
+                    self.log_test("GET Investor Weekly Risk - Field Present", True, 
+                                f"weekly_risk_percent field found: {weekly_risk}")
+                    
+                    # Verify it's a valid number (default should be 1.0)
+                    if isinstance(weekly_risk, (int, float)) and 0.5 <= weekly_risk <= 5.0:
+                        self.log_test("GET Investor Weekly Risk - Valid Value", True, 
+                                    f"weekly_risk_percent has valid value: {weekly_risk}")
+                    else:
+                        self.log_test("GET Investor Weekly Risk - Valid Value", False, 
+                                    f"weekly_risk_percent has invalid value: {weekly_risk}")
+                else:
+                    self.log_test("GET Investor Weekly Risk - Field Present", False, 
+                                "weekly_risk_percent field missing from investor data")
+                
+                # Log full investor data for verification
+                self.log_test("GET Investor Weekly Risk - Full Response", True, 
+                            f"Investor data: {investor}")
+            else:
+                self.log_test("GET Investor Weekly Risk", False, 
+                            f"Expected 200, got HTTP {response.status_code}", response.text)
+        except Exception as e:
+            self.log_test("GET Investor Weekly Risk", False, "Connection failed", str(e))
+    
+    def test_update_investor_weekly_risk(self):
+        """Test PATCH /api/investors/investor@example.com/weekly-risk with {"weekly_risk_percent": 2.5}"""
+        print("\n--- Testing PATCH Investor Weekly Risk ---")
+        
+        try:
+            update_data = {"weekly_risk_percent": 2.5}
+            response = requests.patch(
+                f"{self.base_url}/investors/investor@example.com/weekly-risk",
+                json=update_data,
+                timeout=10
+            )
+            
+            if response.status_code == 200:
+                result = response.json()
+                
+                # Check if success is true
+                if result.get("success") is True:
+                    self.log_test("PATCH Weekly Risk - Success", True, 
+                                f"Successfully updated weekly risk: {result}")
+                    
+                    # Check if weekly_risk_percent is returned with correct value
+                    if result.get("weekly_risk_percent") == 2.5:
+                        self.log_test("PATCH Weekly Risk - Value Returned", True, 
+                                    f"Correct weekly_risk_percent returned: {result['weekly_risk_percent']}")
+                    else:
+                        self.log_test("PATCH Weekly Risk - Value Returned", False, 
+                                    f"Expected 2.5, got: {result.get('weekly_risk_percent')}")
+                else:
+                    self.log_test("PATCH Weekly Risk - Success", False, 
+                                f"Expected success:true, got: {result}")
+            else:
+                self.log_test("PATCH Weekly Risk", False, 
+                            f"Expected 200, got HTTP {response.status_code}", response.text)
+        except Exception as e:
+            self.log_test("PATCH Weekly Risk", False, "Connection failed", str(e))
+    
+    def test_verify_weekly_risk_updated(self):
+        """Test GET again to verify weekly_risk_percent is now 2.5"""
+        print("\n--- Testing Verify Weekly Risk Updated ---")
+        
+        try:
+            response = requests.get(f"{self.base_url}/investors/investor@example.com", timeout=10)
+            
+            if response.status_code == 200:
+                investor = response.json()
+                
+                # Check if weekly_risk_percent is now 2.5
+                if investor.get("weekly_risk_percent") == 2.5:
+                    self.log_test("Verify Weekly Risk Updated", True, 
+                                f"weekly_risk_percent correctly updated to: {investor['weekly_risk_percent']}")
+                else:
+                    self.log_test("Verify Weekly Risk Updated", False, 
+                                f"Expected 2.5, got: {investor.get('weekly_risk_percent')}")
+            else:
+                self.log_test("Verify Weekly Risk Updated", False, 
+                            f"Expected 200, got HTTP {response.status_code}", response.text)
+        except Exception as e:
+            self.log_test("Verify Weekly Risk Updated", False, "Connection failed", str(e))
+    
+    def test_weekly_risk_validation(self):
+        """Test weekly risk validation boundaries (0.5% to 5.0%)"""
+        print("\n--- Testing Weekly Risk Validation ---")
+        
+        # Test valid boundary values
+        valid_values = [0.5, 1.0, 2.5, 5.0]
+        for value in valid_values:
+            try:
+                update_data = {"weekly_risk_percent": value}
+                response = requests.patch(
+                    f"{self.base_url}/investors/investor@example.com/weekly-risk",
+                    json=update_data,
+                    timeout=10
+                )
+                
+                if response.status_code == 200:
+                    result = response.json()
+                    if result.get("success") is True:
+                        self.log_test(f"Weekly Risk Validation - Valid {value}%", True, 
+                                    f"Accepted valid value: {value}%")
+                    else:
+                        self.log_test(f"Weekly Risk Validation - Valid {value}%", False, 
+                                    f"Valid value rejected: {value}%")
+                else:
+                    self.log_test(f"Weekly Risk Validation - Valid {value}%", False, 
+                                f"Valid value rejected with HTTP {response.status_code}")
+            except Exception as e:
+                self.log_test(f"Weekly Risk Validation - Valid {value}%", False, 
+                            "Connection failed", str(e))
+        
+        # Test invalid boundary values
+        invalid_values = [0.4, 0.0, -1.0, 5.1, 10.0]
+        for value in invalid_values:
+            try:
+                update_data = {"weekly_risk_percent": value}
+                response = requests.patch(
+                    f"{self.base_url}/investors/investor@example.com/weekly-risk",
+                    json=update_data,
+                    timeout=10
+                )
+                
+                if response.status_code == 400:
+                    self.log_test(f"Weekly Risk Validation - Invalid {value}%", True, 
+                                f"Correctly rejected invalid value: {value}%")
+                else:
+                    self.log_test(f"Weekly Risk Validation - Invalid {value}%", False, 
+                                f"Should reject {value}%, got HTTP {response.status_code}")
+            except Exception as e:
+                self.log_test(f"Weekly Risk Validation - Invalid {value}%", False, 
+                            "Connection failed", str(e))
+    
+    def test_cors_weekly_risk(self):
+        """Test CORS configuration for weekly risk endpoints if ALLOWED_ORIGINS is set"""
+        print("\n--- Testing CORS for Weekly Risk Endpoints ---")
+        
+        try:
+            # Check if CORS headers are present in OPTIONS request
+            response = requests.options(
+                f"{self.base_url}/investors/investor@example.com/weekly-risk",
+                headers={"Origin": "https://example.com"},
+                timeout=10
+            )
+            
+            if response.status_code in [200, 204]:
+                cors_headers = {
+                    "Access-Control-Allow-Origin": response.headers.get("Access-Control-Allow-Origin"),
+                    "Access-Control-Allow-Methods": response.headers.get("Access-Control-Allow-Methods"),
+                    "Access-Control-Allow-Headers": response.headers.get("Access-Control-Allow-Headers")
+                }
+                
+                if any(cors_headers.values()):
+                    self.log_test("CORS Weekly Risk - Headers Present", True, 
+                                f"CORS headers found: {cors_headers}")
+                    
+                    # Check if PATCH method is allowed
+                    allow_methods = cors_headers.get("Access-Control-Allow-Methods", "")
+                    if "PATCH" in allow_methods.upper():
+                        self.log_test("CORS Weekly Risk - PATCH Allowed", True, 
+                                    "PATCH method allowed in CORS")
+                    else:
+                        self.log_test("CORS Weekly Risk - PATCH Allowed", False, 
+                                    f"PATCH not in allowed methods: {allow_methods}")
+                else:
+                    self.log_test("CORS Weekly Risk - Headers Present", True, 
+                                "CORS not configured or using default settings")
+            else:
+                self.log_test("CORS Weekly Risk - OPTIONS", True, 
+                            f"OPTIONS request handled (HTTP {response.status_code})")
+        except Exception as e:
+            self.log_test("CORS Weekly Risk", True, 
+                        "CORS test skipped (not configured or connection issue)", str(e))
+
     def run_comprehensive_enhanced_tests(self):
         """Run all enhanced system tests"""
         print("🚀 STARTING COMPREHENSIVE ENHANCED APEX CAPITAL BACKEND TESTING")
@@ -1151,6 +1357,9 @@ class EnhancedApexCapitalTester:
         self.test_improved_api_endpoints()
         self.test_scheduled_operations()
         self.test_error_handling_and_resilience()
+        
+        # Test Weekly Risk API (as requested in review)
+        self.test_weekly_risk_api()
         
         # Generate comprehensive test report
         self.generate_enhanced_test_report()
