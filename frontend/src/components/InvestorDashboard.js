@@ -258,6 +258,22 @@ const InvestorDashboard = () => {
     try {
       const backendUrl = process.env.REACT_APP_BACKEND_URL || 'http://localhost:8001';
       const response = await fetch(`${backendUrl}/api/notifications/${user.email}/mark-all-read`, {
+
+  const calculateSplit = (amount) => {
+    if (amount >= 1000000) return { investorPct: 0.70, fundPct: 0.30, tier: "$1,000,000+" };
+    if (amount >= 100000) return { investorPct: 0.60, fundPct: 0.40, tier: "$100,000 – $999,999" };
+    return { investorPct: 0.50, fundPct: 0.50, tier: "Up to $99,999" };
+  };
+
+  const computeExample = () => {
+    const { amount, annualReturn } = calcInput;
+    const grossProfit = amount * (annualReturn / 100);
+    const { investorPct, fundPct, tier } = calculateSplit(amount);
+    const investorShare = grossProfit * investorPct;
+    const fundShare = grossProfit * fundPct;
+    return { grossProfit, investorShare, fundShare, tier, investorPct, fundPct };
+  };
+
         method: 'PATCH'
       });
       
