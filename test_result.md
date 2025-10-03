@@ -2525,6 +2525,20 @@ Please thoroughly test the entire email system with SendPulse API integration, O
                 • User Registration System: 100% operational
                 • OTP Generation System: 100% operational  
                 • OTP Verification System: 100% operational
+
+
+## frontend:
+  - task: "UI Verification - Weekly Risk, Profit Distribution, and Content Updates"
+    implemented: true
+    working: "NA"
+    file: "frontend/src/components/*"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+        - working: "NA"
+          agent: "main"
+          comment: "Run UI tests: Landing shows Investor-selected Weekly Risk (0.5%–5%) and examples; FAQ updated risk text; Terms include Profit Distribution section; Login as investor@example.com/password123; Dashboard shows Weekly Risk slider, update to 2.5%, persists after reload; Profit Calculator example for $250,000 at 24% shows investor $36,000, fund $24,000; Breakdown text updated; Admin dashboard shows By Amount Tier (50/60/70%) and risk monitoring text."
                 • Email Service Integration: 100% operational (test mode)
                 
                 🏆 CONCLUSION: All backend OTP and registration email smoke tests pass successfully. The system is production-ready with proper test mode implementation."
