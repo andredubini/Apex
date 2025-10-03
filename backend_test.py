@@ -1138,6 +1138,17 @@ class EnhancedApexCapitalTester:
         except Exception as e:
             self.log_test("Login Unknown Email", False, "Connection failed", str(e))
 
+    def get_investor_id_by_email(self, email):
+        """Helper method to get investor ID by email"""
+        try:
+            response = requests.get(f"{self.base_url}/investors/{email}", timeout=10)
+            if response.status_code == 200:
+                investor = response.json()
+                return investor.get("id")
+        except Exception:
+            pass
+        return None
+
     def test_weekly_risk_api(self):
         """Test weekly risk API endpoints as requested in review"""
         print("\n=== TESTING WEEKLY RISK API ===")
