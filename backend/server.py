@@ -1380,6 +1380,29 @@ async def get_investor(investor_id: str):
 
 # Trading Status Management Endpoints
 @api_router.patch("/investors/{investor_id}/trading-status")
+
+class WeeklyRiskUpdate(BaseModel):
+    weekly_risk_percent: float  # 0.5 to 5.0
+
+@api_router.patch("/investors/{investor_id}/weekly-risk")
+async def update_investor_weekly_risk(investor_id: str, update: WeeklyRiskUpdate):
+    """Allow investor to set weekly risk between 0.5% and 5%"""
+    try:
+        if update.weekly_risk_percent < 0.5 or update.weekly_risk_percent > 5.0:
+            raise HTTPException(status_code=400, detail="weekly_risk_percent must be between 0.5 and 5.0")
+        result = await db.investors.update_one(
+            {"id": investor_id},
+            {"$set": {"weekly_risk_percent": update.weekly_risk_percent, "updated_at": datetime.now(timezone.utc)}}
+        )
+        if result.matched_count == 0:
+            raise HTTPException(status_code=404, detail="Investor not found")
+        return {"success": True, "weekly_risk_percent": update.weekly_risk_percent}
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error updating weekly risk for investor {investor_id}: {e}")
+        raise HTTPException(status_code=500, detail="Server error")
+
 async def update_investor_trading_status(investor_id: str, status_update: TradingStatusUpdate):
     """Update investor trading status (Admin only)"""
     if status_update.trading_status not in ["active", "inactive"]:
