@@ -304,8 +304,8 @@ const LandingPage = () => {
                 </p>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
                   <div className="bg-slate-900/50 p-4 rounded-lg">
-                    <div className="text-2xl font-bold text-blue-400">1%</div>
-                    <div className="text-sm text-slate-300">Maximum Risk Per Trading Period</div>
+                    <div className="text-2xl font-bold text-blue-400">0.5%–5%</div>
+                    <div className="text-sm text-slate-300">Investor-selected Weekly Risk</div>
                   </div>
                   <div className="bg-slate-900/50 p-4 rounded-lg">
                     <div className="text-2xl font-bold text-blue-400">Weekly</div>
