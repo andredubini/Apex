@@ -1634,8 +1634,8 @@ const InvestorDashboard = () => {
             <h4 className={`font-medium ${textClass} mb-2`}>Current Risk Settings</h4>
             <div className="space-y-2 text-sm">
               <div className="flex justify-between">
-                <span className={textSecondaryClass}>Maximum Risk per Trading Period:</span>
-                <span className="text-blue-600 font-medium">1%</span>
+                <span className={textSecondaryClass}>Weekly Risk (selected):</span>
+                <span className="text-blue-600 font-medium">{(userProfile.weeklyRisk || 1.0).toFixed(1)}%</span>
               </div>
               <div className="flex justify-between">
                 <span className={textSecondaryClass}>Portfolio Diversification:</span>
