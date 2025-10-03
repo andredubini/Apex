@@ -2435,51 +2435,46 @@ async def create_system_notifications():
 
 # Profit Calculation Functions
 def calculate_investor_profit_share(annual_return_percentage: float, investor_balance: float) -> dict:
-    """Calculate profit distribution based on tiered structure"""
+    """Calculate profit distribution based on investment amount tiers.
+    Rules:
+      • Up to $99,999 → 50/50
+      • $100,000–$999,999 → 60/40
+      • $1,000,000+ → 70/30
+    Returns structure kept backward‑compatible: puts full investor share into tier_1_amount.
+    """
+    # Calculate gross profit attributable to the investor's balance (based on annualized return)
     total_profit = investor_balance * (annual_return_percentage / 100)
-    
-    tier_1_amount = 0.0  # 0-4% (80/20)
-    tier_2_amount = 0.0  # 4-8% (70/30)
-    tier_3_amount = 0.0  # 8-12% (60/40)
-    tier_4_amount = 0.0  # 12%+ (50/50)
-    
-    remaining_return = annual_return_percentage
-    
-    # Tier 1: 0-4% (Investor gets 80%)
-    if remaining_return > 0:
-        tier_1_rate = min(remaining_return, 4.0)
-        tier_1_profit = investor_balance * (tier_1_rate / 100)
-        tier_1_amount = tier_1_profit * 0.8
-        remaining_return -= tier_1_rate
-    
-    # Tier 2: 4-8% (Investor gets 70%)
-    if remaining_return > 0:
-        tier_2_rate = min(remaining_return, 4.0)
-        tier_2_profit = investor_balance * (tier_2_rate / 100)
-        tier_2_amount = tier_2_profit * 0.7
-        remaining_return -= tier_2_rate
-    
-    # Tier 3: 8-12% (Investor gets 60%)
-    if remaining_return > 0:
-        tier_3_rate = min(remaining_return, 4.0)
-        tier_3_profit = investor_balance * (tier_3_rate / 100)
-        tier_3_amount = tier_3_profit * 0.6
-        remaining_return -= tier_3_rate
-    
-    # Tier 4: 12%+ (Investor gets 50%)
-    if remaining_return > 0:
-        tier_4_profit = investor_balance * (remaining_return / 100)
-        tier_4_amount = tier_4_profit * 0.5
-    
-    total_investor_share = tier_1_amount + tier_2_amount + tier_3_amount + tier_4_amount
-    
+
+    # Determine investor share percent by balance tier
+    if investor_balance >= 1_000_000:
+        investor_percent = 0.70
+        amount_tier = ">$1,000,000"
+    elif investor_balance >= 100_000:
+        investor_percent = 0.60
+        amount_tier = "$100,000 – $999,999"
+    else:
+        investor_percent = 0.50
+        amount_tier = "Up to $99,999"
+
+    investor_share = total_profit * investor_percent
+    fund_share = total_profit - investor_share
+
+    # Backward‑compatibility with existing fields (use tier_1_amount as aggregated investor share)
+    tier_1_amount = investor_share
+    tier_2_amount = 0.0
+    tier_3_amount = 0.0
+    tier_4_amount = 0.0
+
     return {
         "tier_1_amount": tier_1_amount,
         "tier_2_amount": tier_2_amount,
         "tier_3_amount": tier_3_amount,
         "tier_4_amount": tier_4_amount,
-        "total_payment": total_investor_share,
-        "gross_profit_share": total_profit
+        "total_payment": investor_share,
+        "gross_profit_share": total_profit,
+        "amount_tier": amount_tier,
+        "investor_percent": investor_percent,
+        "fund_share": fund_share
     }
 
 async def get_current_carry_over_loss() -> float:
