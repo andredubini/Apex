@@ -918,6 +918,59 @@ const InvestorDashboard = () => {
             <div className={`text-xs ${textSecondaryClass}`}>Alpha</div>
             <div className="text-xs text-green-500 mt-1">Outperforming</div>
           </div>
+
+      {/* Profit Calculator */}
+      <div className={`${cardBgClass} rounded-xl p-6 shadow-sm border ${borderClass}`}>
+        <div className="flex items-center justify-between mb-4">
+          <h3 className={`text-lg font-semibold ${textClass}`}>Profit Calculator</h3>
+          <button
+            onClick={() => setShowProfitCalc(!showProfitCalc)}
+            className="text-sm text-blue-500 hover:text-blue-400"
+          >
+            {showProfitCalc ? 'Hide' : 'Show'}
+          </button>
+        </div>
+        {showProfitCalc && (
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
+            <div>
+              <label className={`block text-sm mb-1 ${textSecondaryClass}`}>Investment Amount ($)</label>
+              <input
+                type="number"
+                min="0"
+                value={calcInput.amount}
+                onChange={(e) => setCalcInput({ ...calcInput, amount: parseFloat(e.target.value || 0) })}
+                className={`w-full px-3 py-2 rounded-lg border ${borderClass} ${theme === 'dark' ? 'bg-slate-800 text-white' : 'bg-white text-gray-900'}`}
+              />
+            </div>
+            <div>
+              <label className={`block text-sm mb-1 ${textSecondaryClass}`}>Annual Return (%)</label>
+              <input
+                type="number"
+                min="0"
+                value={calcInput.annualReturn}
+                onChange={(e) => setCalcInput({ ...calcInput, annualReturn: parseFloat(e.target.value || 0) })}
+                className={`w-full px-3 py-2 rounded-lg border ${borderClass} ${theme === 'dark' ? 'bg-slate-800 text-white' : 'bg-white text-gray-900'}`}
+              />
+            </div>
+            <div>
+              <button
+                onClick={() => {
+                  const ex = computeExample();
+                  const msg = `Tier: ${ex.tier}\nGross Profit: $${ex.grossProfit.toLocaleString()}\nYour Share: $${ex.investorShare.toLocaleString()} (${(ex.investorPct*100).toFixed(0)}%)\nFund Share: $${ex.fundShare.toLocaleString()} (${(ex.fundPct*100).toFixed(0)}%)`;
+                  alert(msg);
+                }}
+                className="w-full bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg"
+              >
+                Calculate Example
+              </button>
+            </div>
+          </div>
+        )}
+        <p className={`text-xs ${textSecondaryClass} mt-3 flex items-center`}>
+          <Info className="w-4 h-4 mr-1" /> Distribution by invested amount: Up to $99,999 → 50/50; $100,000–$999,999 → 60/40; $1,000,000+ → 70/30
+        </p>
+      </div>
+
           <div className="text-center p-3 bg-orange-50 dark:bg-orange-900/20 rounded-lg">
             <div className="text-lg font-bold text-orange-600 mb-1">{riskMetrics.beta}</div>
             <div className={`text-xs ${textSecondaryClass}`}>Beta</div>
