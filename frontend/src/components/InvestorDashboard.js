@@ -820,7 +820,7 @@ const InvestorDashboard = () => {
           </div>
         </div>
         <p className={`text-xs ${textSecondaryClass} text-center`}>
-          Distribution: 0-4% (80/20), 4-8% (70/30), 8-12% (60/40), 12%+ (50/50)
+          Distribution by invested amount: Up to $99,999 → 50/50; $100,000–$999,999 → 60/40; $1,000,000+ → 70/30
         </p>
       </div>
 
