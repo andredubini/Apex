@@ -1330,10 +1330,16 @@ class EnhancedApexCapitalTester:
         """Test CORS configuration for weekly risk endpoints if ALLOWED_ORIGINS is set"""
         print("\n--- Testing CORS for Weekly Risk Endpoints ---")
         
+        # Get the investor ID
+        investor_id = self.get_investor_id_by_email("investor@example.com")
+        if not investor_id:
+            self.log_test("CORS Weekly Risk Setup", False, "Could not find investor ID for CORS tests")
+            return
+        
         try:
             # Check if CORS headers are present in OPTIONS request
             response = requests.options(
-                f"{self.base_url}/investors/investor@example.com/weekly-risk",
+                f"{self.base_url}/investors/{investor_id}/weekly-risk",
                 headers={"Origin": "https://example.com"},
                 timeout=10
             )
