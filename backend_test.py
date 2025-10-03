@@ -1311,7 +1311,7 @@ class EnhancedApexCapitalTester:
             try:
                 update_data = {"weekly_risk_percent": value}
                 response = requests.patch(
-                    f"{self.base_url}/investors/investor@example.com/weekly-risk",
+                    f"{self.base_url}/investors/{investor_id}/weekly-risk",
                     json=update_data,
                     timeout=10
                 )
