@@ -1418,6 +1418,59 @@ class EnhancedApexCapitalTester:
         
         print(f"\n🏁 ENHANCED TESTING COMPLETED at {datetime.now().isoformat()}")
         print("=" * 80)
+    
+    def run_weekly_risk_tests_only(self):
+        """Run only the weekly risk API tests as requested in review"""
+        print("🚀 STARTING WEEKLY RISK API TESTING")
+        print(f"Backend URL: {self.base_url}")
+        print("=" * 80)
+        
+        # Test Weekly Risk API specifically
+        self.test_weekly_risk_api()
+        
+        # Generate focused test report
+        self.generate_weekly_risk_test_report()
+    
+    def generate_weekly_risk_test_report(self):
+        """Generate focused test report for weekly risk API"""
+        print("\n" + "=" * 80)
+        print("📊 WEEKLY RISK API TEST RESULTS SUMMARY")
+        print("=" * 80)
+        
+        # Filter results for weekly risk tests only
+        weekly_risk_results = [r for r in self.test_results if "weekly risk" in r["test"].lower()]
+        
+        total_tests = len(weekly_risk_results)
+        passed_tests = len([r for r in weekly_risk_results if "✅ PASS" in r["status"]])
+        failed_tests = len([r for r in weekly_risk_results if "❌ FAIL" in r["status"]])
+        
+        success_rate = (passed_tests / total_tests * 100) if total_tests > 0 else 0
+        
+        print(f"📈 WEEKLY RISK API SUCCESS RATE: {success_rate:.1f}% ({passed_tests}/{total_tests} tests passed)")
+        print(f"✅ PASSED: {passed_tests}")
+        print(f"❌ FAILED: {failed_tests}")
+        
+        # Show detailed results
+        print("\n📋 DETAILED WEEKLY RISK API TEST RESULTS:")
+        for result in weekly_risk_results:
+            print(f"{result['status']}: {result['test']} - {result['message']}")
+            if result.get('details') and "❌ FAIL" in result["status"]:
+                print(f"     Details: {result['details']}")
+        
+        # Show critical failures
+        critical_failures = [r for r in weekly_risk_results if "❌ FAIL" in r["status"]]
+        
+        if critical_failures:
+            print(f"\n🚨 CRITICAL FAILURES ({len(critical_failures)}):")
+            for failure in critical_failures:
+                print(f"  ❌ {failure['test']}: {failure['message']}")
+                if failure.get('details'):
+                    print(f"     Details: {failure['details']}")
+        else:
+            print(f"\n🎉 ALL WEEKLY RISK API TESTS PASSED!")
+        
+        print(f"\n🏁 WEEKLY RISK API TESTING COMPLETED at {datetime.now().isoformat()}")
+        print("=" * 80)
 
 
 class HedgeFundBackendTester(EnhancedApexCapitalTester):
