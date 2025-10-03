@@ -46,6 +46,8 @@ const InvestorDashboard = () => {
   const { user, logout, sampleTradingData } = useContext(AuthContext);
   const { theme, toggleTheme } = useContext(ThemeContext);
   const [activeTab, setActiveTab] = useState("overview");
+  const [showProfitCalc, setShowProfitCalc] = useState(false);
+  const [calcInput, setCalcInput] = useState({ amount: 100000, annualReturn: 24 });
   const [showBalance, setShowBalance] = useState(true);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [selectedTimeframe, setSelectedTimeframe] = useState("3M");
