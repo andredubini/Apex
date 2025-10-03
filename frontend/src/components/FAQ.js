@@ -18,7 +18,7 @@ const FAQ = () => {
         },
         {
           q: "How does your profit-sharing structure work?",
-          a: "We use a tiered profit-sharing model: 0-4% annual return (80/20 split in your favor), 4-8% (70/30), 8-12% (60/40), and above 12% (50/50). This incentivizes performance while ensuring you receive the majority of profits at lower return levels."
+          a: "Profit-sharing is based on invested amount: up to $99,999 → 50/50; $100,000–$999,999 → 60/40; $1,000,000+ → 70/30. Calculations выполняются автоматически в личном кабинете и отражаются в отчётах."
         },
         {
           q: "Are there any management fees?",
