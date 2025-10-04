@@ -2066,6 +2066,37 @@ async def sync_investor_to_crm(investor_email: str):
         if not investor:
             raise HTTPException(status_code=404, detail="Investor not found")
         
+
+@api_router.post("/withdrawals/{investor_id}")
+async def create_withdrawal_request(investor_id: str):
+    try:
+        investor = await db.investors.find_one({"id": investor_id}) or await db.investors.find_one({"email": investor_id})
+        if not investor:
+            raise HTTPException(status_code=404, detail="Investor not found")
+        req = {
+            "id": str(uuid.uuid4()),
+            "investor_id": investor["id"],
+            "email": investor["email"],
+            "created_at": datetime.now(timezone.utc),
+            "status": "submitted"
+        }
+        await db.withdrawal_requests.insert_one(req)
+        # Notify admin
+        await create_notification_for_user(
+            user_id=os.environ.get('ADMIN_EMAIL', 'admin@apexcapital.com'),
+            user_type="admin",
+            title="New Withdrawal Request",
+            message=f"Withdrawal request submitted by {investor['email']}",
+            type=NotificationType.SYSTEM,
+            priority=NotificationPriority.MEDIUM
+        )
+        return {"success": True}
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error creating withdrawal request for {investor_id}: {e}")
+        raise HTTPException(status_code=500, detail="Server error")
+
         # Create CRM contact
         crm_contact = CRMContact(
             email=investor["email"],
