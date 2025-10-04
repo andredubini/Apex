@@ -1366,6 +1366,51 @@ async def create_investor(investor: InvestorCreate):
     
     investor_obj = Investor(**investor_dict)
     await db.investors.insert_one(investor_obj.dict())
+
+# ---------- Weekly Risk Helpers ----------
+
+def get_now_ny():
+    tz = ZoneInfo(SCHEDULER_TZ)
+    return datetime.now(tz)
+
+def get_saturday_window_ny(reference: datetime | None = None):
+    now_ny = reference or get_now_ny()
+    days_since_sat = (now_ny.weekday() - 5) % 7  # Saturday=5
+    start = (now_ny - timedelta(days=days_since_sat)).replace(hour=0, minute=0, second=0, microsecond=0)
+    end = start + timedelta(days=7)
+    return start, end
+
+def get_next_saturday_start(reference: datetime | None = None):
+    start, end = get_saturday_window_ny(reference)
+    # If now is already at start, next is +7d
+    return end
+
+async def get_effective_weekly_risk(investor: dict) -> float:
+    """Return risk percent effective right now based on schedules, fallback to investor.weekly_risk_percent"""
+    now_ny = get_now_ny()
+    # Find latest schedule with effective_from <= now
+    sched = await db.weekly_risk_changes.find({
+        "investor_id": investor["id"],
+        "effective_from": {"$lte": now_ny.isoformat()}
+    }).sort("effective_from", -1).limit(1).to_list(1)
+    if sched:
+        return float(sched[0].get("weekly_risk_percent", investor.get("weekly_risk_percent", 1.0)))
+    return float(investor.get("weekly_risk_percent", 1.0))
+
+async def get_next_week_risk(investor: dict) -> tuple[float, str, str]:
+    next_start = get_next_saturday_start()
+    next_end = next_start + timedelta(days=7)
+    # Find schedule exactly for next_start or last future schedule <= next_start
+    sched = await db.weekly_risk_changes.find({
+        "investor_id": investor["id"],
+        "effective_from": {"$lte": next_start.isoformat()}
+    }).sort("effective_from", -1).limit(1).to_list(1)
+    if sched:
+        pct = float(sched[0].get("weekly_risk_percent", investor.get("weekly_risk_percent", 1.0)))
+    else:
+        pct = float(investor.get("weekly_risk_percent", 1.0))
+    return pct, next_start.isoformat(), next_end.isoformat()
+
     return investor_obj
 
 @api_router.get("/investors", response_model=List[Investor])
