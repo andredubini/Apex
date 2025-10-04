@@ -518,7 +518,7 @@ const LandingPage = () => {
                   <div>
                     <h4 className="text-lg font-semibold text-white mb-2">Registration & Agreement</h4>
                     <p className="text-slate-300 text-sm">
-                      Регистрация на платформе. При регистрации инвестор даёт согласие на условия взаимодействия, указанные в соглашении при регистрации.
+                      Register on the platform. During registration, the investor agrees to the terms of interaction specified in the agreement at sign-up.
                     </p>
                   </div>
                 </div>
