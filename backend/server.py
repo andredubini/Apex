@@ -1379,6 +1379,41 @@ async def get_investor(investor_id: str):
     investor = await db.investors.find_one({"id": investor_id})
     if not investor:
         investor = await db.investors.find_one({"email": investor_id})
+
+class WeeklyRiskSchedule(BaseModel):
+    effective_from: str  # ISO date (Saturday 00:00 America/New_York)
+    effective_to: str    # ISO date (Saturday 00:00 America/New_York)
+    weekly_risk_percent: float
+
+@api_router.get("/investors/{investor_id}/weekly-risk-schedule")
+async def get_weekly_risk_schedule(investor_id: str):
+    """Return the effective risk window (Sat->Sat NY time) and current value"""
+    try:
+      # Resolve investor
+      investor = await db.investors.find_one({"id": investor_id}) or await db.investors.find_one({"email": investor_id})
+      if not investor:
+          raise HTTPException(status_code=404, detail="Investor not found")
+      ny = ZoneInfo(SCHEDULER_TZ)
+      now_ny = datetime.now(ny)
+      # Find last Saturday 00:00 and next Saturday 00:00 in NY time
+      days_since_sat = (now_ny.weekday() - 5) % 7  # Saturday is 5
+      start = (now_ny - timedelta(days=days_since_sat)).replace(hour=0, minute=0, second=0, microsecond=0)
+      # If now is before Saturday midnight this week, ensure start refers to last Saturday
+      if now_ny.weekday() != 5 or now_ny.time() > datetime.min.time():
+          # start already aligned
+          pass
+      end = start + timedelta(days=7)
+      return {
+        "effective_from": start.isoformat(),
+        "effective_to": end.isoformat(),
+        "weekly_risk_percent": investor.get("weekly_risk_percent", 1.0)
+      }
+    except HTTPException:
+      raise
+    except Exception as e:
+      logger.error(f"Error computing schedule: {e}")
+      raise HTTPException(status_code=500, detail="Server error")
+
     if not investor:
         raise HTTPException(status_code=404, detail="Investor not found")
     return Investor(**investor)
