@@ -94,7 +94,7 @@ const TermsOfUse = () => {
                     </div>
                     <div className="bg-slate-900/50 p-4 rounded-lg">
                       <h4 className="font-semibold text-white mb-2">Withdrawal Terms</h4>
-                      <p className="text-slate-300 text-sm">3-month notice period required for capital withdrawals</p>
+                      <p className="text-slate-300 text-sm">Dividends can be requested weekly. Full capital withdrawal can be made once per month.</p>
                     </div>
                   </div>
                 </div>
