@@ -407,7 +407,7 @@ const LandingPage = () => {
               </div>
             </div>
             <p className="text-slate-300 text-center mt-6">
-              All profit distributions are calculated automatically in your personal dashboard and processed monthly.
+              All profit distributions are calculated automatically in your personal dashboard and processed weekly every Saturday.
               <br />
               <span className="text-xs">Examples: $80,000 at 24% → gross $19,200 → investor $9,600 / fund $9,600. $250,000 at 24% → gross $60,000 → investor $36,000 / fund $24,000. $1,200,000 at 24% → gross $288,000 → investor $201,600 / fund $86,400.</span>
             </p>
