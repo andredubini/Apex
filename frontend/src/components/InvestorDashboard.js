@@ -1608,6 +1608,11 @@ const InvestorDashboard = () => {
             <label className={`block text-sm font-medium ${textSecondaryClass} mb-2`}>
               Weekly Risk (% of Account, 0.5 – 5)
             </label>
+            {userProfile.weeklyRiskWindow && (
+              <div className={`text-xs ${textSecondaryClass}`}>
+                Effective: {new Date(userProfile.weeklyRiskWindow.effective_from).toLocaleString()} → {new Date(userProfile.weeklyRiskWindow.effective_to).toLocaleString()}
+              </div>
+            )}
             <div className="flex items-center space-x-3">
               <input
                 type="range"
