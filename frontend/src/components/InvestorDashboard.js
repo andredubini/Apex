@@ -2017,8 +2017,8 @@ const InvestorDashboard = () => {
             </div>
           </div>
           <p className={`text-xs ${textSecondaryClass} mt-3`}>
-            * Profit distributions are processed automatically at 9:00 AM on the 1st of each month. 
-            Losses are carried forward to subsequent months.
+            * Profit distributions are processed automatically every Saturday. 
+            Losses are carried forward to subsequent weeks if applicable.
           </p>
         </div>
       </div>
