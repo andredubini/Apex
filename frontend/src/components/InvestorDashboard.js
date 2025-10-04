@@ -130,6 +130,25 @@ const InvestorDashboard = () => {
           const data = await resp.json();
           setUserProfile((prev) => ({ ...prev, weeklyRisk: data.weekly_risk_percent || 1.0 }));
         }
+
+  // Load weekly risk schedule (Sat->Sat)
+  useEffect(() => {
+    const loadSchedule = async () => {
+      if (!user?.email) return;
+      try {
+        const backendUrl = process.env.REACT_APP_BACKEND_URL || 'http://localhost:8001';
+        const resp = await fetch(`${backendUrl}/api/investors/${user.email}/weekly-risk-schedule`);
+        if (resp.ok) {
+          const data = await resp.json();
+          setUserProfile(prev => ({ ...prev, weeklyRiskWindow: data }));
+        }
+      } catch (e) {
+        console.error('Failed to load risk schedule');
+      }
+    };
+    loadSchedule();
+  }, [user?.email]);
+
       } catch (e) {
         console.error('Failed to load weekly risk');
       }
