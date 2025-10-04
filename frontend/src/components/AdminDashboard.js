@@ -135,6 +135,25 @@ const AdminDashboard = () => {
     loadTradingAnalytics();
   }, []);
 
+  // Load next-week total risk
+  useEffect(() => {
+    const loadNextWeekRisk = async () => {
+      try {
+        const backendUrl = process.env.REACT_APP_BACKEND_URL || 'http://localhost:8001';
+        const resp = await fetch(`${backendUrl}/api/analytics/next-week-total-risk`);
+        if (resp.ok) {
+          const data = await resp.json();
+          const el = document.getElementById('next-week-risk');
+          if (el) el.textContent = `$${data.total_risk_amount.toLocaleString()}`;
+        }
+      } catch (e) {
+        // ignore
+      }
+    };
+    loadNextWeekRisk();
+  }, []);
+
+
   // Mock investor data - updated minimum investment references
   const investors = [
     { id: 1, name: "John Investor", email: "investor@example.com", balance: 150000, invested: 100000, joinDate: "2024-01-15", phone: "+1-555-0123", status: "active", riskProfile: "moderate", tradingStatus: "inactive" },
