@@ -2197,6 +2197,22 @@ async def get_trading_activity_trends():
         today = datetime.now(timezone.utc).date()
         
         for notification in recent_notifications:
+
+    # Record scheduled change effective next Saturday
+    try:
+        tz = ZoneInfo(SCHEDULER_TZ)
+        next_start = get_next_saturday_start()
+        await db.weekly_risk_changes.insert_one({
+            "id": str(uuid.uuid4()),
+            "investor_id": investor["id"],
+            "created_at": datetime.now(timezone.utc),
+            "effective_from": next_start.isoformat(),
+            "weekly_risk_percent": investor.get("weekly_risk_percent", 1.0),
+            "requested_status": request.requested_status
+        })
+    except Exception as e:
+        logger.error(f"Failed to record weekly risk snapshot for next period: {e}")
+
             # Handle both datetime objects and string formats
             created_at = notification["created_at"]
             if isinstance(created_at, str):
