@@ -1951,7 +1951,7 @@ const InvestorDashboard = () => {
 
       {/* Profit Sharing History */}
       <div className={`${cardBgClass} rounded-xl p-6 shadow-sm border ${borderClass}`}>
-        <h3 className={`text-lg font-semibold ${textClass} mb-4`}>Monthly Profit Distributions</h3>
+        <h3 className={`text-lg font-semibold ${textClass} mb-4`}>Weekly Profit Distributions</h3>
         
         <div className="space-y-4">
           {/* Sample data - in real app this would come from API */}
