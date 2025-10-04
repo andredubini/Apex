@@ -14,7 +14,7 @@ const FAQ = () => {
       questions: [
         {
           q: "What is the minimum investment amount?",
-          a: "The minimum investment amount is $10,000. This allows us to effectively deploy capital while maintaining our risk management protocols."
+          a: "The minimum investment amount is $100. Initial lock-up period is 1 month. Dividends (profit distributions) can be withdrawn weekly."
         },
         {
           q: "How does your profit-sharing structure work?",
