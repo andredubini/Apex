@@ -2054,6 +2054,26 @@ async def sync_investor_to_crm(investor_email: str):
         raise HTTPException(status_code=500, detail=str(e))
 
 @api_router.post("/admin/retry-crm-sync")
+
+@api_router.get("/analytics/next-week-total-risk")
+async def get_next_week_total_risk():
+    try:
+        investors = await db.investors.find({"status": "active"}).to_list(1000)
+        total_risk_amount = 0.0
+        next_start = get_next_saturday_start()
+        next_end = next_start + timedelta(days=7)
+        for inv in investors:
+            pct, _, _ = await get_next_week_risk(inv)
+            total_risk_amount += float(inv.get("current_balance", 0.0)) * (pct / 100.0)
+        return {
+            "next_week_start": next_start.isoformat(),
+            "next_week_end": next_end.isoformat(),
+            "total_risk_amount": total_risk_amount
+        }
+    except Exception as e:
+        logger.error(f"Error computing next-week total risk: {e}")
+        raise HTTPException(status_code=500, detail="Server error")
+
 async def manual_retry_crm_sync():
     """Manual trigger for CRM retry operations (Admin only)"""
     try:
