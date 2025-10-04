@@ -516,29 +516,9 @@ const LandingPage = () => {
                 <div className="flex items-start">
                   <div className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center text-white font-bold text-sm mr-4 mt-1">1</div>
                   <div>
-                    <h4 className="text-lg font-semibold text-white mb-2">Initial Consultation</h4>
+                    <h4 className="text-lg font-semibold text-white mb-2">Registration & Agreement</h4>
                     <p className="text-slate-300 text-sm">
-                      Schedule a personal consultation to discuss your investment goals and risk tolerance.
-                    </p>
-                  </div>
-                </div>
-                
-                <div className="flex items-start">
-                  <div className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center text-white font-bold text-sm mr-4 mt-1">2</div>
-                  <div>
-                    <h4 className="text-lg font-semibold text-white mb-2">Due Diligence</h4>
-                    <p className="text-slate-300 text-sm">
-                      Complete our comprehensive investor questionnaire and provide necessary documentation.
-                    </p>
-                  </div>
-                </div>
-                
-                <div className="flex items-start">
-                  <div className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center text-white font-bold text-sm mr-4 mt-1">3</div>
-                  <div>
-                    <h4 className="text-lg font-semibold text-white mb-2">Investment Agreement</h4>
-                    <p className="text-slate-300 text-sm">
-                      Review and sign the investment agreement with full legal protection and transparency.
+                      Регистрация на платформе. При регистрации инвестор даёт согласие на условия взаимодействия, указанные в соглашении при регистрации.
                     </p>
                   </div>
                 </div>
