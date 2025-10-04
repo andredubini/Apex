@@ -79,7 +79,7 @@ const InvestorDashboard = () => {
     smsNotifications: false,
     pushNotifications: true,
     weeklyReports: true,
-    monthlyStatements: true
+    weeklyStatements: true
   });
   const [notifications, setNotifications] = useState([]);
   const [notificationSettings, setNotificationSettings] = useState({
