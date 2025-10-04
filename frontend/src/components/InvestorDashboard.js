@@ -1648,53 +1648,6 @@ const InvestorDashboard = () => {
               <option value="long-term-growth">Long-term Growth (5+ years)</option>
               <option value="retirement">Retirement Planning</option>
               <option value="income">Income Generation</option>
-
-          <div>
-            <label className={`block text-sm font-medium ${textSecondaryClass} mb-2`}>
-              Weekly Risk (% of Account, 0.5 – 5)
-            </label>
-            {userProfile.weeklyRiskWindow && (
-              <div className={`text-xs ${textSecondaryClass}`}>
-                Effective: {new Date(userProfile.weeklyRiskWindow.effective_from).toLocaleString()} → {new Date(userProfile.weeklyRiskWindow.effective_to).toLocaleString()}
-              </div>
-            )}
-            <div className="flex items-center space-x-3">
-              <input
-                type="range"
-                min="0.5"
-                max="5"
-                step="0.1"
-                value={userProfile.weeklyRisk || 1.0}
-                onChange={(e) => setUserProfile({...userProfile, weeklyRisk: parseFloat(e.target.value)})}
-                className="w-full"
-              />
-              <span className="text-blue-600 font-semibold">{(userProfile.weeklyRisk || 1.0).toFixed(1)}%</span>
-            </div>
-            <button
-              onClick={async () => {
-                try {
-                  const backendUrl = process.env.REACT_APP_BACKEND_URL || 'http://localhost:8001';
-                  const resp = await fetch(`${backendUrl}/api/investors/${user.email}/weekly-risk`, {
-                    method: 'PATCH',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ weekly_risk_percent: userProfile.weeklyRisk || 1.0 })
-                  });
-                  if (resp.ok) {
-                    alert('Weekly risk setting updated successfully');
-                  } else {
-                    const err = await resp.json().catch(() => ({}));
-                    alert(`Failed to update weekly risk: ${err.detail || resp.status}`);
-                  }
-                } catch (e) {
-                  alert('Network error updating weekly risk');
-                }
-              }}
-              className="mt-3 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg"
-            >
-              Save Weekly Risk
-            </button>
-          </div>
-
             </select>
           </div>
 
