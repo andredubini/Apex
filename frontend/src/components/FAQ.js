@@ -18,7 +18,7 @@ const FAQ = () => {
         },
         {
           q: "How does your profit-sharing structure work?",
-          a: "Profit-sharing is based on invested amount: up to $99,999 → 50/50; $100,000–$999,999 → 60/40; $1,000,000+ → 70/30. Calculations выполняются автоматически в личном кабинете и отражаются в отчётах."
+          a: "Profit-sharing is based on invested amount: up to $99,999 → 50/50; $100,000–$999,999 → 60/40; $1,000,000+ → 70/30. Calculations are performed automatically in your personal dashboard and reflected in reports."
         },
         {
           q: "Are there any management fees?",
