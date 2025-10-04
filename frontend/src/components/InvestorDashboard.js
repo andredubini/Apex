@@ -1670,7 +1670,28 @@ const InvestorDashboard = () => {
           </div>
           
           <button
-            onClick={() => alert('Investment preferences updated!')}
+            onClick={async () => {
+              try {
+                const backendUrl = process.env.REACT_APP_BACKEND_URL || 'http://localhost:8001';
+                const payload = {
+                  risk_profile: userProfile.riskTolerance,
+                  investment_goals: userProfile.investmentGoals
+                };
+                const resp = await fetch(`${backendUrl}/api/investors/${user.email}/preferences`, {
+                  method: 'PATCH',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify(payload)
+                });
+                if (resp.ok) {
+                  alert('Preferences updated successfully');
+                } else {
+                  const err = await resp.json().catch(() => ({}));
+                  alert(`Failed to update preferences: ${err.detail || resp.status}`);
+                }
+              } catch (e) {
+                alert('Network error updating preferences');
+              }
+            }}
             className="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg font-medium transition-colors"
           >
             Update Preferences
