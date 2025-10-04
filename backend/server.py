@@ -2794,6 +2794,26 @@ async def process_monthly_profit_distribution():
             )
             
             # Send email notification for profit distribution
+
+        # Aggregate next week total risk for admin dashboard
+        try:
+            total_risk_amount = 0.0
+            next_start = get_next_saturday_start()
+            for inv in investors:
+                pct, _, _ = await get_next_week_risk(inv)
+                total_risk_amount += float(inv.get("current_balance", 0.0)) * (pct / 100.0)
+            await create_notification_for_user(
+                user_id=os.environ.get('ADMIN_EMAIL', 'admin@apexcapital.com'),
+                user_type="admin",
+                title="Next Week Total Risk",
+                message=f"Projected total risk amount for next trading week: ${total_risk_amount:,.2f}",
+                type=NotificationType.SYSTEM,
+                priority=NotificationPriority.MEDIUM,
+                metadata={"next_week_start": next_start.isoformat(), "total_risk_amount": total_risk_amount}
+            )
+        except Exception as e:
+            logger.error(f"Failed to compute next week total risk: {e}")
+
             try:
                 await email_service.send_transaction_email(
                     user_email=investor["email"],
