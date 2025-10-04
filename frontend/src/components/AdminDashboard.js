@@ -618,6 +618,10 @@ const AdminDashboard = () => {
                   <span className="w-2 h-2 bg-green-500 rounded-full mr-2"></span>
                   Running
                 </span>
+              <div className="flex items-center justify-between">
+                <span className={textSecondaryClass}>Next Week Total Risk:</span>
+                <span className={`font-medium ${textClass}`} id="next-week-risk">Loading...</span>
+              </div>
               </div>
               <div className="flex items-center justify-between">
                 <span className={textSecondaryClass}>Next Execution:</span>
