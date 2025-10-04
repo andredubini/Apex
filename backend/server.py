@@ -1428,6 +1428,30 @@ def get_next_effective_window(reference: datetime | None = None):
     next_sunday = (now_ny + timedelta(days=days_ahead)).replace(hour=0, minute=1, second=0, microsecond=0)
     # End is following Saturday 23:59
     following_saturday = (next_sunday + timedelta(days=6)).replace(hour=23, minute=59, second=0, microsecond=0)
+
+class InvestorPreferencesUpdate(BaseModel):
+    risk_profile: Optional[str] = None
+    investment_goals: Optional[str] = None
+
+@api_router.patch("/investors/{investor_id}/preferences")
+async def update_investor_preferences(investor_id: str, update: InvestorPreferencesUpdate):
+    try:
+        investor = await db.investors.find_one({"id": investor_id}) or await db.investors.find_one({"email": investor_id})
+        if not investor:
+            raise HTTPException(status_code=404, detail="Investor not found")
+        updates = {"updated_at": datetime.now(timezone.utc)}
+        if update.risk_profile is not None:
+            updates["risk_profile"] = update.risk_profile
+        if update.investment_goals is not None:
+            updates["investment_goals"] = update.investment_goals
+        await db.investors.update_one({"id": investor["id"]}, {"$set": updates})
+        return {"success": True}
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error updating preferences for {investor_id}: {e}")
+        raise HTTPException(status_code=500, detail="Server error")
+
     return next_sunday, following_saturday
 
 @api_router.get("/investors/{investor_id}", response_model=Investor)
