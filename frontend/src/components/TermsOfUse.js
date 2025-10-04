@@ -82,7 +82,7 @@ const TermsOfUse = () => {
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="bg-slate-900/50 p-4 rounded-lg">
                       <h4 className="font-semibold text-white mb-2">Minimum Investment</h4>
-                      <p className="text-slate-300 text-sm">$10,000 minimum initial investment required for account opening</p>
+                      <p className="text-slate-300 text-sm">$100 minimum initial investment required for account opening</p>
                     </div>
                     <div className="bg-slate-900/50 p-4 rounded-lg">
                       <h4 className="font-semibold text-white mb-2">Lock-up Period</h4>
