@@ -370,8 +370,7 @@ const LandingPage = () => {
               </div>
               <h3 className="text-2xl font-bold text-white mb-4">Flexible Withdrawals</h3>
               <p className="text-slate-300 leading-relaxed">
-                Access your dividends monthly or request capital withdrawal within three months. 
-                Full capital withdrawal is available with a simple three-month notice period.
+                Dividends can be requested weekly, and full capital withdrawal can be made once per month.
               </p>
             </div>
           </div>
