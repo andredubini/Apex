@@ -300,7 +300,7 @@ const LandingPage = () => {
                 <h3 className="text-2xl font-bold text-white mb-4">Multi-Level Risk Management</h3>
                 <p className="text-slate-300 leading-relaxed mb-4">
                   We use a sophisticated multi-level risk system that protects your capital at every stage. 
-                  Thanks to our advanced risk controls, investors never risk more than 1% during any single trading period.
+                  Thanks to our advanced risk controls, investors never risk more than their selected weekly risk level (0.5%–5%) during any single trading period.
                 </p>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
                   <div className="bg-slate-900/50 p-4 rounded-lg">
