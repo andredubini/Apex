@@ -1418,6 +1418,18 @@ async def get_investors():
     investors = await db.investors.find().to_list(1000)
     return [Investor(**investor) for investor in investors]
 
+
+# Compute next effective start (Sunday 00:01 NY) and end (following Saturday 23:59 NY)
+def get_next_effective_window(reference: datetime | None = None):
+    ny = ZoneInfo(SCHEDULER_TZ)
+    now_ny = reference or datetime.now(ny)
+    # Find next Sunday (weekday() == 6)
+    days_ahead = (6 - now_ny.weekday()) % 7
+    next_sunday = (now_ny + timedelta(days=days_ahead)).replace(hour=0, minute=1, second=0, microsecond=0)
+    # End is following Saturday 23:59
+    following_saturday = (next_sunday + timedelta(days=6)).replace(hour=23, minute=59, second=0, microsecond=0)
+    return next_sunday, following_saturday
+
 @api_router.get("/investors/{investor_id}", response_model=Investor)
 async def get_investor(investor_id: str):
     # Try by id, then fallback to email for compatibility
