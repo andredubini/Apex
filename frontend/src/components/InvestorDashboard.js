@@ -425,9 +425,9 @@ const InvestorDashboard = () => {
         
         // Show success message
         alert(
-          `✅ Request Submitted Successfully!\n\n` +
+          `✅ Change Scheduled Successfully!\n\n` +
           `${result.message}\n\n` +
-          `You will receive a notification once the admin reviews your request.`
+          `It will take effect on Sunday 00:01 (America/New_York) and remain until next Saturday 23:59.`
         );
         
         // Reload notifications to show the new confirmation notification
