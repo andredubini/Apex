@@ -452,7 +452,7 @@ const LandingPage = () => {
                 <div className="space-y-4">
                   <div className="flex justify-between items-center border-b border-slate-600 pb-3">
                     <span className="text-slate-300">Minimum Investment</span>
-                    <span className="text-white font-semibold">$10,000</span>
+                    <span className="text-white font-semibold">$100</span>
                   </div>
                   <div className="flex justify-between items-center border-b border-slate-600 pb-3">
                     <span className="text-slate-300">Lock-up Period</span>
