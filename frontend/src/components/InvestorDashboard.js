@@ -637,7 +637,7 @@ const InvestorDashboard = () => {
             <p className="text-blue-100 text-sm font-medium">Total Balance</p>
             <div className="flex items-center space-x-3">
               <p className="text-3xl font-bold">
-                {showBalance ? `$${user.accountBalance?.toLocaleString() || "150,000"}` : "••••••"}
+                {showBalance ? `$${(user.accountBalance ?? user.totalInvested ?? 0).toLocaleString()}` : "••••••"}
               </p>
               <button
                 onClick={() => setShowBalance(!showBalance)}
