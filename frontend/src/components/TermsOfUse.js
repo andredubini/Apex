@@ -86,7 +86,7 @@ const TermsOfUse = () => {
                     </div>
                     <div className="bg-slate-900/50 p-4 rounded-lg">
                       <h4 className="font-semibold text-white mb-2">Lock-up Period</h4>
-                      <p className="text-slate-300 text-sm">12-month initial commitment period from first investment</p>
+                      <p className="text-slate-300 text-sm">1-month initial commitment period from first investment</p>
                     </div>
                     <div className="bg-slate-900/50 p-4 rounded-lg">
                       <h4 className="font-semibold text-white mb-2">Fee Structure</h4>
