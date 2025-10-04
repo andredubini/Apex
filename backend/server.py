@@ -1471,21 +1471,26 @@ class WeeklyRiskUpdate(BaseModel):
 
 @api_router.patch("/investors/{investor_id}/weekly-risk")
 async def update_investor_weekly_risk(investor_id: str, update: WeeklyRiskUpdate):
-    """Allow investor to set weekly risk between 0.5% and 5%"""
+    """Schedule weekly risk between 0.5% and 5% to take effect next Saturday (America/New_York)."""
     try:
         if update.weekly_risk_percent < 0.5 or update.weekly_risk_percent > 5.0:
             raise HTTPException(status_code=400, detail="weekly_risk_percent must be between 0.5 and 5.0")
-        result = await db.investors.update_one(
-            {"id": investor_id},
-            {"$set": {"weekly_risk_percent": update.weekly_risk_percent, "updated_at": datetime.now(timezone.utc)}}
-        )
-        if result.matched_count == 0:
+        investor = await db.investors.find_one({"id": investor_id}) or await db.investors.find_one({"email": investor_id})
+        if not investor:
             raise HTTPException(status_code=404, detail="Investor not found")
-        return {"success": True, "weekly_risk_percent": update.weekly_risk_percent}
+        next_start = get_next_saturday_start()
+        await db.weekly_risk_changes.insert_one({
+            "id": str(uuid.uuid4()),
+            "investor_id": investor["id"],
+            "created_at": datetime.now(timezone.utc),
+            "effective_from": next_start.isoformat(),
+            "weekly_risk_percent": float(update.weekly_risk_percent)
+        })
+        return {"success": True, "weekly_risk_percent": float(update.weekly_risk_percent), "effective_from": next_start.isoformat()}
     except HTTPException:
         raise
     except Exception as e:
-        logger.error(f"Error updating weekly risk for investor {investor_id}: {e}")
+        logger.error(f"Error scheduling weekly risk for investor {investor_id}: {e}")
         raise HTTPException(status_code=500, detail="Server error")
 
 async def update_investor_trading_status(investor_id: str, status_update: TradingStatusUpdate):
