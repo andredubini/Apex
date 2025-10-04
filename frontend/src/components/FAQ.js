@@ -47,7 +47,7 @@ const FAQ = () => {
         },
         {
           q: "Can I withdraw my investment?",
-          a: "Yes, you can request capital withdrawal with a three-month notice period. Profit distributions are available monthly, and there's a 12-month initial lock-up period to ensure stable capital deployment."
+          a: "Yes. Profit distributions (dividends) can be requested weekly. Full capital withdrawal can be made once per month."
         }
       ]
     },
