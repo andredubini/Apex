@@ -524,7 +524,7 @@ const LandingPage = () => {
                 </div>
                 
                 <div className="flex items-start">
-                  <div className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center text-white font-bold text-sm mr-4 mt-1">4</div>
+                  <div className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center text-white font-bold text-sm mr-4 mt-1">2</div>
                   <div>
                     <h4 className="text-lg font-semibold text-white mb-2">Personal Dashboard Access</h4>
                     <p className="text-slate-300 text-sm">
@@ -534,7 +534,7 @@ const LandingPage = () => {
                 </div>
                 
                 <div className="flex items-start">
-                  <div className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center text-white font-bold text-sm mr-4 mt-1">5</div>
+                  <div className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center text-white font-bold text-sm mr-4 mt-1">3</div>
                   <div>
                     <h4 className="text-lg font-semibold text-white mb-2">Ongoing Management</h4>
                     <p className="text-slate-300 text-sm">
