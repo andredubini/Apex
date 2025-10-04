@@ -456,7 +456,7 @@ const LandingPage = () => {
                   </div>
                   <div className="flex justify-between items-center border-b border-slate-600 pb-3">
                     <span className="text-slate-300">Lock-up Period</span>
-                    <span className="text-white font-semibold">12 months</span>
+                    <span className="text-white font-semibold">1 month</span>
                   </div>
                   <div className="flex justify-between items-center border-b border-slate-600 pb-3">
                     <span className="text-slate-300">Management Fee</span>
