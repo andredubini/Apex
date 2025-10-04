@@ -2092,6 +2092,23 @@ async def create_withdrawal_request(investor_id: str):
         )
         return {"success": True}
     except HTTPException:
+
+@api_router.post("/support/contact")
+async def contact_support():
+    try:
+        await create_notification_for_user(
+            user_id=os.environ.get('ADMIN_EMAIL', 'admin@apexcapital.com'),
+            user_type="admin",
+            title="New Support Request",
+            message="An investor has requested support via dashboard.",
+            type=NotificationType.SYSTEM,
+            priority=NotificationPriority.LOW
+        )
+        return {"success": True}
+    except Exception as e:
+        logger.error(f"Error submitting support request: {e}")
+        raise HTTPException(status_code=500, detail="Server error")
+
         raise
     except Exception as e:
         logger.error(f"Error creating withdrawal request for {investor_id}: {e}")
