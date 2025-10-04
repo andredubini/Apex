@@ -2141,16 +2141,24 @@ async def get_trading_activity_trends():
 
 @api_router.get("/investors/{investor_id}/trading-status")
 async def get_investor_trading_status(investor_id: str):
-    """Get investor trading status"""
+    """Get investor trading status by id or email"""
     investor = await db.investors.find_one({"id": investor_id}, {"trading_status": 1, "email": 1, "name": 1})
+    if not investor:
+        investor = await db.investors.find_one({"email": investor_id}, {"trading_status": 1, "email": 1, "name": 1})
     if not investor:
         raise HTTPException(status_code=404, detail="Investor not found")
     
+    inv_id = investor.get("id") or investor_id
+    # Get latest trading status update
+    latest_update = await db.trading_status_updates.find_one({"investor_id": inv_id}, sort=[("created_at", -1)])
+    last_update_at = latest_update["created_at"].isoformat() if latest_update else None
+    
     return {
-        "investor_id": investor_id,
-        "trading_status": investor.get("trading_status", "inactive"),
+        "investor_id": inv_id,
+        "email": investor.get("email"),
         "name": investor.get("name"),
-        "email": investor.get("email")
+        "trading_status": investor.get("trading_status", "inactive"),
+        "last_update_at": last_update_at
     }
 
 # Investor Trading Request Endpoint (for investor self-service)
