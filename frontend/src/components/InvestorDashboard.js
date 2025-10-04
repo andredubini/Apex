@@ -400,7 +400,7 @@ const InvestorDashboard = () => {
     const confirmed = window.confirm(
       `Are you sure you want to ${action} trading?\n\n` +
       `Current status: ${tradingStatus === "active" ? "Trading Active" : "Trading Inactive"}\n` +
-      `Your request will be sent to admin for review.`
+      `Change will take effect automatically on Sunday 00:01 (America/New_York) and remain until next Saturday 23:59.`
     );
     
     if (!confirmed) return;
