@@ -2283,35 +2283,52 @@ async def get_investor_trading_status(investor_id: str):
 # Investor Trading Request Endpoint (for investor self-service)
 @api_router.post("/investors/{investor_id}/trading-status-request")
 async def request_trading_status_change(investor_id: str, request: TradingStatusRequest):
-    """Allow investor to request trading status change (requires admin approval)"""
+    """Investor directly toggles trading status without admin approval.
+    Change takes effect on next effective window (Sunday 00:01 NY).
+    """
     if request.requested_status not in ["active", "inactive"]:
         raise HTTPException(status_code=400, detail="Requested status must be 'active' or 'inactive'")
     
-    # Get investor data
-    investor = await db.investors.find_one({"id": investor_id})
+    # Get investor data (by id or email)
+    investor = await db.investors.find_one({"id": investor_id}) or await db.investors.find_one({"email": investor_id})
     if not investor:
         raise HTTPException(status_code=404, detail="Investor not found")
     
     current_status = investor.get("trading_status", "inactive")
     action = "start" if request.requested_status == "active" else "stop"
     
-    # Create notification for investor (confirmation)
+    # Schedule status change to apply on Sunday 00:01 NY
+    next_effective_start, next_effective_end = get_next_effective_window()
+    await db.trading_status_schedules.insert_one({
+        "id": str(uuid.uuid4()),
+        "investor_id": investor["id"],
+        "from_status": current_status,
+        "to_status": request.requested_status,
+        "effective_from": next_effective_start.isoformat(),
+        "effective_to": next_effective_end.isoformat(),
+        "created_at": datetime.now(timezone.utc),
+        "message": request.message or ""
+    })
+    
+    # Confirm to investor
     await create_notification_for_user(
         user_id=investor["email"],
         user_type="investor",
-        title=f"Trading {action.title()} Request Submitted",
-        message=f"Your request to {action} trading has been submitted to the admin for review. You will be notified once your request is processed.",
+        title=f"Trading {action.title()} Scheduled",
+        message=f"Your request to {action} trading will take effect on {next_effective_start.strftime('%Y-%m-%d %H:%M %Z')} and remain until {next_effective_end.strftime('%Y-%m-%d %H:%M %Z')}.",
         type=NotificationType.SYSTEM,
         priority=NotificationPriority.MEDIUM,
         metadata={
             "requested_status": request.requested_status,
             "current_status": current_status,
             "action": action,
+            "effective_from": next_effective_start.isoformat(),
+            "effective_to": next_effective_end.isoformat(),
             "request_message": request.message
         }
     )
     
-    # Log trading request in CRM
+    # Log activity (best effort)
     try:
         request_activity = CRMActivity(
             contact_email=investor["email"],
