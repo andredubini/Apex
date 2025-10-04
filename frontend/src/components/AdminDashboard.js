@@ -547,7 +547,7 @@ const AdminDashboard = () => {
               </div>
               <div>
                 <span className={textSecondaryClass}>Frequency:</span>
-                <div className={`font-medium ${textClass}`}>Monthly (1st of each month)</div>
+                <div className={`font-medium ${textClass}`}>Weekly (every Saturday)</div>
               </div>
               <div>
                 <span className={textSecondaryClass}>Status:</span>
