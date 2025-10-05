@@ -703,36 +703,29 @@ const InvestorDashboard = () => {
         </div>
       </div>
 
-      {/* Trading Status Button - Prominent Display */}
+      {/* Trading Status Action */}
       <div className="mb-6">
-        <button
-          onClick={handleTradingStatusRequest}
-          className={`w-full py-4 px-6 rounded-2xl font-bold text-lg shadow-lg transition-all duration-300 transform hover:scale-105 disabled:opacity-60 disabled:cursor-not-allowed disabled:transform-none ${
-            tradingStatus === "active" 
-              ? 'bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white' 
-              : 'bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white'
-          }`}
-          disabled={tradingStatusLoading}
-        >
-          <div className="flex items-center justify-center space-x-3">
-            {tradingStatusLoading ? (
-              <>
-                <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                <span>Processing Request...</span>
-              </>
-            ) : tradingStatus === "active" ? (
-              <>
-                <div className="w-3 h-3 bg-white rounded-full animate-pulse"></div>
-                <span>Request Stop Trading</span>
-                <div className="text-sm font-normal opacity-90">
-                  (Currently Active)
-                </div>
-              </>
-            ) : (
-              <>
-                <div className="w-3 h-3 bg-white rounded-full"></div>
-                <span>Request Start Trading</span>
-                <div className="text-sm font-normal opacity-90">
+        <div className="grid grid-cols-2 gap-3">
+          <button
+            onClick={handleTradingStatusRequest}
+            className={`py-3 px-4 rounded-xl font-semibold shadow-md transition-all duration-300 border ${tradingStatus === 'active' ? 'bg-rose-600 text-white border-rose-500 hover:bg-rose-700' : 'bg-white text-gray-900 border-slate-300 hover:bg-slate-50'} `}
+            disabled={tradingStatusLoading || tradingStatus !== 'active'}
+            title="Stop trading (takes effect Sunday 00:01 NY)"
+          >
+            Stop
+          </button>
+          <button
+            onClick={handleTradingStatusRequest}
+            className={`py-3 px-4 rounded-xl font-semibold shadow-md transition-all duration-300 border ${tradingStatus !== 'active' ? 'bg-emerald-600 text-white border-emerald-500 hover:bg-emerald-700' : 'bg-white text-gray-900 border-slate-300 hover:bg-slate-50'} `}
+            disabled={tradingStatusLoading || tradingStatus === 'active'}
+            title="Start trading (takes effect Sunday 00:01 NY)"
+          >
+            Start
+          </button>
+        </div>
+        <p className={`mt-2 text-xs ${textSecondaryClass}`}>Changes take effect on Sunday 00:01 (America/New_York) and remain until next Saturday 23:59.</p>
+      </div>
+
       {/* Weekly Risk Quick Control */}
       <div className={`${cardBgClass} rounded-xl p-6 shadow-sm border ${borderClass}`}>
         <h3 className={`text-lg font-semibold ${textClass} mb-4`}>Weekly Risk (% of Account, 0.5 – 5)</h3>
@@ -776,21 +769,6 @@ const InvestorDashboard = () => {
         >
           Save Weekly Risk
         </button>
-      </div>
-
-                  (Currently Inactive)
-                </div>
-              </>
-            )}
-          </div>
-        </button>
-        <p className={`text-xs ${textSecondaryClass} mt-2 text-center`}>
-          {tradingStatusLoading 
-            ? "Submitting your request to admin..." 
-            : tradingStatus === "active" 
-              ? "Your account is actively trading. Click to request trading stop." 
-              : "Your trading is currently inactive. Click to request trading activation."}
-        </p>
       </div>
 
       {/* Enhanced Quick Actions */}
