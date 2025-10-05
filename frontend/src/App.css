@@ -1,3 +1,20 @@
+/* Prevent chat widget from overlapping nav/settings */
+.chat-widget, .intercom-launcher, .tawk-widget, .crisp-client, .messenger-chat, .drift-widget, .livechat-widget {
+  z-index: 30 !important;
+  bottom: 80px !important; /* clears mobile bottom nav */
+  right: 20px !important;
+}
+
+/* Ensure header and sidebar are above chat */
+.header-sticky, .sidebar-sticky {
+  z-index: 40 !important;
+}
+
+/* Ensure bottom nav is above chat */
+.bottom-nav {
+  z-index: 50 !important;
+}
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
