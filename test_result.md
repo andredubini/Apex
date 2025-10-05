@@ -2600,3 +2600,17 @@ Please thoroughly test the entire email system with SendPulse API integration, O
                 
                 🏆 ASSESSMENT: CORE FUNCTIONALITY OPERATIONAL
                 All primary user flows work correctly. Landing page displays all required information, investor login and dashboard are fully functional with weekly risk controls and profit calculator. Admin login issues appear to be timeout-related rather than functional problems. The application is ready for production use with minor FAQ text adjustment needed."
+
+
+## deployment_readiness:
+  - task: "Backend Health Check for Deployment Readiness"
+    implemented: true
+    working: "NA"
+    file: "backend/server.py"
+    stuck_count: 0
+    priority: "critical"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Run deep backend health check covering /api status, investors, auth (login-password, OTP generate/verify with INVALID), weekly risk schedule (GET/PATCH), trading-status-request scheduling, analytics (summary and next-week-total-risk), withdrawals, support contact, and CORS headers. Avoid any destructive actions; verify 200s and response shapes."
