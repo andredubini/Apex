@@ -628,7 +628,7 @@ const InvestorDashboard = () => {
     { id: 'reports', label: 'Reports', icon: FileText },
     { id: 'transactions', label: 'Transfer', icon: Send },
     { id: 'notifications', label: 'Activity', icon: Bell, badge: unreadCount > 0 ? unreadCount : null },
-    { id: 'settings', label: 'Settings', icon: Settings }
+    { id: 'settings', label: 'Settings', icon: Settings, className: 'settings-entry' }
   ];
 
   // Theme classes
