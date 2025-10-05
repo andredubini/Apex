@@ -1428,6 +1428,7 @@ def get_next_effective_window(reference: datetime | None = None):
     next_sunday = (now_ny + timedelta(days=days_ahead)).replace(hour=0, minute=1, second=0, microsecond=0)
     # End is following Saturday 23:59
     following_saturday = (next_sunday + timedelta(days=6)).replace(hour=23, minute=59, second=0, microsecond=0)
+    return next_sunday, following_saturday
 
 class InvestorPreferencesUpdate(BaseModel):
     risk_profile: Optional[str] = None
