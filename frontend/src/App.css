@@ -1,4 +1,24 @@
 /* Prevent chat widget from overlapping nav/settings */
+
+/* Raise Settings button area above chat on mobile & desktop */
+.settings-entry, .sidebar-settings-link {
+  position: relative;
+  z-index: 60 !important; /* above chat (30) and nav (50) if needed */
+}
+
+/* Opinionated common chat selectors moved down and offset */
+[class*="intercom"], [class*="Intercom"], [id*="intercom"],
+[class*="tawk"], [id*="tawk"],
+[class*="crisp"], [id*="crisp"],
+[class*="messenger"], [id*="messenger"],
+[class*="drift"], [id*="drift"],
+[class*="livechat"], [id*="livechat"],
+.chat-widget {
+  z-index: 30 !important;
+  bottom: 88px !important; /* clears bottom nav comfortably */
+  right: 20px !important;
+}
+
 .chat-widget, .intercom-launcher, .tawk-widget, .crisp-client, .messenger-chat, .drift-widget, .livechat-widget {
   z-index: 30 !important;
   bottom: 80px !important; /* clears mobile bottom nav */
