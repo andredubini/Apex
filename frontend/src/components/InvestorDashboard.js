@@ -708,19 +708,19 @@ const InvestorDashboard = () => {
         <div className="grid grid-cols-2 gap-3">
           <button
             onClick={handleTradingStatusRequest}
-            className={`py-3 px-4 rounded-xl font-semibold shadow-md transition-all duration-300 border ${tradingStatus === 'active' ? 'bg-rose-600 text-white border-rose-500 hover:bg-rose-700' : 'bg-white text-gray-900 border-slate-300 hover:bg-slate-50'} `}
-            disabled={tradingStatusLoading || tradingStatus !== 'active'}
-            title="Stop trading (takes effect Sunday 00:01 NY)"
-          >
-            Stop
-          </button>
-          <button
-            onClick={handleTradingStatusRequest}
             className={`py-3 px-4 rounded-xl font-semibold shadow-md transition-all duration-300 border ${tradingStatus !== 'active' ? 'bg-emerald-600 text-white border-emerald-500 hover:bg-emerald-700' : 'bg-white text-gray-900 border-slate-300 hover:bg-slate-50'} `}
             disabled={tradingStatusLoading || tradingStatus === 'active'}
             title="Start trading (takes effect Sunday 00:01 NY)"
           >
             Start
+          </button>
+          <button
+            onClick={handleTradingStatusRequest}
+            className={`py-3 px-4 rounded-xl font-semibold shadow-md transition-all duration-300 border ${tradingStatus === 'active' ? 'bg-rose-600 text-white border-rose-500 hover:bg-rose-700' : 'bg-white text-gray-900 border-slate-300 hover:bg-slate-50'} `}
+            disabled={tradingStatusLoading || tradingStatus !== 'active'}
+            title="Stop trading (takes effect Sunday 00:01 NY)"
+          >
+            Stop
           </button>
         </div>
         <p className={`mt-2 text-xs ${textSecondaryClass}`}>Changes take effect on Sunday 00:01 (America/New_York) and remain until next Saturday 23:59.</p>
