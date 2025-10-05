@@ -2070,6 +2070,12 @@ const InvestorDashboard = () => {
               onClick={() => {
                 if (confirm('Are you sure you want to close your account? This action cannot be undone.')) {
                   alert('Account closure request submitted. You will be contacted for verification.');
+
+      {/* Chat placeholder container to avoid overlap with nav/settings */}
+      <div className="fixed bottom-20 right-5 z-30 pointer-events-none">
+        {/* If a chat widget exists, ensure its container has z-30 and bottom-20 to clear mobile nav */}
+      </div>
+
                 }
               }}
               className="w-full bg-red-600 hover:bg-red-700 text-white py-3 px-4 rounded-lg font-medium transition-colors"
