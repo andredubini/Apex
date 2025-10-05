@@ -1460,6 +1460,10 @@ async def get_investor(investor_id: str):
     investor = await db.investors.find_one({"id": investor_id})
     if not investor:
         investor = await db.investors.find_one({"email": investor_id})
+    
+    if not investor:
+        raise HTTPException(status_code=404, detail="Investor not found")
+    return Investor(**investor)
 
 class WeeklyRiskSchedule(BaseModel):
     effective_from: str  # ISO date (Saturday 00:00 America/New_York)
