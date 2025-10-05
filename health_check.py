@@ -9,8 +9,18 @@ import json
 import time
 from datetime import datetime
 
-# Backend URL from environment
-BACKEND_URL = "https://project-preview-35.preview.emergentagent.com/api"
+# Backend URL - try local first, then external
+try:
+    import requests
+    # Test local connection first
+    response = requests.get("http://localhost:8001/api/", timeout=5)
+    if response.status_code == 200:
+        BACKEND_URL = "http://localhost:8001/api"
+    else:
+        raise Exception("Local connection failed")
+except:
+    # Fallback to external URL
+    BACKEND_URL = "https://project-preview-35.preview.emergentagent.com/api"
 
 class DeploymentHealthChecker:
     def __init__(self):
