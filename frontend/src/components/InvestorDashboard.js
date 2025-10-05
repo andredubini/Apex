@@ -2094,7 +2094,7 @@ const InvestorDashboard = () => {
   return (
     <div className={`min-h-screen ${bgClass}`}>
       {/* Header */}
-      <header className={`${headerBgClass} border-b sticky top-0 z-40`}>
+      <header className={`${headerBgClass} border-b sticky top-0 z-40 header-sticky`}>
         <div className="max-w-md mx-auto px-4 py-4 md:max-w-7xl md:px-6 lg:px-8">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-3">
