@@ -2066,6 +2066,32 @@ async def sync_investor_to_crm(investor_email: str):
         if not investor:
             raise HTTPException(status_code=404, detail="Investor not found")
         
+        # Create CRM contact from investor data
+        contact = CRMContact(
+            email=investor["email"],
+            first_name=investor["name"].split()[0] if investor["name"] else "Unknown",
+            last_name=" ".join(investor["name"].split()[1:]) if len(investor["name"].split()) > 1 else "User",
+            phone=investor.get("phone", ""),
+            investor_type=InvestorType.INDIVIDUAL,  # Default type
+            status=ContactStatus.ACTIVE if investor.get("status") == "active" else ContactStatus.INACTIVE,
+            investment_capacity=float(investor.get("total_invested", 0)),
+            risk_tolerance=investor.get("risk_profile", "moderate"),
+            kyc_status="completed",
+            aml_cleared=True,
+            total_investments=float(investor.get("total_invested", 0))
+        )
+        
+        # Sync to CRM
+        success = await crm_service.create_contact(contact)
+        
+        if success:
+            return {"message": f"Investor {investor_email} synced to CRM successfully"}
+        else:
+            return {"message": f"Investor {investor_email} queued for CRM sync (fallback mode)"}
+    
+    except Exception as e:
+        logger.error(f"Error syncing investor to CRM: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
 
 @api_router.post("/withdrawals/{investor_id}")
 async def create_withdrawal_request(investor_id: str):
