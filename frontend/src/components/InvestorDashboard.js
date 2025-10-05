@@ -2167,7 +2167,7 @@ const InvestorDashboard = () => {
       </nav>
 
       {/* Desktop Sidebar Navigation */}
-      <aside className={`hidden md:block fixed left-6 top-24 bottom-6 w-64 ${cardBgClass} rounded-xl shadow-sm border ${borderClass} p-6`}>
+      <aside className={`hidden md:block fixed left-6 top-24 bottom-6 w-64 z-40 ${cardBgClass} rounded-xl shadow-sm border ${borderClass} p-6`}>
         <nav className="space-y-2">
           {navItems.map(({ id, label, icon: Icon, badge }) => (
             <button
