@@ -2118,6 +2118,10 @@ async def create_withdrawal_request(investor_id: str):
         )
         return {"success": True}
     except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error creating withdrawal request: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
 
 @api_router.post("/support/contact")
 async def contact_support():
