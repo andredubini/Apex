@@ -7,6 +7,10 @@
 }
 
 /* Opinionated common chat selectors moved down and offset */
+:root {
+  --bottom-nav-height: 64px;
+}
+
 [class*="intercom"], [class*="Intercom"], [id*="intercom"],
 [class*="tawk"], [id*="tawk"],
 [class*="crisp"], [id*="crisp"],
@@ -15,8 +19,22 @@
 [class*="livechat"], [id*="livechat"],
 .chat-widget {
   z-index: 30 !important;
-  bottom: 88px !important; /* clears bottom nav comfortably */
-  right: 20px !important;
+  bottom: calc(var(--bottom-nav-height) + 24px) !important; /* clears bottom nav */
+  right: 28px !important;
+}
+
+/* Mobile: push chat higher and slightly left so it doesn't cover Settings */
+@media (max-width: 768px) {
+  [class*="intercom"], [class*="Intercom"], [id*="intercom"],
+  [class*="tawk"], [id*="tawk"],
+  [class*="crisp"], [id*="crisp"],
+  [class*="messenger"], [id*="messenger"],
+  [class*="drift"], [id*="drift"],
+  [class*="livechat"], [id*="livechat"],
+  .chat-widget {
+    bottom: calc(var(--bottom-nav-height) + 56px) !important; /* ~120px */
+    right: 84px !important; /* clear rightmost Settings tab */
+  }
 }
 
 .chat-widget, .intercom-launcher, .tawk-widget, .crisp-client, .messenger-chat, .drift-widget, .livechat-widget {
