@@ -11,30 +11,18 @@
   --bottom-nav-height: 64px;
 }
 
+/* Remove any third-party chat widget entirely */
 [class*="intercom"], [class*="Intercom"], [id*="intercom"],
 [class*="tawk"], [id*="tawk"],
 [class*="crisp"], [id*="crisp"],
 [class*="messenger"], [id*="messenger"],
 [class*="drift"], [id*="drift"],
 [class*="livechat"], [id*="livechat"],
-.chat-widget {
-  z-index: 30 !important;
-  bottom: calc(var(--bottom-nav-height) + 24px) !important; /* clears bottom nav */
-  right: 28px !important;
-}
-
-/* Mobile: push chat higher and slightly left so it doesn't cover Settings */
-@media (max-width: 768px) {
-  [class*="intercom"], [class*="Intercom"], [id*="intercom"],
-  [class*="tawk"], [id*="tawk"],
-  [class*="crisp"], [id*="crisp"],
-  [class*="messenger"], [id*="messenger"],
-  [class*="drift"], [id*="drift"],
-  [class*="livechat"], [id*="livechat"],
-  .chat-widget {
-    bottom: calc(var(--bottom-nav-height) + 56px) !important; /* ~120px */
-    right: 84px !important; /* clear rightmost Settings tab */
-  }
+.chat-widget, .chat, .widget-chat, .help-widget {
+  display: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
 }
 
 .chat-widget, .intercom-launcher, .tawk-widget, .crisp-client, .messenger-chat, .drift-widget, .livechat-widget {
