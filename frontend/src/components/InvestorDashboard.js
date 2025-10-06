@@ -2148,7 +2148,7 @@ const InvestorDashboard = () => {
       </main>
 
       {/* Bottom Navigation - Mobile */}
-      <nav className={`fixed bottom-0 left-0 right-0 z-50 ${cardBgClass} border-t ${borderClass} md:hidden bottom-nav`}>
+      <nav className={`fixed bottom-0 left-0 right-0 z-50 ${cardBgClass} border-t ${borderClass} md:hidden bottom-nav`} style={{height: '64px'}}>
         <div className="grid grid-cols-5 py-2">
           {navItems.map(({ id, label, icon: Icon, badge }) => (
             <button
