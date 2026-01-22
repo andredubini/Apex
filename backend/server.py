@@ -2603,7 +2603,12 @@ async def get_investor_deposits(investor_id: str):
     """Get all deposits for an investor"""
     try:
         deposits = await db.deposits.find({"email": investor_id}).sort("created_at", -1).to_list(100)
-        return deposits
+        # Convert ObjectId to string for JSON serialization
+        result = []
+        for dep in deposits:
+            dep_dict = {k: str(v) if k == '_id' else v for k, v in dep.items()}
+            result.append(dep_dict)
+        return result
     except Exception as e:
         logger.error(f"Error getting deposits: {e}")
         raise HTTPException(status_code=500, detail=str(e))
