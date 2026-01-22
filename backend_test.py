@@ -24,9 +24,9 @@ try:
                 external_url = line.split('=', 1)[1].strip()
                 BACKEND_URL = f"{external_url}/api"
                 break
-    else:
-        # Fallback to localhost if .env not found
-        BACKEND_URL = "http://localhost:8001/api"
+        else:
+            # Fallback to localhost if .env not found
+            BACKEND_URL = "http://localhost:8001/api"
 except:
     # Final fallback
     BACKEND_URL = "http://localhost:8001/api"
