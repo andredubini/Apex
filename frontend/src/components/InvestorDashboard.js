@@ -703,27 +703,47 @@ const InvestorDashboard = () => {
         </div>
       </div>
 
-      {/* Trading Status Action */}
-      <div className="mb-6">
+      {/* Trading Status Card with Clear Status Indicator */}
+      <div className={`${cardBgClass} rounded-xl p-5 shadow-sm border ${borderClass} mb-6`}>
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center space-x-3">
+            <div className={`w-3 h-3 rounded-full ${tradingStatus === 'active' ? 'bg-green-500 animate-pulse' : 'bg-gray-400'}`}></div>
+            <div>
+              <h3 className={`font-semibold ${textClass}`}>Trading Status</h3>
+              <p className={`text-sm ${tradingStatus === 'active' ? 'text-green-600' : textSecondaryClass}`}>
+                {tradingStatus === 'active' ? 'Active - Your capital is being traded' : 'Inactive - Trading is paused'}
+              </p>
+            </div>
+          </div>
+          {tradingStatusLoading && (
+            <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-blue-600"></div>
+          )}
+        </div>
+        
         <div className="grid grid-cols-2 gap-3">
           <button
             onClick={handleTradingStatusRequest}
-            className={`py-3 px-4 rounded-xl font-semibold shadow-md transition-all duration-300 border ${tradingStatus !== 'active' ? 'bg-emerald-600 text-white border-emerald-500 hover:bg-emerald-700' : 'bg-white text-gray-900 border-slate-300 hover:bg-slate-50'} `}
+            className={`py-3 px-4 rounded-xl font-semibold shadow-md transition-all duration-300 border flex items-center justify-center space-x-2 ${tradingStatus !== 'active' ? 'bg-gradient-to-r from-emerald-500 to-emerald-600 text-white border-emerald-500 hover:from-emerald-600 hover:to-emerald-700 shadow-emerald-200' : 'bg-white text-gray-400 border-slate-200 cursor-not-allowed'}`}
             disabled={tradingStatusLoading || tradingStatus === 'active'}
             title="Start trading (takes effect Sunday 00:01 NY)"
           >
-            Start
+            <TrendingUp className="w-4 h-4" />
+            <span>Start Trading</span>
           </button>
           <button
             onClick={handleTradingStatusRequest}
-            className={`py-3 px-4 rounded-xl font-semibold shadow-md transition-all duration-300 border ${tradingStatus === 'active' ? 'bg-rose-600 text-white border-rose-500 hover:bg-rose-700' : 'bg-white text-gray-900 border-slate-300 hover:bg-slate-50'} `}
+            className={`py-3 px-4 rounded-xl font-semibold shadow-md transition-all duration-300 border flex items-center justify-center space-x-2 ${tradingStatus === 'active' ? 'bg-gradient-to-r from-rose-500 to-rose-600 text-white border-rose-500 hover:from-rose-600 hover:to-rose-700 shadow-rose-200' : 'bg-white text-gray-400 border-slate-200 cursor-not-allowed'}`}
             disabled={tradingStatusLoading || tradingStatus !== 'active'}
             title="Stop trading (takes effect Sunday 00:01 NY)"
           >
-            Stop
+            <Activity className="w-4 h-4" />
+            <span>Stop Trading</span>
           </button>
         </div>
-        <p className={`mt-2 text-xs ${textSecondaryClass}`}>Changes take effect on Sunday 00:01 (America/New_York) and remain until next Saturday 23:59.</p>
+        <p className={`mt-3 text-xs ${textSecondaryClass} text-center`}>
+          <Info className="w-3 h-3 inline mr-1" />
+          Changes take effect Sunday 00:01 (NY) and remain until Saturday 23:59
+        </p>
       </div>
 
       {/* Weekly Risk Quick Control */}
