@@ -2774,6 +2774,9 @@ async def update_investor_profile(investor_id: str, profile: ProfileUpdate):
             )
         
         updated_investor = await db.investors.find_one({"id": investor["id"]})
+        # Convert ObjectId to string for JSON serialization
+        if updated_investor:
+            updated_investor = {k: str(v) if k == '_id' else v for k, v in updated_investor.items()}
         return {"success": True, "investor": updated_investor}
     except HTTPException:
         raise
