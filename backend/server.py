@@ -70,7 +70,7 @@ class Investor(BaseModel):
     join_date: datetime
     status: str = "active"  # active, inactive, suspended
     risk_profile: str = "moderate"  # conservative, moderate, aggressive
-    weekly_risk_percent: float = 1.0  # investor-selected weekly risk (0.5%–5%)
+    weekly_risk_percent: float = 2.5  # investor-selected weekly risk (0.5%–5%)
     trading_status: str = "inactive"  # active, inactive - controls if investor can trade
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
