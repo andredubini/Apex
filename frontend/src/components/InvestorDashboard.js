@@ -755,8 +755,8 @@ const InvestorDashboard = () => {
             (userProfile.weeklyRisk || 2.5) <= 3 ? 'bg-yellow-100 text-yellow-700' :
             'bg-red-100 text-red-700'
           }`}>
-            {(userProfile.weeklyRisk || 1.0) <= 1.5 ? 'Conservative' :
-             (userProfile.weeklyRisk || 1.0) <= 3 ? 'Moderate' : 'Aggressive'}
+            {(userProfile.weeklyRisk || 2.5) <= 1.5 ? 'Conservative' :
+             (userProfile.weeklyRisk || 2.5) <= 3 ? 'Moderate' : 'Aggressive'}
           </div>
         </div>
         
