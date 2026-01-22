@@ -790,8 +790,8 @@ const InvestorDashboard = () => {
           </div>
           <div className="flex items-center justify-between">
             <span className={`text-2xl font-bold ${
-              (userProfile.weeklyRisk || 1.0) <= 1.5 ? 'text-green-600' :
-              (userProfile.weeklyRisk || 1.0) <= 3 ? 'text-yellow-600' :
+              (userProfile.weeklyRisk || 2.5) <= 1.5 ? 'text-green-600' :
+              (userProfile.weeklyRisk || 2.5) <= 3 ? 'text-yellow-600' :
               'text-red-600'
             }`}>
               {(userProfile.weeklyRisk || 1.0).toFixed(1)}%
