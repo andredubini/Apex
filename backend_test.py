@@ -15,20 +15,21 @@ from datetime import datetime, timezone
 from decimal import Decimal
 import re
 
-# Backend URL - try local first, then external
+# Backend URL - use external URL from frontend .env
 try:
-    import requests
-    # Test local connection first
-    response = requests.get("http://localhost:8001/api/", timeout=5)
-    if response.status_code == 200:
-        BACKEND_URL = "http://localhost:8001/api"
+    # Read the external URL from frontend .env
+    with open('/app/frontend/.env', 'r') as f:
+        for line in f:
+            if line.startswith('REACT_APP_BACKEND_URL='):
+                external_url = line.split('=', 1)[1].strip()
+                BACKEND_URL = f"{external_url}/api"
+                break
     else:
-        raise Exception("Local connection failed")
+        # Fallback to localhost if .env not found
+        BACKEND_URL = "http://localhost:8001/api"
 except:
-    # Fallback to external URL pattern
-    import os
-    hostname = os.environ.get('HOSTNAME', 'agent-env-2028b814-2835-4f1c-b676-f5848bc305b9')
-    BACKEND_URL = f"https://project-preview-35.preview.emergentagent.com/api"
+    # Final fallback
+    BACKEND_URL = "http://localhost:8001/api"
 
 class EnhancedApexCapitalTester:
     def __init__(self):
