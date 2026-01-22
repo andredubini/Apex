@@ -780,7 +780,7 @@ const InvestorDashboard = () => {
               min="0.5"
               max="5"
               step="0.1"
-              value={userProfile.weeklyRisk || 1.0}
+              value={userProfile.weeklyRisk || 2.5}
               onChange={(e) => setUserProfile({...userProfile, weeklyRisk: parseFloat(e.target.value)})}
               className="w-full h-2 bg-gradient-to-r from-green-400 via-yellow-400 to-red-400 rounded-lg appearance-none cursor-pointer"
               style={{
