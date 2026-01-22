@@ -2276,10 +2276,10 @@ const InvestorDashboard = () => {
 
       {/* Desktop Content Adjustment */}
       <style jsx>{`
-        @media (min-width: 768px) {
+        @media (min-width: 1024px) {
           main {
-            margin-left: 280px;
-            max-width: calc(100% - 280px);
+            margin-left: 240px;
+            max-width: calc(100% - 240px);
           }
         }
       `}</style>
