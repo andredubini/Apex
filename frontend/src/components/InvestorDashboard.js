@@ -794,7 +794,7 @@ const InvestorDashboard = () => {
               (userProfile.weeklyRisk || 2.5) <= 3 ? 'text-yellow-600' :
               'text-red-600'
             }`}>
-              {(userProfile.weeklyRisk || 1.0).toFixed(1)}%
+              {(userProfile.weeklyRisk || 2.5).toFixed(1)}%
             </span>
             <span className={`text-sm ${textSecondaryClass}`}>of your account per week</span>
           </div>
