@@ -368,6 +368,30 @@ const InvestorDashboard = () => {
 
   const [showAddBank, setShowAddBank] = useState(false);
   
+  // Modal states
+  const [showDepositModal, setShowDepositModal] = useState(false);
+  const [showWithdrawModal, setShowWithdrawModal] = useState(false);
+  const [showStatementModal, setShowStatementModal] = useState(false);
+  const [showTaxDocsModal, setShowTaxDocsModal] = useState(false);
+  const [showSupportModal, setShowSupportModal] = useState(false);
+  const [showCloseAccountModal, setShowCloseAccountModal] = useState(false);
+  
+  // Form states
+  const [depositAmount, setDepositAmount] = useState('');
+  const [depositMethod, setDepositMethod] = useState('bank_transfer');
+  const [withdrawAmount, setWithdrawAmount] = useState('');
+  const [supportSubject, setSupportSubject] = useState('');
+  const [supportMessage, setSupportMessage] = useState('');
+  const [supportPriority, setSupportPriority] = useState('normal');
+  const [closeReason, setCloseReason] = useState('');
+  const [confirmWithdraw, setConfirmWithdraw] = useState(false);
+  
+  // Data states
+  const [statementData, setStatementData] = useState(null);
+  const [taxDocData, setTaxDocData] = useState(null);
+  const [depositBankInfo, setDepositBankInfo] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
+  
   // Trading status state
   const [tradingStatus, setTradingStatus] = useState("inactive"); // "active" or "inactive"
   const [tradingStatusLoading, setTradingStatusLoading] = useState(false);
@@ -386,6 +410,210 @@ const InvestorDashboard = () => {
       }
     } catch (error) {
       console.error('Error loading trading status:', error);
+    }
+  };
+  
+  // Handle Deposit Request
+  const handleDepositRequest = async () => {
+    if (!depositAmount || parseFloat(depositAmount) <= 0) {
+      alert('Please enter a valid deposit amount');
+      return;
+    }
+    
+    setIsLoading(true);
+    try {
+      const backendUrl = process.env.REACT_APP_BACKEND_URL || 'http://localhost:8001';
+      const response = await fetch(`${backendUrl}/api/deposits/${user.email}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          amount: parseFloat(depositAmount),
+          payment_method: depositMethod
+        })
+      });
+      
+      if (response.ok) {
+        const data = await response.json();
+        setDepositBankInfo(data.bank_info);
+        loadNotifications();
+      } else {
+        const error = await response.json();
+        alert(`Failed to create deposit: ${error.detail || 'Unknown error'}`);
+      }
+    } catch (error) {
+      alert('Network error. Please try again.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+  
+  // Handle Withdraw Request
+  const handleWithdrawRequest = async () => {
+    setIsLoading(true);
+    try {
+      const backendUrl = process.env.REACT_APP_BACKEND_URL || 'http://localhost:8001';
+      const response = await fetch(`${backendUrl}/api/withdrawals/${user.email}`, {
+        method: 'POST'
+      });
+      
+      if (response.ok) {
+        setShowWithdrawModal(false);
+        loadNotifications();
+        alert('✅ Withdrawal request submitted successfully! You will be contacted within 1-2 business days.');
+      } else {
+        const error = await response.json();
+        alert(`Failed to submit withdrawal: ${error.detail || 'Unknown error'}`);
+      }
+    } catch (error) {
+      alert('Network error. Please try again.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+  
+  // Generate Statement
+  const handleGenerateStatement = async () => {
+    setIsLoading(true);
+    try {
+      const backendUrl = process.env.REACT_APP_BACKEND_URL || 'http://localhost:8001';
+      const response = await fetch(`${backendUrl}/api/statements/${user.email}`);
+      
+      if (response.ok) {
+        const data = await response.json();
+        setStatementData(data);
+        loadNotifications();
+      } else {
+        alert('Failed to generate statement');
+      }
+    } catch (error) {
+      alert('Network error. Please try again.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+  
+  // Get Tax Documents
+  const handleGetTaxDocs = async () => {
+    setIsLoading(true);
+    try {
+      const backendUrl = process.env.REACT_APP_BACKEND_URL || 'http://localhost:8001';
+      const response = await fetch(`${backendUrl}/api/tax-documents/${user.email}`);
+      
+      if (response.ok) {
+        const data = await response.json();
+        setTaxDocData(data);
+        loadNotifications();
+      } else {
+        alert('Failed to get tax documents');
+      }
+    } catch (error) {
+      alert('Network error. Please try again.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+  
+  // Submit Support Ticket
+  const handleSubmitSupport = async () => {
+    if (!supportSubject || !supportMessage) {
+      alert('Please fill in all fields');
+      return;
+    }
+    
+    setIsLoading(true);
+    try {
+      const backendUrl = process.env.REACT_APP_BACKEND_URL || 'http://localhost:8001';
+      const response = await fetch(`${backendUrl}/api/support/ticket?investor_id=${user.email}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          subject: supportSubject,
+          message: supportMessage,
+          priority: supportPriority
+        })
+      });
+      
+      if (response.ok) {
+        setShowSupportModal(false);
+        setSupportSubject('');
+        setSupportMessage('');
+        setSupportPriority('normal');
+        loadNotifications();
+        alert('✅ Support ticket created! Our team will respond within 24 hours.');
+      } else {
+        alert('Failed to create support ticket');
+      }
+    } catch (error) {
+      alert('Network error. Please try again.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+  
+  // Request Account Closure
+  const handleCloseAccount = async () => {
+    if (!closeReason) {
+      alert('Please provide a reason for closing your account');
+      return;
+    }
+    
+    const confirmed = window.confirm(
+      'Are you sure you want to close your account? This action cannot be undone.'
+    );
+    
+    if (!confirmed) return;
+    
+    setIsLoading(true);
+    try {
+      const backendUrl = process.env.REACT_APP_BACKEND_URL || 'http://localhost:8001';
+      const response = await fetch(`${backendUrl}/api/investors/${user.email}/close-account`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          reason: closeReason,
+          confirm_withdrawal: confirmWithdraw
+        })
+      });
+      
+      if (response.ok) {
+        setShowCloseAccountModal(false);
+        alert('Account closure request submitted. You will be contacted within 3-5 business days for verification.');
+      } else {
+        alert('Failed to submit closure request');
+      }
+    } catch (error) {
+      alert('Network error. Please try again.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+  
+  // Update Profile
+  const handleUpdateProfile = async () => {
+    setIsLoading(true);
+    try {
+      const backendUrl = process.env.REACT_APP_BACKEND_URL || 'http://localhost:8001';
+      const response = await fetch(`${backendUrl}/api/investors/${user.email}/profile`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: userProfile.name,
+          phone: userProfile.phone,
+          address: userProfile.address,
+          risk_tolerance: userProfile.riskTolerance,
+          investment_goals: userProfile.investmentGoals
+        })
+      });
+      
+      if (response.ok) {
+        alert('✅ Profile updated successfully!');
+      } else {
+        alert('Failed to update profile');
+      }
+    } catch (error) {
+      alert('Network error. Please try again.');
+    } finally {
+      setIsLoading(false);
     }
   };
   
