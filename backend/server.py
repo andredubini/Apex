@@ -2527,6 +2527,358 @@ async def get_investor_payments(investor_id: str):
     payments = await db.investor_payments.find({"investor_id": investor_id}).sort("year", -1).sort("month", -1).to_list(1000)
     return [InvestorPayment(**payment) for payment in payments]
 
+# ============ DEPOSIT ENDPOINTS ============
+
+class DepositRequest(BaseModel):
+    amount: float
+    payment_method: str = "bank_transfer"  # bank_transfer, wire, crypto
+    notes: Optional[str] = None
+
+@api_router.post("/deposits/{investor_id}")
+async def create_deposit_request(investor_id: str, deposit: DepositRequest):
+    """Create a deposit request for an investor"""
+    try:
+        investor = await db.investors.find_one({"id": investor_id}) or await db.investors.find_one({"email": investor_id})
+        if not investor:
+            raise HTTPException(status_code=404, detail="Investor not found")
+        
+        deposit_record = {
+            "id": str(uuid.uuid4()),
+            "investor_id": investor["id"],
+            "email": investor["email"],
+            "amount": deposit.amount,
+            "payment_method": deposit.payment_method,
+            "notes": deposit.notes,
+            "status": "pending",
+            "created_at": datetime.now(timezone.utc),
+            "updated_at": datetime.now(timezone.utc)
+        }
+        await db.deposits.insert_one(deposit_record)
+        
+        # Notify admin
+        await create_notification_for_user(
+            user_id=os.environ.get('ADMIN_EMAIL', 'admin@apexcapital.com'),
+            user_type="admin",
+            title="New Deposit Request",
+            message=f"Deposit request of ${deposit.amount:,.2f} submitted by {investor['email']} via {deposit.payment_method}",
+            type=NotificationType.DEPOSIT,
+            priority=NotificationPriority.HIGH
+        )
+        
+        # Notify investor
+        await create_notification_for_user(
+            user_id=investor["email"],
+            user_type="investor",
+            title="Deposit Request Received",
+            message=f"Your deposit request of ${deposit.amount:,.2f} has been received. Please follow the instructions sent to your email.",
+            type=NotificationType.DEPOSIT,
+            priority=NotificationPriority.MEDIUM
+        )
+        
+        # Bank details for the investor
+        bank_info = {
+            "bank_name": "Charles Schwab Bank",
+            "account_name": "Apex Capital Management LLC",
+            "account_number": "****4521",
+            "routing_number": "121202211",
+            "swift_code": "SCHBUS33",
+            "reference": f"DEP-{deposit_record['id'][:8].upper()}"
+        }
+        
+        return {
+            "success": True,
+            "deposit_id": deposit_record["id"],
+            "status": "pending",
+            "bank_info": bank_info,
+            "message": "Deposit request created. Please transfer funds using the bank details provided."
+        }
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error creating deposit request: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@api_router.get("/deposits/{investor_id}")
+async def get_investor_deposits(investor_id: str):
+    """Get all deposits for an investor"""
+    try:
+        deposits = await db.deposits.find({"email": investor_id}).sort("created_at", -1).to_list(100)
+        return deposits
+    except Exception as e:
+        logger.error(f"Error getting deposits: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+# ============ STATEMENT & DOCUMENTS ENDPOINTS ============
+
+@api_router.get("/statements/{investor_id}")
+async def generate_account_statement(investor_id: str, period: str = "monthly"):
+    """Generate account statement for an investor"""
+    try:
+        investor = await db.investors.find_one({"id": investor_id}) or await db.investors.find_one({"email": investor_id})
+        if not investor:
+            raise HTTPException(status_code=404, detail="Investor not found")
+        
+        # Get transactions history
+        deposits = await db.deposits.find({"email": investor["email"]}).to_list(100)
+        withdrawals = await db.withdrawal_requests.find({"email": investor["email"]}).to_list(100)
+        payments = await db.investor_payments.find({"investor_id": investor["id"]}).to_list(100)
+        
+        # Calculate totals
+        total_deposits = sum([d.get("amount", 0) for d in deposits if d.get("status") == "completed"])
+        total_withdrawals = sum([w.get("amount", 0) for w in withdrawals if w.get("status") == "completed"])
+        total_profits = sum([p.get("amount", 0) for p in payments])
+        
+        statement = {
+            "statement_id": str(uuid.uuid4()),
+            "investor_id": investor["id"],
+            "investor_name": investor.get("name", ""),
+            "investor_email": investor["email"],
+            "generated_at": datetime.now(timezone.utc).isoformat(),
+            "period": period,
+            "account_summary": {
+                "current_balance": investor.get("current_balance", 0),
+                "total_invested": investor.get("total_invested", 0),
+                "total_deposits": total_deposits,
+                "total_withdrawals": total_withdrawals,
+                "total_profits": total_profits,
+                "net_return_percent": ((investor.get("current_balance", 0) - investor.get("total_invested", 1)) / max(investor.get("total_invested", 1), 1)) * 100
+            },
+            "transactions": {
+                "deposits": [{"date": d.get("created_at"), "amount": d.get("amount"), "status": d.get("status")} for d in deposits[-10:]],
+                "withdrawals": [{"date": w.get("created_at"), "amount": w.get("amount"), "status": w.get("status")} for w in withdrawals[-10:]],
+                "profit_distributions": [{"date": f"{p.get('year')}-{p.get('month'):02d}", "amount": p.get("amount")} for p in payments[-12:]]
+            },
+            "trading_status": investor.get("trading_status", "inactive"),
+            "weekly_risk_percent": investor.get("weekly_risk_percent", 2.5)
+        }
+        
+        # Create notification
+        await create_notification_for_user(
+            user_id=investor["email"],
+            user_type="investor",
+            title="Statement Generated",
+            message=f"Your account statement has been generated and is ready for download.",
+            type=NotificationType.REPORT,
+            priority=NotificationPriority.LOW
+        )
+        
+        return statement
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error generating statement: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@api_router.get("/tax-documents/{investor_id}")
+async def get_tax_documents(investor_id: str, year: int = None):
+    """Get tax documents for an investor"""
+    try:
+        investor = await db.investors.find_one({"id": investor_id}) or await db.investors.find_one({"email": investor_id})
+        if not investor:
+            raise HTTPException(status_code=404, detail="Investor not found")
+        
+        if year is None:
+            year = datetime.now().year - 1  # Previous year's tax docs
+        
+        # Get payments for the year
+        payments = await db.investor_payments.find({
+            "investor_id": investor["id"],
+            "year": year
+        }).to_list(100)
+        
+        total_profits = sum([p.get("amount", 0) for p in payments])
+        
+        tax_doc = {
+            "document_id": str(uuid.uuid4()),
+            "investor_id": investor["id"],
+            "investor_name": investor.get("name", ""),
+            "investor_email": investor["email"],
+            "tax_year": year,
+            "generated_at": datetime.now(timezone.utc).isoformat(),
+            "document_type": "1099-DIV",
+            "summary": {
+                "total_distributions": total_profits,
+                "ordinary_dividends": total_profits * 0.6,
+                "qualified_dividends": total_profits * 0.4,
+                "capital_gain_distributions": 0,
+                "federal_tax_withheld": 0
+            },
+            "quarterly_breakdown": [
+                {"quarter": "Q1", "amount": sum([p.get("amount", 0) for p in payments if p.get("month", 0) <= 3])},
+                {"quarter": "Q2", "amount": sum([p.get("amount", 0) for p in payments if 4 <= p.get("month", 0) <= 6])},
+                {"quarter": "Q3", "amount": sum([p.get("amount", 0) for p in payments if 7 <= p.get("month", 0) <= 9])},
+                {"quarter": "Q4", "amount": sum([p.get("amount", 0) for p in payments if p.get("month", 0) >= 10])}
+            ],
+            "status": "available" if payments else "no_data"
+        }
+        
+        # Create notification
+        await create_notification_for_user(
+            user_id=investor["email"],
+            user_type="investor",
+            title="Tax Documents Ready",
+            message=f"Your {year} tax documents have been generated and are ready for download.",
+            type=NotificationType.REPORT,
+            priority=NotificationPriority.MEDIUM
+        )
+        
+        return tax_doc
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error generating tax documents: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+# ============ PROFILE UPDATE ENDPOINT ============
+
+class ProfileUpdate(BaseModel):
+    name: Optional[str] = None
+    phone: Optional[str] = None
+    address: Optional[str] = None
+    date_of_birth: Optional[str] = None
+    risk_tolerance: Optional[str] = None
+    investment_goals: Optional[str] = None
+
+@api_router.patch("/investors/{investor_id}/profile")
+async def update_investor_profile(investor_id: str, profile: ProfileUpdate):
+    """Update investor profile information"""
+    try:
+        investor = await db.investors.find_one({"id": investor_id}) or await db.investors.find_one({"email": investor_id})
+        if not investor:
+            raise HTTPException(status_code=404, detail="Investor not found")
+        
+        update_data = {}
+        if profile.name is not None:
+            update_data["name"] = profile.name
+        if profile.phone is not None:
+            update_data["phone"] = profile.phone
+        if profile.address is not None:
+            update_data["address"] = profile.address
+        if profile.date_of_birth is not None:
+            update_data["date_of_birth"] = profile.date_of_birth
+        if profile.risk_tolerance is not None:
+            update_data["risk_tolerance"] = profile.risk_tolerance
+        if profile.investment_goals is not None:
+            update_data["investment_goals"] = profile.investment_goals
+        
+        if update_data:
+            update_data["updated_at"] = datetime.now(timezone.utc)
+            await db.investors.update_one(
+                {"id": investor["id"]},
+                {"$set": update_data}
+            )
+        
+        updated_investor = await db.investors.find_one({"id": investor["id"]})
+        return {"success": True, "investor": updated_investor}
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error updating profile: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+# ============ SUPPORT REQUEST ENDPOINT (ENHANCED) ============
+
+class SupportRequest(BaseModel):
+    subject: str
+    message: str
+    priority: str = "normal"  # low, normal, high, urgent
+
+@api_router.post("/support/ticket")
+async def create_support_ticket(investor_id: str, request: SupportRequest):
+    """Create a detailed support ticket"""
+    try:
+        investor = await db.investors.find_one({"id": investor_id}) or await db.investors.find_one({"email": investor_id})
+        if not investor:
+            raise HTTPException(status_code=404, detail="Investor not found")
+        
+        ticket = {
+            "id": str(uuid.uuid4()),
+            "investor_id": investor["id"],
+            "investor_email": investor["email"],
+            "investor_name": investor.get("name", ""),
+            "subject": request.subject,
+            "message": request.message,
+            "priority": request.priority,
+            "status": "open",
+            "created_at": datetime.now(timezone.utc),
+            "updated_at": datetime.now(timezone.utc)
+        }
+        await db.support_tickets.insert_one(ticket)
+        
+        # Notify admin
+        await create_notification_for_user(
+            user_id=os.environ.get('ADMIN_EMAIL', 'admin@apexcapital.com'),
+            user_type="admin",
+            title=f"New Support Ticket: {request.subject}",
+            message=f"Support ticket from {investor['email']}: {request.message[:100]}...",
+            type=NotificationType.SYSTEM,
+            priority=NotificationPriority.HIGH if request.priority == "urgent" else NotificationPriority.MEDIUM
+        )
+        
+        # Notify investor
+        await create_notification_for_user(
+            user_id=investor["email"],
+            user_type="investor",
+            title="Support Ticket Created",
+            message=f"Your support ticket #{ticket['id'][:8].upper()} has been created. Our team will respond within 24 hours.",
+            type=NotificationType.SYSTEM,
+            priority=NotificationPriority.LOW
+        )
+        
+        return {"success": True, "ticket_id": ticket["id"], "message": "Support ticket created successfully"}
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error creating support ticket: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+# ============ ACCOUNT CLOSURE ENDPOINT ============
+
+class AccountClosureRequest(BaseModel):
+    reason: str
+    confirm_withdrawal: bool = False  # Whether to withdraw remaining balance
+
+@api_router.post("/investors/{investor_id}/close-account")
+async def request_account_closure(investor_id: str, request: AccountClosureRequest):
+    """Request account closure"""
+    try:
+        investor = await db.investors.find_one({"id": investor_id}) or await db.investors.find_one({"email": investor_id})
+        if not investor:
+            raise HTTPException(status_code=404, detail="Investor not found")
+        
+        closure_request = {
+            "id": str(uuid.uuid4()),
+            "investor_id": investor["id"],
+            "investor_email": investor["email"],
+            "reason": request.reason,
+            "withdraw_balance": request.confirm_withdrawal,
+            "current_balance": investor.get("current_balance", 0),
+            "status": "pending_review",
+            "created_at": datetime.now(timezone.utc)
+        }
+        await db.account_closures.insert_one(closure_request)
+        
+        # Notify admin
+        await create_notification_for_user(
+            user_id=os.environ.get('ADMIN_EMAIL', 'admin@apexcapital.com'),
+            user_type="admin",
+            title="Account Closure Request",
+            message=f"Account closure requested by {investor['email']}. Balance: ${investor.get('current_balance', 0):,.2f}",
+            type=NotificationType.ALERT,
+            priority=NotificationPriority.HIGH
+        )
+        
+        return {
+            "success": True,
+            "request_id": closure_request["id"],
+            "message": "Account closure request submitted. You will be contacted within 3-5 business days for verification."
+        }
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error requesting account closure: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
 @api_router.post("/manual-profit-distribution")
 async def trigger_manual_profit_distribution():
     """Manually trigger profit distribution for testing purposes"""
