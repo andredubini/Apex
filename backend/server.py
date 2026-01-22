@@ -1492,7 +1492,7 @@ async def get_weekly_risk_schedule(investor_id: str):
       return {
         "effective_from": start.isoformat(),
         "effective_to": end.isoformat(),
-        "weekly_risk_percent": investor.get("weekly_risk_percent", 1.0)
+        "weekly_risk_percent": investor.get("weekly_risk_percent", 2.5)
       }
     except HTTPException:
       raise
@@ -3050,7 +3050,7 @@ async def send_weekly_reports_to_all():
                     "volatility": random.uniform(6.0, 12.0),
                     "sharpe_ratio": random.uniform(1.2, 2.5),
                     "max_drawdown": random.uniform(-3.5, -0.5),
-                    "weekly_risk_percent": investor.get("weekly_risk_percent", 1.0)
+                    "weekly_risk_percent": investor.get("weekly_risk_percent", 2.5)
                 }
                 
                 # Send weekly report email
