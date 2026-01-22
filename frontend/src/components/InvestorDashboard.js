@@ -2224,23 +2224,23 @@ const InvestorDashboard = () => {
         </div>
       </nav>
 
-      {/* Desktop Sidebar Navigation */}
-      <aside className={`hidden md:block fixed left-6 top-24 bottom-6 w-64 z-40 ${cardBgClass} rounded-xl shadow-sm border ${borderClass} p-6`}>
-        <nav className="space-y-2">
+      {/* Desktop Sidebar Navigation - Hidden on tablets, shown on large screens */}
+      <aside className={`hidden lg:block fixed left-6 top-24 bottom-6 w-56 z-40 ${cardBgClass} rounded-xl shadow-sm border ${borderClass} p-4`}>
+        <nav className="space-y-1">
           {navItems.map(({ id, label, icon: Icon, badge }) => (
             <button
               key={id}
               onClick={() => setActiveTab(id)}
-              className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg text-left transition-colors relative ${
+              className={`w-full flex items-center space-x-3 px-3 py-2.5 rounded-lg text-left transition-colors relative ${
                 activeTab === id 
                   ? 'bg-blue-600 text-white' 
                   : `${textSecondaryClass} hover:${theme === 'dark' ? 'bg-slate-700' : 'bg-gray-100'}`
               }`}
             >
               <Icon className="w-5 h-5" />
-              <span className="font-medium">{label}</span>
+              <span className="font-medium text-sm">{label}</span>
               {badge && (
-                <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-bold">
+                <span className="absolute top-1 right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-bold">
                   {badge > 99 ? '99+' : badge}
                 </span>
               )}
@@ -2248,6 +2248,31 @@ const InvestorDashboard = () => {
           ))}
         </nav>
       </aside>
+
+      {/* Tablet Navigation - Horizontal tabs for medium screens */}
+      <nav className={`hidden md:flex lg:hidden sticky top-[73px] z-30 ${cardBgClass} border-b ${borderClass} px-4 py-2 overflow-x-auto`}>
+        <div className="flex space-x-1 min-w-max mx-auto">
+          {navItems.map(({ id, label, icon: Icon, badge }) => (
+            <button
+              key={id}
+              onClick={() => setActiveTab(id)}
+              className={`flex items-center space-x-2 px-4 py-2 rounded-lg transition-colors relative whitespace-nowrap ${
+                activeTab === id 
+                  ? 'bg-blue-600 text-white' 
+                  : `${textSecondaryClass} hover:${theme === 'dark' ? 'bg-slate-700' : 'bg-gray-100'}`
+              }`}
+            >
+              <Icon className="w-4 h-4" />
+              <span className="font-medium text-sm">{label}</span>
+              {badge && (
+                <span className="bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-bold ml-1">
+                  {badge > 99 ? '99+' : badge}
+                </span>
+              )}
+            </button>
+          ))}
+        </div>
+      </nav>
 
       {/* Desktop Content Adjustment */}
       <style jsx>{`
