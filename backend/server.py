@@ -1406,9 +1406,9 @@ async def get_next_week_risk(investor: dict) -> tuple[float, str, str]:
         "effective_from": {"$lte": next_start.isoformat()}
     }).sort("effective_from", -1).limit(1).to_list(1)
     if sched:
-        pct = float(sched[0].get("weekly_risk_percent", investor.get("weekly_risk_percent", 1.0)))
+        pct = float(sched[0].get("weekly_risk_percent", investor.get("weekly_risk_percent", 2.5)))
     else:
-        pct = float(investor.get("weekly_risk_percent", 1.0))
+        pct = float(investor.get("weekly_risk_percent", 2.5))
     return pct, next_start.isoformat(), next_end.isoformat()
 
     return investor_obj
