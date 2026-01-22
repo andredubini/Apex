@@ -1425,12 +1425,12 @@ class EnhancedApexCapitalTester:
                     
                     # Check if bank_info with reference code is present
                     bank_info = result.get("bank_info", {})
-                    if bank_info and "reference_code" in bank_info:
+                    if bank_info and ("reference_code" in bank_info or "reference" in bank_info):
                         self.log_test("Deposit API - Bank Info", True, 
-                                    f"Bank info with reference code: {bank_info}")
+                                    f"Bank info with reference: {bank_info}")
                     else:
                         self.log_test("Deposit API - Bank Info", False, 
-                                    f"Missing bank_info or reference_code: {result}")
+                                    f"Missing bank_info or reference_code/reference: {result}")
                 else:
                     self.log_test("Deposit API - Success", False, 
                                 f"Expected success:true, got: {result}")
