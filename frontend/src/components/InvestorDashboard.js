@@ -748,24 +748,58 @@ const InvestorDashboard = () => {
 
       {/* Weekly Risk Quick Control */}
       <div className={`${cardBgClass} rounded-xl p-6 shadow-sm border ${borderClass}`}>
-        <h3 className={`text-lg font-semibold ${textClass} mb-4`}>Weekly Risk (% of Account, 0.5 – 5)</h3>
-        {userProfile.weeklyRiskWindow && (
-          <p className={`text-xs ${textSecondaryClass} mb-2`}>
-            Effective: {new Date(userProfile.weeklyRiskWindow.effective_from).toLocaleString()} → {new Date(userProfile.weeklyRiskWindow.effective_to).toLocaleString()}
-          </p>
-        )}
-        <div className="flex items-center space-x-3">
-          <input
-            type="range"
-            min="0.5"
-            max="5"
-            step="0.1"
-            value={userProfile.weeklyRisk || 1.0}
-            onChange={(e) => setUserProfile({...userProfile, weeklyRisk: parseFloat(e.target.value)})}
-            className="w-full"
-          />
-          <span className="text-blue-600 font-semibold">{(userProfile.weeklyRisk || 1.0).toFixed(1)}%</span>
+        <div className="flex items-center justify-between mb-4">
+          <h3 className={`text-lg font-semibold ${textClass}`}>Weekly Risk Level</h3>
+          <div className={`px-3 py-1 rounded-full text-sm font-medium ${
+            (userProfile.weeklyRisk || 1.0) <= 1.5 ? 'bg-green-100 text-green-700' :
+            (userProfile.weeklyRisk || 1.0) <= 3 ? 'bg-yellow-100 text-yellow-700' :
+            'bg-red-100 text-red-700'
+          }`}>
+            {(userProfile.weeklyRisk || 1.0) <= 1.5 ? 'Conservative' :
+             (userProfile.weeklyRisk || 1.0) <= 3 ? 'Moderate' : 'Aggressive'}
+          </div>
         </div>
+        
+        {userProfile.weeklyRiskWindow && (
+          <div className={`mb-4 p-3 rounded-lg ${theme === 'dark' ? 'bg-slate-700/50' : 'bg-blue-50'}`}>
+            <p className={`text-xs ${textSecondaryClass}`}>
+              <span className="font-medium">Active Period:</span> {new Date(userProfile.weeklyRiskWindow.effective_from).toLocaleDateString()} → {new Date(userProfile.weeklyRiskWindow.effective_to).toLocaleDateString()}
+            </p>
+          </div>
+        )}
+        
+        <div className="space-y-3">
+          <div className="flex justify-between text-xs mb-1">
+            <span className={textSecondaryClass}>0.5% (Safe)</span>
+            <span className={textSecondaryClass}>2.5% (Balanced)</span>
+            <span className={textSecondaryClass}>5% (Max)</span>
+          </div>
+          <div className="relative">
+            <input
+              type="range"
+              min="0.5"
+              max="5"
+              step="0.1"
+              value={userProfile.weeklyRisk || 1.0}
+              onChange={(e) => setUserProfile({...userProfile, weeklyRisk: parseFloat(e.target.value)})}
+              className="w-full h-2 bg-gradient-to-r from-green-400 via-yellow-400 to-red-400 rounded-lg appearance-none cursor-pointer"
+              style={{
+                background: `linear-gradient(to right, #22c55e 0%, #eab308 50%, #ef4444 100%)`
+              }}
+            />
+          </div>
+          <div className="flex items-center justify-between">
+            <span className={`text-2xl font-bold ${
+              (userProfile.weeklyRisk || 1.0) <= 1.5 ? 'text-green-600' :
+              (userProfile.weeklyRisk || 1.0) <= 3 ? 'text-yellow-600' :
+              'text-red-600'
+            }`}>
+              {(userProfile.weeklyRisk || 1.0).toFixed(1)}%
+            </span>
+            <span className={`text-sm ${textSecondaryClass}`}>of your account per week</span>
+          </div>
+        </div>
+        
         <button
           onClick={async () => {
             try {
@@ -776,18 +810,19 @@ const InvestorDashboard = () => {
                 body: JSON.stringify({ weekly_risk_percent: userProfile.weeklyRisk || 1.0 })
               });
               if (resp.ok) {
-                alert('Weekly risk setting updated successfully');
+                alert('✅ Weekly risk setting updated successfully');
               } else {
                 const err = await resp.json().catch(() => ({}));
-                alert(`Failed to update weekly risk: ${err.detail || resp.status}`);
+                alert(`❌ Failed to update weekly risk: ${err.detail || resp.status}`);
               }
             } catch (e) {
-              alert('Network error updating weekly risk');
+              alert('❌ Network error updating weekly risk');
             }
           }}
-          className="mt-3 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg"
+          className="mt-4 w-full bg-blue-600 hover:bg-blue-700 text-white px-4 py-3 rounded-xl font-medium transition-colors flex items-center justify-center space-x-2"
         >
-          Save Weekly Risk
+          <DollarSign className="w-4 h-4" />
+          <span>Save Risk Setting</span>
         </button>
       </div>
 
