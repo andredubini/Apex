@@ -2319,7 +2319,7 @@ const InvestorDashboard = () => {
         
         <div className="space-y-4">
           <button
-            onClick={() => alert('Statement generated and sent to your email')}
+            onClick={() => setShowStatementModal(true)}
             className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 px-4 rounded-lg font-medium transition-colors flex items-center justify-center space-x-2"
           >
             <Download className="w-5 h-5" />
@@ -2327,7 +2327,7 @@ const InvestorDashboard = () => {
           </button>
           
           <button
-            onClick={() => alert('Tax documents will be emailed to you')}
+            onClick={() => setShowTaxDocsModal(true)}
             className="w-full bg-green-600 hover:bg-green-700 text-white py-3 px-4 rounded-lg font-medium transition-colors flex items-center justify-center space-x-2"
           >
             <FileText className="w-5 h-5" />
@@ -2335,14 +2335,7 @@ const InvestorDashboard = () => {
           </button>
           
           <button
-            onClick={async () => {
-            try {
-              const backendUrl = process.env.REACT_APP_BACKEND_URL || 'http://localhost:8001';
-              const resp = await fetch(`${backendUrl}/api/support/contact`, { method: 'POST' });
-              if (resp.ok) alert('Support request submitted. Our team will contact you.');
-              else alert('Failed to submit support request');
-            } catch (e) { alert('Network error submitting support request'); }
-          }}
+            onClick={() => setShowSupportModal(true)}
             className="w-full bg-purple-600 hover:bg-purple-700 text-white py-3 px-4 rounded-lg font-medium transition-colors flex items-center justify-center space-x-2"
           >
             <User className="w-5 h-5" />
@@ -2351,14 +2344,7 @@ const InvestorDashboard = () => {
           
           <div className="pt-4 border-t border-gray-200">
             <button
-              onClick={() => {
-                if (confirm('Are you sure you want to close your account? This action cannot be undone.')) {
-                  alert('Account closure request submitted. You will be contacted for verification.');
-
- 
-
-                }
-              }}
+              onClick={() => setShowCloseAccountModal(true)}
               className="w-full bg-red-600 hover:bg-red-700 text-white py-3 px-4 rounded-lg font-medium transition-colors"
             >
               Close Account
