@@ -890,15 +890,15 @@ const InvestorDashboard = () => {
       </div>
 
       {/* Performance Summary Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 md:gap-4">
         <div className={`${cardBgClass} rounded-xl p-4 shadow-sm border ${borderClass}`}>
           <div className="flex items-center justify-between">
             <div>
-              <p className={`${textSecondaryClass} text-sm`}>Invested</p>
-              <p className={`text-xl font-bold ${textClass}`}>${user.totalInvested?.toLocaleString() || "100,000"}</p>
+              <p className={`${textSecondaryClass} text-xs md:text-sm`}>Invested Capital</p>
+              <p className={`text-lg md:text-xl font-bold ${textClass}`}>${user.totalInvested?.toLocaleString() || "100,000"}</p>
             </div>
-            <div className="bg-purple-100 p-2 rounded-full">
-              <Wallet className="w-5 h-5 text-purple-600" />
+            <div className="bg-purple-100 p-2 md:p-3 rounded-xl">
+              <Wallet className="w-5 h-5 md:w-6 md:h-6 text-purple-600" />
             </div>
           </div>
         </div>
@@ -906,24 +906,25 @@ const InvestorDashboard = () => {
         <div className={`${cardBgClass} rounded-xl p-4 shadow-sm border ${borderClass}`}>
           <div className="flex items-center justify-between">
             <div>
-              <p className={`${textSecondaryClass} text-sm`}>Your Profit Share</p>
-              <p className="text-xl font-bold text-green-600">${profitDistribution.investorShare.toLocaleString()}</p>
+              <p className={`${textSecondaryClass} text-xs md:text-sm`}>Your Profit Share</p>
+              <p className="text-lg md:text-xl font-bold text-green-600">${profitDistribution.investorShare.toLocaleString()}</p>
+              <p className={`text-xs ${textSecondaryClass}`}>{(profitDistribution.investorPct * 100).toFixed(0)}% of profits</p>
             </div>
-            <div className="bg-green-100 p-2 rounded-full">
-              <TrendingUp className="w-5 h-5 text-green-600" />
+            <div className="bg-green-100 p-2 md:p-3 rounded-xl">
+              <TrendingUp className="w-5 h-5 md:w-6 md:h-6 text-green-600" />
             </div>
           </div>
-          <p className={`text-xs ${textSecondaryClass} mt-1`}>Tiered Distribution</p>
         </div>
 
         <div className={`${cardBgClass} rounded-xl p-4 shadow-sm border ${borderClass}`}>
           <div className="flex items-center justify-between">
             <div>
-              <p className={`${textSecondaryClass} text-sm`}>Annual Return</p>
-              <p className="text-xl font-bold text-blue-600">{profitDistribution.annualReturn.toFixed(2)}%</p>
+              <p className={`${textSecondaryClass} text-xs md:text-sm`}>Annual Return</p>
+              <p className="text-lg md:text-xl font-bold text-blue-600">{profitDistribution.annualReturn.toFixed(2)}%</p>
+              <p className={`text-xs ${textSecondaryClass}`}>YTD performance</p>
             </div>
-            <div className="bg-blue-100 p-2 rounded-full">
-              <BarChart3 className="w-5 h-5 text-blue-600" />
+            <div className="bg-blue-100 p-2 md:p-3 rounded-xl">
+              <BarChart3 className="w-5 h-5 md:w-6 md:h-6 text-blue-600" />
             </div>
           </div>
         </div>
