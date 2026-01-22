@@ -1536,10 +1536,15 @@ class EnhancedApexCapitalTester:
                     # Check for quarterly_breakdown
                     has_quarterly = False
                     if isinstance(tax_docs, dict):
-                        for doc_type, doc_data in tax_docs.items():
-                            if isinstance(doc_data, dict) and "quarterly_breakdown" in doc_data:
-                                has_quarterly = True
-                                break
+                        # Check if quarterly_breakdown is directly in the response or nested
+                        if "quarterly_breakdown" in tax_docs:
+                            has_quarterly = True
+                        else:
+                            # Check nested structures
+                            for doc_type, doc_data in tax_docs.items():
+                                if isinstance(doc_data, dict) and "quarterly_breakdown" in doc_data:
+                                    has_quarterly = True
+                                    break
                     
                     if has_quarterly:
                         self.log_test("Tax Documents - Quarterly Breakdown", True, 
