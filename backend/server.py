@@ -81,7 +81,7 @@ class InvestorCreate(BaseModel):
     phone: str = ""
     initial_investment: float
     risk_profile: str = "moderate"
-    weekly_risk_percent: float = 1.0  # default 1%
+    weekly_risk_percent: float = 2.5  # default 2.5%
 
 class TradingStatusUpdate(BaseModel):
     trading_status: str  # "active" or "inactive"
