@@ -1701,7 +1701,7 @@ const InvestorDashboard = () => {
             <div className="space-y-2 text-sm">
               <div className="flex justify-between">
                 <span className={textSecondaryClass}>Weekly Risk (selected):</span>
-                <span className="text-blue-600 font-medium">{(userProfile.weeklyRisk || 1.0).toFixed(1)}%</span>
+                <span className="text-blue-600 font-medium">{(userProfile.weeklyRisk || 2.5).toFixed(1)}%</span>
               </div>
               <div className="flex justify-between">
                 <span className={textSecondaryClass}>Portfolio Diversification:</span>
