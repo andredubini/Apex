@@ -515,7 +515,7 @@ class EmailService:
                 <div style="background: #f9fafb; padding: 20px; border-radius: 8px; margin: 20px 0;">
                     <h4 style="margin-top: 0; color: #1f2937;">Risk Management Metrics</h4>
                     <ul style="margin: 0; padding-left: 20px; color: #374151;">
-                        <li>Investor-selected weekly risk: {{ "{:.1f}".format(report_data.weekly_risk_percent or 1.0) }}%</li>
+                        <li>Investor-selected weekly risk: {{ "{:.1f}".format(report_data.weekly_risk_percent or 2.5) }}%</li>
                         <li>Portfolio volatility: {{ "{:.1f}".format(report_data.volatility or 8.2) }}%</li>
                         <li>Sharpe ratio: {{ "{:.2f}".format(report_data.sharpe_ratio or 1.85) }}</li>
                         <li>Maximum drawdown: {{ "{:.1f}".format(report_data.max_drawdown or -2.1) }}%</li>
