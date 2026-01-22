@@ -1057,7 +1057,7 @@ const InvestorDashboard = () => {
       {/* Enhanced Quick Actions */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
         <button
-          onClick={handleDepositRequest}
+          onClick={() => setShowDepositModal(true)}
           className={`${cardBgClass} rounded-xl p-4 md:p-5 shadow-sm border ${borderClass} hover:shadow-lg transition-all hover:scale-[1.02] group`}
         >
           <div className="flex flex-col items-center text-center space-y-2">
@@ -1072,7 +1072,7 @@ const InvestorDashboard = () => {
         </button>
         
         <button
-          onClick={handleWithdrawRequest}
+          onClick={() => setShowWithdrawModal(true)}
           className={`${cardBgClass} rounded-xl p-4 md:p-5 shadow-sm border ${borderClass} hover:shadow-lg transition-all hover:scale-[1.02] group`}
         >
           <div className="flex flex-col items-center text-center space-y-2">
