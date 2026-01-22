@@ -807,7 +807,7 @@ const InvestorDashboard = () => {
               const resp = await fetch(`${backendUrl}/api/investors/${user.email}/weekly-risk`, {
                 method: 'PATCH',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ weekly_risk_percent: userProfile.weeklyRisk || 1.0 })
+                body: JSON.stringify({ weekly_risk_percent: userProfile.weeklyRisk || 2.5 })
               });
               if (resp.ok) {
                 alert('✅ Weekly risk setting updated successfully');
