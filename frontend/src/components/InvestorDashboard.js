@@ -832,25 +832,6 @@ const InvestorDashboard = () => {
     logout();
   };
 
-  const handleWithdrawRequest = async () => {
-    try {
-      const backendUrl = process.env.REACT_APP_BACKEND_URL || 'http://localhost:8001';
-      const resp = await fetch(`${backendUrl}/api/withdrawals/${user.email}`, { method: 'POST' });
-      if (resp.ok) {
-        alert('Withdrawal request submitted successfully');
-      } else {
-        const err = await resp.json().catch(() => ({}));
-        alert(`Failed to submit withdrawal request: ${err.detail || resp.status}`);
-      }
-    } catch (e) {
-      alert('Network error submitting withdrawal request');
-    }
-  };
-
-  const handleDepositRequest = () => {
-    alert("Deposit request submitted. Please follow the instructions sent to your email.");
-  };
-
   const navItems = [
     { id: 'overview', label: 'Home', icon: Home },
     { id: 'reports', label: 'Reports', icon: FileText },
