@@ -827,63 +827,63 @@ const InvestorDashboard = () => {
       </div>
 
       {/* Enhanced Quick Actions */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
         <button
           onClick={handleDepositRequest}
-          className={`${cardBgClass} rounded-xl p-4 shadow-sm border ${borderClass} hover:shadow-md transition-all hover:scale-105`}
+          className={`${cardBgClass} rounded-xl p-4 md:p-5 shadow-sm border ${borderClass} hover:shadow-lg transition-all hover:scale-[1.02] group`}
         >
-          <div className="flex items-center justify-between">
-            <div className="text-left">
-              <p className={`${textSecondaryClass} text-sm`}>Add Money</p>
-              <p className={`${textClass} font-semibold`}>Deposit</p>
+          <div className="flex flex-col items-center text-center space-y-2">
+            <div className="bg-gradient-to-br from-green-400 to-green-600 p-3 rounded-xl group-hover:scale-110 transition-transform shadow-lg shadow-green-200">
+              <Plus className="w-6 h-6 text-white" />
             </div>
-            <div className="bg-green-100 p-2 rounded-full">
-              <Plus className="w-5 h-5 text-green-600" />
+            <div>
+              <p className={`${textClass} font-semibold`}>Deposit</p>
+              <p className={`${textSecondaryClass} text-xs`}>Add funds</p>
             </div>
           </div>
         </button>
         
         <button
           onClick={handleWithdrawRequest}
-          className={`${cardBgClass} rounded-xl p-4 shadow-sm border ${borderClass} hover:shadow-md transition-all hover:scale-105`}
+          className={`${cardBgClass} rounded-xl p-4 md:p-5 shadow-sm border ${borderClass} hover:shadow-lg transition-all hover:scale-[1.02] group`}
         >
-          <div className="flex items-center justify-between">
-            <div className="text-left">
-              <p className={`${textSecondaryClass} text-sm`}>Withdraw</p>
-              <p className={`${textClass} font-semibold`}>Transfer</p>
+          <div className="flex flex-col items-center text-center space-y-2">
+            <div className="bg-gradient-to-br from-blue-400 to-blue-600 p-3 rounded-xl group-hover:scale-110 transition-transform shadow-lg shadow-blue-200">
+              <Send className="w-6 h-6 text-white" />
             </div>
-            <div className="bg-blue-100 p-2 rounded-full">
-              <Send className="w-5 h-5 text-blue-600" />
+            <div>
+              <p className={`${textClass} font-semibold`}>Withdraw</p>
+              <p className={`${textSecondaryClass} text-xs`}>Transfer out</p>
             </div>
           </div>
         </button>
 
         <button
-          onClick={() => alert('Advanced analytics dashboard with interactive charts, risk metrics, and performance attribution')}
-          className={`${cardBgClass} rounded-xl p-4 shadow-sm border ${borderClass} hover:shadow-md transition-all hover:scale-105`}
+          onClick={() => setActiveTab('reports')}
+          className={`${cardBgClass} rounded-xl p-4 md:p-5 shadow-sm border ${borderClass} hover:shadow-lg transition-all hover:scale-[1.02] group`}
         >
-          <div className="flex items-center justify-between">
-            <div className="text-left">
-              <p className={`${textSecondaryClass} text-sm`}>Analytics</p>
-              <p className={`${textClass} font-semibold`}>Deep Dive</p>
+          <div className="flex flex-col items-center text-center space-y-2">
+            <div className="bg-gradient-to-br from-purple-400 to-purple-600 p-3 rounded-xl group-hover:scale-110 transition-transform shadow-lg shadow-purple-200">
+              <BarChart3 className="w-6 h-6 text-white" />
             </div>
-            <div className="bg-purple-100 p-2 rounded-full">
-              <BarChart3 className="w-5 h-5 text-purple-600" />
+            <div>
+              <p className={`${textClass} font-semibold`}>Analytics</p>
+              <p className={`${textSecondaryClass} text-xs`}>View reports</p>
             </div>
           </div>
         </button>
 
         <button
-          onClick={() => alert('AI-powered portfolio optimization suggestions and risk management recommendations')}
-          className={`${cardBgClass} rounded-xl p-4 shadow-sm border ${borderClass} hover:shadow-md transition-all hover:scale-105`}
+          onClick={() => setActiveTab('settings')}
+          className={`${cardBgClass} rounded-xl p-4 md:p-5 shadow-sm border ${borderClass} hover:shadow-lg transition-all hover:scale-[1.02] group`}
         >
-          <div className="flex items-center justify-between">
-            <div className="text-left">
-              <p className={`${textSecondaryClass} text-sm`}>AI Insights</p>
-              <p className={`${textClass} font-semibold`}>Optimize</p>
+          <div className="flex flex-col items-center text-center space-y-2">
+            <div className="bg-gradient-to-br from-indigo-400 to-indigo-600 p-3 rounded-xl group-hover:scale-110 transition-transform shadow-lg shadow-indigo-200">
+              <Settings className="w-6 h-6 text-white" />
             </div>
-            <div className="bg-indigo-100 p-2 rounded-full">
-              <Target className="w-5 h-5 text-indigo-600" />
+            <div>
+              <p className={`${textClass} font-semibold`}>Settings</p>
+              <p className={`${textSecondaryClass} text-xs`}>Preferences</p>
             </div>
           </div>
         </button>
