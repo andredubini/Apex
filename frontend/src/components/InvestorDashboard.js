@@ -2489,6 +2489,444 @@ const InvestorDashboard = () => {
         </div>
       </nav>
 
+      {/* ============ MODALS ============ */}
+      
+      {/* Deposit Modal */}
+      {showDepositModal && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className={`${cardBgClass} rounded-2xl p-6 w-full max-w-md max-h-[90vh] overflow-y-auto`}>
+            <div className="flex items-center justify-between mb-6">
+              <h3 className={`text-xl font-bold ${textClass}`}>Deposit Funds</h3>
+              <button onClick={() => {setShowDepositModal(false); setDepositBankInfo(null); setDepositAmount('');}} className={textSecondaryClass}>
+                <X className="w-6 h-6" />
+              </button>
+            </div>
+            
+            {!depositBankInfo ? (
+              <>
+                <div className="space-y-4">
+                  <div>
+                    <label className={`block text-sm font-medium ${textSecondaryClass} mb-2`}>Amount (USD)</label>
+                    <div className="relative">
+                      <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">$</span>
+                      <input
+                        type="number"
+                        value={depositAmount}
+                        onChange={(e) => setDepositAmount(e.target.value)}
+                        placeholder="10,000"
+                        className={`w-full pl-8 pr-4 py-3 border ${borderClass} rounded-xl focus:ring-2 focus:ring-blue-500 ${theme === 'dark' ? 'bg-slate-700 text-white' : 'bg-white'}`}
+                      />
+                    </div>
+                  </div>
+                  
+                  <div>
+                    <label className={`block text-sm font-medium ${textSecondaryClass} mb-2`}>Payment Method</label>
+                    <select
+                      value={depositMethod}
+                      onChange={(e) => setDepositMethod(e.target.value)}
+                      className={`w-full px-4 py-3 border ${borderClass} rounded-xl focus:ring-2 focus:ring-blue-500 ${theme === 'dark' ? 'bg-slate-700 text-white' : 'bg-white'}`}
+                    >
+                      <option value="bank_transfer">Bank Transfer (ACH)</option>
+                      <option value="wire">Wire Transfer</option>
+                      <option value="crypto">Cryptocurrency</option>
+                    </select>
+                  </div>
+                  
+                  <div className={`p-4 rounded-xl ${theme === 'dark' ? 'bg-blue-900/20' : 'bg-blue-50'}`}>
+                    <p className={`text-sm ${textSecondaryClass}`}>
+                      <Info className="w-4 h-4 inline mr-1" />
+                      Minimum deposit: $1,000. Funds typically credited within 1-3 business days.
+                    </p>
+                  </div>
+                </div>
+                
+                <button
+                  onClick={handleDepositRequest}
+                  disabled={isLoading || !depositAmount}
+                  className="w-full mt-6 bg-green-600 hover:bg-green-700 disabled:bg-gray-400 text-white py-3 rounded-xl font-semibold transition-colors flex items-center justify-center space-x-2"
+                >
+                  {isLoading ? (
+                    <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+                  ) : (
+                    <>
+                      <Plus className="w-5 h-5" />
+                      <span>Continue</span>
+                    </>
+                  )}
+                </button>
+              </>
+            ) : (
+              <div className="space-y-4">
+                <div className={`p-4 rounded-xl ${theme === 'dark' ? 'bg-green-900/20' : 'bg-green-50'} border border-green-200`}>
+                  <p className="text-green-600 font-semibold mb-2">✅ Deposit Request Created</p>
+                  <p className={`text-sm ${textSecondaryClass}`}>Please transfer ${parseFloat(depositAmount).toLocaleString()} using the details below:</p>
+                </div>
+                
+                <div className={`p-4 rounded-xl border ${borderClass} space-y-3`}>
+                  <div className="flex justify-between">
+                    <span className={textSecondaryClass}>Bank Name:</span>
+                    <span className={`font-medium ${textClass}`}>{depositBankInfo.bank_name}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className={textSecondaryClass}>Account Name:</span>
+                    <span className={`font-medium ${textClass}`}>{depositBankInfo.account_name}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className={textSecondaryClass}>Account Number:</span>
+                    <span className={`font-medium ${textClass}`}>{depositBankInfo.account_number}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className={textSecondaryClass}>Routing Number:</span>
+                    <span className={`font-medium ${textClass}`}>{depositBankInfo.routing_number}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className={textSecondaryClass}>SWIFT Code:</span>
+                    <span className={`font-medium ${textClass}`}>{depositBankInfo.swift_code}</span>
+                  </div>
+                  <div className="flex justify-between pt-2 border-t border-dashed">
+                    <span className={textSecondaryClass}>Reference:</span>
+                    <span className="font-bold text-blue-600">{depositBankInfo.reference}</span>
+                  </div>
+                </div>
+                
+                <p className={`text-xs ${textSecondaryClass} text-center`}>
+                  ⚠️ Please include the reference number in your transfer to ensure proper credit.
+                </p>
+                
+                <button
+                  onClick={() => {setShowDepositModal(false); setDepositBankInfo(null); setDepositAmount('');}}
+                  className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-xl font-semibold"
+                >
+                  Done
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+      
+      {/* Withdraw Modal */}
+      {showWithdrawModal && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className={`${cardBgClass} rounded-2xl p-6 w-full max-w-md`}>
+            <div className="flex items-center justify-between mb-6">
+              <h3 className={`text-xl font-bold ${textClass}`}>Request Withdrawal</h3>
+              <button onClick={() => setShowWithdrawModal(false)} className={textSecondaryClass}>
+                <X className="w-6 h-6" />
+              </button>
+            </div>
+            
+            <div className="space-y-4">
+              <div className={`p-4 rounded-xl ${theme === 'dark' ? 'bg-slate-700' : 'bg-gray-50'}`}>
+                <p className={`text-sm ${textSecondaryClass}`}>Available Balance</p>
+                <p className={`text-2xl font-bold ${textClass}`}>${(user.accountBalance || user.totalInvested || 0).toLocaleString()}</p>
+              </div>
+              
+              <div className={`p-4 rounded-xl ${theme === 'dark' ? 'bg-yellow-900/20' : 'bg-yellow-50'} border border-yellow-200`}>
+                <p className={`text-sm text-yellow-700`}>
+                  <Info className="w-4 h-4 inline mr-1" />
+                  Withdrawal requests are processed within 1-2 business days. Funds will be transferred to your registered bank account.
+                </p>
+              </div>
+              
+              <div className="pt-4 space-y-3">
+                <button
+                  onClick={handleWithdrawRequest}
+                  disabled={isLoading}
+                  className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 text-white py-3 rounded-xl font-semibold flex items-center justify-center space-x-2"
+                >
+                  {isLoading ? (
+                    <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+                  ) : (
+                    <>
+                      <Send className="w-5 h-5" />
+                      <span>Request Full Withdrawal</span>
+                    </>
+                  )}
+                </button>
+                <button
+                  onClick={() => setShowWithdrawModal(false)}
+                  className={`w-full py-3 rounded-xl font-semibold border ${borderClass} ${textSecondaryClass}`}
+                >
+                  Cancel
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+      
+      {/* Statement Modal */}
+      {showStatementModal && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className={`${cardBgClass} rounded-2xl p-6 w-full max-w-lg max-h-[90vh] overflow-y-auto`}>
+            <div className="flex items-center justify-between mb-6">
+              <h3 className={`text-xl font-bold ${textClass}`}>Account Statement</h3>
+              <button onClick={() => {setShowStatementModal(false); setStatementData(null);}} className={textSecondaryClass}>
+                <X className="w-6 h-6" />
+              </button>
+            </div>
+            
+            {!statementData ? (
+              <div className="text-center py-8">
+                <button
+                  onClick={handleGenerateStatement}
+                  disabled={isLoading}
+                  className="bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 text-white px-8 py-3 rounded-xl font-semibold flex items-center justify-center space-x-2 mx-auto"
+                >
+                  {isLoading ? (
+                    <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+                  ) : (
+                    <>
+                      <Download className="w-5 h-5" />
+                      <span>Generate Statement</span>
+                    </>
+                  )}
+                </button>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                <div className={`p-4 rounded-xl ${theme === 'dark' ? 'bg-slate-700' : 'bg-gray-50'}`}>
+                  <p className={`text-sm ${textSecondaryClass}`}>Statement ID: {statementData.statement_id?.slice(0,8).toUpperCase()}</p>
+                  <p className={`text-sm ${textSecondaryClass}`}>Generated: {new Date(statementData.generated_at).toLocaleString()}</p>
+                </div>
+                
+                <div className="grid grid-cols-2 gap-3">
+                  <div className={`p-3 rounded-xl border ${borderClass}`}>
+                    <p className={`text-xs ${textSecondaryClass}`}>Current Balance</p>
+                    <p className={`text-lg font-bold text-green-600`}>${statementData.account_summary?.current_balance?.toLocaleString() || '0'}</p>
+                  </div>
+                  <div className={`p-3 rounded-xl border ${borderClass}`}>
+                    <p className={`text-xs ${textSecondaryClass}`}>Total Invested</p>
+                    <p className={`text-lg font-bold ${textClass}`}>${statementData.account_summary?.total_invested?.toLocaleString() || '0'}</p>
+                  </div>
+                  <div className={`p-3 rounded-xl border ${borderClass}`}>
+                    <p className={`text-xs ${textSecondaryClass}`}>Total Profits</p>
+                    <p className={`text-lg font-bold text-green-600`}>${statementData.account_summary?.total_profits?.toLocaleString() || '0'}</p>
+                  </div>
+                  <div className={`p-3 rounded-xl border ${borderClass}`}>
+                    <p className={`text-xs ${textSecondaryClass}`}>Net Return</p>
+                    <p className={`text-lg font-bold ${statementData.account_summary?.net_return_percent > 0 ? 'text-green-600' : 'text-red-600'}`}>
+                      {statementData.account_summary?.net_return_percent?.toFixed(2) || '0'}%
+                    </p>
+                  </div>
+                </div>
+                
+                <button
+                  onClick={() => {setShowStatementModal(false); setStatementData(null);}}
+                  className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-xl font-semibold"
+                >
+                  Close
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+      
+      {/* Tax Documents Modal */}
+      {showTaxDocsModal && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className={`${cardBgClass} rounded-2xl p-6 w-full max-w-lg max-h-[90vh] overflow-y-auto`}>
+            <div className="flex items-center justify-between mb-6">
+              <h3 className={`text-xl font-bold ${textClass}`}>Tax Documents</h3>
+              <button onClick={() => {setShowTaxDocsModal(false); setTaxDocData(null);}} className={textSecondaryClass}>
+                <X className="w-6 h-6" />
+              </button>
+            </div>
+            
+            {!taxDocData ? (
+              <div className="text-center py-8">
+                <p className={`${textSecondaryClass} mb-4`}>Generate your tax documents for the previous year.</p>
+                <button
+                  onClick={handleGetTaxDocs}
+                  disabled={isLoading}
+                  className="bg-green-600 hover:bg-green-700 disabled:bg-gray-400 text-white px-8 py-3 rounded-xl font-semibold flex items-center justify-center space-x-2 mx-auto"
+                >
+                  {isLoading ? (
+                    <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+                  ) : (
+                    <>
+                      <FileText className="w-5 h-5" />
+                      <span>Generate Tax Documents</span>
+                    </>
+                  )}
+                </button>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                <div className={`p-4 rounded-xl ${theme === 'dark' ? 'bg-green-900/20' : 'bg-green-50'} border border-green-200`}>
+                  <p className="text-green-600 font-semibold">Form {taxDocData.document_type} - Tax Year {taxDocData.tax_year}</p>
+                </div>
+                
+                <div className={`p-4 rounded-xl border ${borderClass} space-y-3`}>
+                  <div className="flex justify-between">
+                    <span className={textSecondaryClass}>Total Distributions:</span>
+                    <span className={`font-bold ${textClass}`}>${taxDocData.summary?.total_distributions?.toLocaleString() || '0'}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className={textSecondaryClass}>Ordinary Dividends:</span>
+                    <span className={textClass}>${taxDocData.summary?.ordinary_dividends?.toLocaleString() || '0'}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className={textSecondaryClass}>Qualified Dividends:</span>
+                    <span className={textClass}>${taxDocData.summary?.qualified_dividends?.toLocaleString() || '0'}</span>
+                  </div>
+                </div>
+                
+                <div className={`p-4 rounded-xl ${theme === 'dark' ? 'bg-slate-700' : 'bg-gray-50'}`}>
+                  <p className={`text-sm font-medium ${textClass} mb-2`}>Quarterly Breakdown</p>
+                  <div className="grid grid-cols-4 gap-2">
+                    {taxDocData.quarterly_breakdown?.map((q, i) => (
+                      <div key={i} className="text-center">
+                        <p className={`text-xs ${textSecondaryClass}`}>{q.quarter}</p>
+                        <p className={`text-sm font-medium ${textClass}`}>${q.amount?.toLocaleString() || '0'}</p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+                
+                <button
+                  onClick={() => {setShowTaxDocsModal(false); setTaxDocData(null);}}
+                  className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-xl font-semibold"
+                >
+                  Close
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+      
+      {/* Support Modal */}
+      {showSupportModal && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className={`${cardBgClass} rounded-2xl p-6 w-full max-w-md`}>
+            <div className="flex items-center justify-between mb-6">
+              <h3 className={`text-xl font-bold ${textClass}`}>Contact Support</h3>
+              <button onClick={() => setShowSupportModal(false)} className={textSecondaryClass}>
+                <X className="w-6 h-6" />
+              </button>
+            </div>
+            
+            <div className="space-y-4">
+              <div>
+                <label className={`block text-sm font-medium ${textSecondaryClass} mb-2`}>Subject</label>
+                <input
+                  type="text"
+                  value={supportSubject}
+                  onChange={(e) => setSupportSubject(e.target.value)}
+                  placeholder="How can we help?"
+                  className={`w-full px-4 py-3 border ${borderClass} rounded-xl focus:ring-2 focus:ring-blue-500 ${theme === 'dark' ? 'bg-slate-700 text-white' : 'bg-white'}`}
+                />
+              </div>
+              
+              <div>
+                <label className={`block text-sm font-medium ${textSecondaryClass} mb-2`}>Priority</label>
+                <select
+                  value={supportPriority}
+                  onChange={(e) => setSupportPriority(e.target.value)}
+                  className={`w-full px-4 py-3 border ${borderClass} rounded-xl focus:ring-2 focus:ring-blue-500 ${theme === 'dark' ? 'bg-slate-700 text-white' : 'bg-white'}`}
+                >
+                  <option value="low">Low - General inquiry</option>
+                  <option value="normal">Normal - Need assistance</option>
+                  <option value="high">High - Important issue</option>
+                  <option value="urgent">Urgent - Critical problem</option>
+                </select>
+              </div>
+              
+              <div>
+                <label className={`block text-sm font-medium ${textSecondaryClass} mb-2`}>Message</label>
+                <textarea
+                  value={supportMessage}
+                  onChange={(e) => setSupportMessage(e.target.value)}
+                  placeholder="Describe your issue or question..."
+                  rows={4}
+                  className={`w-full px-4 py-3 border ${borderClass} rounded-xl focus:ring-2 focus:ring-blue-500 ${theme === 'dark' ? 'bg-slate-700 text-white' : 'bg-white'}`}
+                />
+              </div>
+              
+              <button
+                onClick={handleSubmitSupport}
+                disabled={isLoading || !supportSubject || !supportMessage}
+                className="w-full bg-purple-600 hover:bg-purple-700 disabled:bg-gray-400 text-white py-3 rounded-xl font-semibold flex items-center justify-center space-x-2"
+              >
+                {isLoading ? (
+                  <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+                ) : (
+                  <>
+                    <Send className="w-5 h-5" />
+                    <span>Submit Ticket</span>
+                  </>
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+      
+      {/* Close Account Modal */}
+      {showCloseAccountModal && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className={`${cardBgClass} rounded-2xl p-6 w-full max-w-md`}>
+            <div className="flex items-center justify-between mb-6">
+              <h3 className={`text-xl font-bold text-red-600`}>Close Account</h3>
+              <button onClick={() => setShowCloseAccountModal(false)} className={textSecondaryClass}>
+                <X className="w-6 h-6" />
+              </button>
+            </div>
+            
+            <div className="space-y-4">
+              <div className={`p-4 rounded-xl bg-red-50 border border-red-200`}>
+                <p className="text-red-600 text-sm">
+                  ⚠️ Warning: Account closure is permanent and cannot be undone. All your data will be archived.
+                </p>
+              </div>
+              
+              <div>
+                <label className={`block text-sm font-medium ${textSecondaryClass} mb-2`}>Reason for closing</label>
+                <textarea
+                  value={closeReason}
+                  onChange={(e) => setCloseReason(e.target.value)}
+                  placeholder="Please tell us why you're closing your account..."
+                  rows={3}
+                  className={`w-full px-4 py-3 border ${borderClass} rounded-xl focus:ring-2 focus:ring-red-500 ${theme === 'dark' ? 'bg-slate-700 text-white' : 'bg-white'}`}
+                />
+              </div>
+              
+              <div className="flex items-center space-x-2">
+                <input
+                  type="checkbox"
+                  id="confirmWithdraw"
+                  checked={confirmWithdraw}
+                  onChange={(e) => setConfirmWithdraw(e.target.checked)}
+                  className="w-4 h-4 text-red-600"
+                />
+                <label htmlFor="confirmWithdraw" className={`text-sm ${textSecondaryClass}`}>
+                  Withdraw remaining balance to my bank account
+                </label>
+              </div>
+              
+              <div className="pt-4 space-y-3">
+                <button
+                  onClick={handleCloseAccount}
+                  disabled={isLoading || !closeReason}
+                  className="w-full bg-red-600 hover:bg-red-700 disabled:bg-gray-400 text-white py-3 rounded-xl font-semibold"
+                >
+                  {isLoading ? 'Processing...' : 'Confirm Account Closure'}
+                </button>
+                <button
+                  onClick={() => setShowCloseAccountModal(false)}
+                  className={`w-full py-3 rounded-xl font-semibold border ${borderClass} ${textSecondaryClass}`}
+                >
+                  Cancel
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Desktop Content Adjustment */}
       <style jsx>{`
         @media (min-width: 1024px) {
