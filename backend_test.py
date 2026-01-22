@@ -1373,6 +1373,306 @@ class EnhancedApexCapitalTester:
             self.log_test("CORS Weekly Risk", True, 
                         "CORS test skipped (not configured or connection issue)", str(e))
 
+    def test_investor_dashboard_api_endpoints(self):
+        """Test the new Investor Dashboard API endpoints as requested in review"""
+        print("\n=== TESTING INVESTOR DASHBOARD API ENDPOINTS ===")
+        
+        # Test 1: POST /api/deposits/investor@example.com
+        self.test_deposit_api()
+        
+        # Test 2: GET /api/deposits/investor@example.com
+        self.test_get_deposits()
+        
+        # Test 3: GET /api/statements/investor@example.com
+        self.test_account_statement()
+        
+        # Test 4: GET /api/tax-documents/investor@example.com
+        self.test_tax_documents()
+        
+        # Test 5: PATCH /api/investors/investor@example.com/profile
+        self.test_update_profile()
+        
+        # Test 6: POST /api/support/ticket?investor_id=investor@example.com
+        self.test_support_ticket()
+        
+        # Test 7: POST /api/investors/investor@example.com/close-account
+        self.test_account_closure()
+
+    def test_deposit_api(self):
+        """Test POST /api/deposits/investor@example.com"""
+        print("\n--- Testing Deposit API ---")
+        
+        try:
+            deposit_data = {
+                "amount": 15000,
+                "payment_method": "bank_transfer"
+            }
+            
+            response = requests.post(
+                f"{self.base_url}/deposits/investor@example.com",
+                json=deposit_data,
+                timeout=10
+            )
+            
+            if response.status_code == 200:
+                result = response.json()
+                
+                # Check if success is true
+                if result.get("success") is True:
+                    self.log_test("Deposit API - Success", True, 
+                                f"Deposit created successfully: {result}")
+                    
+                    # Check if bank_info with reference code is present
+                    bank_info = result.get("bank_info", {})
+                    if bank_info and "reference_code" in bank_info:
+                        self.log_test("Deposit API - Bank Info", True, 
+                                    f"Bank info with reference code: {bank_info}")
+                    else:
+                        self.log_test("Deposit API - Bank Info", False, 
+                                    f"Missing bank_info or reference_code: {result}")
+                else:
+                    self.log_test("Deposit API - Success", False, 
+                                f"Expected success:true, got: {result}")
+            else:
+                self.log_test("Deposit API", False, 
+                            f"Expected 200, got HTTP {response.status_code}", response.text)
+        except Exception as e:
+            self.log_test("Deposit API", False, "Connection failed", str(e))
+
+    def test_get_deposits(self):
+        """Test GET /api/deposits/investor@example.com"""
+        print("\n--- Testing Get Deposits ---")
+        
+        try:
+            response = requests.get(
+                f"{self.base_url}/deposits/investor@example.com",
+                timeout=10
+            )
+            
+            if response.status_code == 200:
+                deposits = response.json()
+                
+                # Check if it returns a list
+                if isinstance(deposits, list):
+                    self.log_test("Get Deposits - List Format", True, 
+                                f"Returned list of {len(deposits)} deposits")
+                    
+                    # Check if deposits have status field
+                    if deposits and all("status" in deposit for deposit in deposits):
+                        self.log_test("Get Deposits - Status Field", True, 
+                                    "All deposits have status field")
+                    elif deposits:
+                        self.log_test("Get Deposits - Status Field", False, 
+                                    "Some deposits missing status field")
+                    else:
+                        self.log_test("Get Deposits - Empty List", True, 
+                                    "No deposits found (empty list)")
+                else:
+                    self.log_test("Get Deposits - List Format", False, 
+                                f"Expected list, got: {type(deposits)}")
+            else:
+                self.log_test("Get Deposits", False, 
+                            f"Expected 200, got HTTP {response.status_code}", response.text)
+        except Exception as e:
+            self.log_test("Get Deposits", False, "Connection failed", str(e))
+
+    def test_account_statement(self):
+        """Test GET /api/statements/investor@example.com"""
+        print("\n--- Testing Account Statement ---")
+        
+        try:
+            response = requests.get(
+                f"{self.base_url}/statements/investor@example.com",
+                timeout=10
+            )
+            
+            if response.status_code == 200:
+                statement = response.json()
+                
+                # Check if account_summary is present
+                account_summary = statement.get("account_summary", {})
+                if account_summary:
+                    self.log_test("Account Statement - Summary Present", True, 
+                                f"Account summary found: {account_summary}")
+                    
+                    # Check required fields in account_summary
+                    required_fields = ["current_balance", "total_invested", "net_return_percent"]
+                    missing_fields = [field for field in required_fields if field not in account_summary]
+                    
+                    if not missing_fields:
+                        self.log_test("Account Statement - Required Fields", True, 
+                                    f"All required fields present: {required_fields}")
+                    else:
+                        self.log_test("Account Statement - Required Fields", False, 
+                                    f"Missing fields: {missing_fields}")
+                else:
+                    self.log_test("Account Statement - Summary Present", False, 
+                                "account_summary missing from statement")
+            else:
+                self.log_test("Account Statement", False, 
+                            f"Expected 200, got HTTP {response.status_code}", response.text)
+        except Exception as e:
+            self.log_test("Account Statement", False, "Connection failed", str(e))
+
+    def test_tax_documents(self):
+        """Test GET /api/tax-documents/investor@example.com"""
+        print("\n--- Testing Tax Documents ---")
+        
+        try:
+            response = requests.get(
+                f"{self.base_url}/tax-documents/investor@example.com",
+                timeout=10
+            )
+            
+            if response.status_code == 200:
+                tax_docs = response.json()
+                
+                # Check if 1099-DIV document is present
+                if "1099-DIV" in tax_docs or any("1099" in str(doc) for doc in tax_docs.values() if isinstance(tax_docs, dict)):
+                    self.log_test("Tax Documents - 1099-DIV Present", True, 
+                                "1099-DIV document found")
+                    
+                    # Check for quarterly_breakdown
+                    has_quarterly = False
+                    if isinstance(tax_docs, dict):
+                        for doc_type, doc_data in tax_docs.items():
+                            if isinstance(doc_data, dict) and "quarterly_breakdown" in doc_data:
+                                has_quarterly = True
+                                break
+                    
+                    if has_quarterly:
+                        self.log_test("Tax Documents - Quarterly Breakdown", True, 
+                                    "Quarterly breakdown found in tax documents")
+                    else:
+                        self.log_test("Tax Documents - Quarterly Breakdown", False, 
+                                    "quarterly_breakdown missing from tax documents")
+                else:
+                    self.log_test("Tax Documents - 1099-DIV Present", False, 
+                                "1099-DIV document not found")
+                
+                # Log full response for verification
+                self.log_test("Tax Documents - Full Response", True, 
+                            f"Tax documents: {tax_docs}")
+            else:
+                self.log_test("Tax Documents", False, 
+                            f"Expected 200, got HTTP {response.status_code}", response.text)
+        except Exception as e:
+            self.log_test("Tax Documents", False, "Connection failed", str(e))
+
+    def test_update_profile(self):
+        """Test PATCH /api/investors/investor@example.com/profile"""
+        print("\n--- Testing Update Profile ---")
+        
+        try:
+            profile_data = {
+                "name": "John Test Investor",
+                "phone": "+1-555-123-4567"
+            }
+            
+            response = requests.patch(
+                f"{self.base_url}/investors/investor@example.com/profile",
+                json=profile_data,
+                timeout=10
+            )
+            
+            if response.status_code == 200:
+                result = response.json()
+                
+                # Check if success is true
+                if result.get("success") is True:
+                    self.log_test("Update Profile - Success", True, 
+                                f"Profile updated successfully: {result}")
+                else:
+                    self.log_test("Update Profile - Success", False, 
+                                f"Expected success:true, got: {result}")
+            else:
+                self.log_test("Update Profile", False, 
+                            f"Expected 200, got HTTP {response.status_code}", response.text)
+        except Exception as e:
+            self.log_test("Update Profile", False, "Connection failed", str(e))
+
+    def test_support_ticket(self):
+        """Test POST /api/support/ticket?investor_id=investor@example.com"""
+        print("\n--- Testing Support Ticket ---")
+        
+        try:
+            ticket_data = {
+                "subject": "Test inquiry",
+                "message": "This is a test support request",
+                "priority": "normal"
+            }
+            
+            response = requests.post(
+                f"{self.base_url}/support/ticket",
+                params={"investor_id": "investor@example.com"},
+                json=ticket_data,
+                timeout=10
+            )
+            
+            if response.status_code == 200:
+                result = response.json()
+                
+                # Check if success is true
+                if result.get("success") is True:
+                    self.log_test("Support Ticket - Success", True, 
+                                f"Support ticket created successfully: {result}")
+                    
+                    # Check if ticket_id is present
+                    if "ticket_id" in result:
+                        self.log_test("Support Ticket - Ticket ID", True, 
+                                    f"Ticket ID provided: {result['ticket_id']}")
+                    else:
+                        self.log_test("Support Ticket - Ticket ID", False, 
+                                    "ticket_id missing from response")
+                else:
+                    self.log_test("Support Ticket - Success", False, 
+                                f"Expected success:true, got: {result}")
+            else:
+                self.log_test("Support Ticket", False, 
+                            f"Expected 200, got HTTP {response.status_code}", response.text)
+        except Exception as e:
+            self.log_test("Support Ticket", False, "Connection failed", str(e))
+
+    def test_account_closure(self):
+        """Test POST /api/investors/investor@example.com/close-account"""
+        print("\n--- Testing Account Closure ---")
+        
+        try:
+            closure_data = {
+                "reason": "Testing closure flow",
+                "confirm_withdrawal": False
+            }
+            
+            response = requests.post(
+                f"{self.base_url}/investors/investor@example.com/close-account",
+                json=closure_data,
+                timeout=10
+            )
+            
+            if response.status_code == 200:
+                result = response.json()
+                
+                # Check if success is true
+                if result.get("success") is True:
+                    self.log_test("Account Closure - Success", True, 
+                                f"Account closure request successful: {result}")
+                    
+                    # Check if request_id is present
+                    if "request_id" in result:
+                        self.log_test("Account Closure - Request ID", True, 
+                                    f"Request ID provided: {result['request_id']}")
+                    else:
+                        self.log_test("Account Closure - Request ID", False, 
+                                    "request_id missing from response")
+                else:
+                    self.log_test("Account Closure - Success", False, 
+                                f"Expected success:true, got: {result}")
+            else:
+                self.log_test("Account Closure", False, 
+                            f"Expected 200, got HTTP {response.status_code}", response.text)
+        except Exception as e:
+            self.log_test("Account Closure", False, "Connection failed", str(e))
+
     def run_comprehensive_enhanced_tests(self):
         """Run all enhanced system tests"""
         print("🚀 STARTING COMPREHENSIVE ENHANCED APEX CAPITAL BACKEND TESTING")
