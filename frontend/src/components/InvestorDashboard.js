@@ -128,7 +128,7 @@ const InvestorDashboard = () => {
         const resp = await fetch(`${backendUrl}/api/investors/${user.email}`);
         if (resp.ok) {
           const data = await resp.json();
-          setUserProfile((prev) => ({ ...prev, weeklyRisk: data.weekly_risk_percent || 1.0 }));
+          setUserProfile((prev) => ({ ...prev, weeklyRisk: data.weekly_risk_percent || 2.5 }));
         }
 
   // Load weekly risk schedule (Sat->Sat)
