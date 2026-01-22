@@ -4529,6 +4529,51 @@ if __name__ == "__main__":
     # Check if health check only mode is requested
     if len(sys.argv) > 1 and sys.argv[1] == "--health-check":
         tester.run_health_check_only()
+    elif len(sys.argv) > 1 and sys.argv[1] == "--investor-dashboard":
+        # Run Investor Dashboard API tests as requested in review
+        print("🚀 STARTING INVESTOR DASHBOARD API TESTING")
+        print(f"Backend URL: {tester.base_url}")
+        print("=" * 80)
+        
+        # Run the investor dashboard API tests
+        tester.test_investor_dashboard_api_endpoints()
+        
+        # Generate summary report
+        print("\n" + "=" * 80)
+        print("📊 INVESTOR DASHBOARD API TEST RESULTS SUMMARY")
+        print("=" * 80)
+        
+        total_tests = len(tester.test_results)
+        passed_tests = len([r for r in tester.test_results if "✅ PASS" in r["status"]])
+        failed_tests = len([r for r in tester.test_results if "❌ FAIL" in r["status"]])
+        
+        success_rate = (passed_tests / total_tests * 100) if total_tests > 0 else 0
+        
+        print(f"📈 OVERALL SUCCESS RATE: {success_rate:.1f}% ({passed_tests}/{total_tests} tests passed)")
+        print(f"✅ PASSED: {passed_tests}")
+        print(f"❌ FAILED: {failed_tests}")
+        
+        # Show detailed results
+        print("\n📋 DETAILED TEST RESULTS:")
+        for result in tester.test_results:
+            print(f"{result['status']}: {result['test']} - {result['message']}")
+            if result.get('details') and "❌ FAIL" in result["status"]:
+                print(f"     Details: {result['details']}")
+        
+        # Show critical failures
+        critical_failures = [r for r in tester.test_results if "❌ FAIL" in r["status"]]
+        
+        if critical_failures:
+            print(f"\n🚨 CRITICAL FAILURES ({len(critical_failures)}):")
+            for failure in critical_failures:
+                print(f"  ❌ {failure['test']}: {failure['message']}")
+                if failure.get('details'):
+                    print(f"     Details: {failure['details']}")
+        else:
+            print(f"\n🎉 ALL INVESTOR DASHBOARD API TESTS PASSED!")
+        
+        print(f"\n🏁 INVESTOR DASHBOARD API TESTING COMPLETED at {datetime.now().isoformat()}")
+        print("=" * 80)
     else:
         # Run only Weekly Risk API tests as requested in review
         tester.run_weekly_risk_tests_only()
