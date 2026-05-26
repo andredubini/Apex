@@ -20,7 +20,7 @@ try:
         raise Exception("Local connection failed")
 except:
     # Fallback to external URL
-    BACKEND_URL = "https://project-preview-35.preview.emergentagent.com/api"
+    BACKEND_URL = "https://preview-portal-45.preview.emergentagent.com/api"
 
 class DeploymentHealthChecker:
     def __init__(self):

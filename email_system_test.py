@@ -24,7 +24,7 @@ except:
     # Fallback to external URL pattern
     import os
     hostname = os.environ.get('HOSTNAME', 'agent-env-2028b814-2835-4f1c-b676-f5848bc305b9')
-    BACKEND_URL = f"https://project-preview-35.preview.emergentagent.com/api"
+    BACKEND_URL = f"https://preview-portal-45.preview.emergentagent.com/api"
 
 class ApexCapitalEmailTester:
     def __init__(self):
