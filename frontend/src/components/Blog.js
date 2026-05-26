@@ -94,7 +94,7 @@ const Blog = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             <Link to="/" className="text-2xl font-bold text-white">
-              <span className="text-blue-400">Apex</span>Capital
+              <span className="text-blue-400">Apex</span>CM
             </Link>
             <div className="flex items-center space-x-6">
               <Link to="/" className="text-slate-300 hover:text-white transition-colors">
@@ -296,7 +296,7 @@ const Blog = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center">
             <Link to="/" className="text-2xl font-bold text-white mb-4 inline-block">
-              <span className="text-blue-400">Apex</span>Capital
+              <span className="text-blue-400">Apex</span>CM
             </Link>
             <p className="text-slate-400 text-sm mb-4">
               Professional insights and educational content for serious investors

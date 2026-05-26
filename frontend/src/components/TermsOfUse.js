@@ -9,7 +9,7 @@ const TermsOfUse = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             <Link to="/" className="text-2xl font-bold text-white">
-              <span className="text-blue-400">Apex</span>Capital
+              <span className="text-blue-400">Apex</span>CM
             </Link>
             <div className="flex items-center space-x-6">
               <Link to="/" className="text-slate-300 hover:text-white transition-colors">
@@ -47,12 +47,12 @@ const TermsOfUse = () => {
             <div className="bg-slate-800/50 backdrop-blur-md p-8 rounded-2xl border border-slate-700">
               <h2 className="text-2xl font-bold text-white mb-4">Acceptance of Terms</h2>
               <p className="text-slate-300 leading-relaxed mb-4">
-                By accessing and using the Apex Capital Management website and services, you accept and agree to be bound by the 
+                By accessing and using the ApexCM website and services, you accept and agree to be bound by the 
                 terms and provision of this agreement. If you do not agree to abide by the above, please do not use this service.
               </p>
               <div className="bg-blue-900/20 border border-blue-400/30 p-4 rounded-lg">
                 <p className="text-blue-300 text-sm">
-                  <strong>Important:</strong> These terms constitute a legally binding agreement between you and Apex Capital Management. 
+                  <strong>Important:</strong> These terms constitute a legally binding agreement between you and ApexCM. 
                   Please read them carefully before proceeding.
                 </p>
               </div>
@@ -66,7 +66,7 @@ const TermsOfUse = () => {
                 <div>
                   <h3 className="text-lg font-semibold text-blue-400 mb-3">Service Description</h3>
                   <p className="text-slate-300 leading-relaxed mb-3">
-                    Apex Capital Management provides professional investment management services specializing in US stock market intraday trading. 
+                    ApexCM provides professional investment management services specializing in US stock market intraday trading. 
                     Our services include portfolio management, risk assessment, and regular performance reporting.
                   </p>
                   <ul className="text-slate-300 space-y-2 ml-4">
@@ -228,7 +228,7 @@ const TermsOfUse = () => {
                   <h3 className="text-lg font-semibold text-blue-400 mb-3">Our Rights</h3>
                   <p className="text-slate-300 leading-relaxed mb-4">
                     All content on this website, including text, graphics, logos, images, software, and trading algorithms, 
-                    is the property of Apex Capital Management and is protected by copyright, trademark, and other intellectual property laws.
+                    is the property of ApexCM and is protected by copyright, trademark, and other intellectual property laws.
                   </p>
                 </div>
                 
@@ -243,7 +243,7 @@ const TermsOfUse = () => {
                 <div className="bg-slate-900/50 p-4 rounded-lg">
                   <h4 className="font-semibold text-white mb-2">Trademark Notice</h4>
                   <p className="text-slate-300 text-sm">
-                    "Apex Capital," the Apex Capital logo, and other marks used on this site are trademarks of Apex Capital Management. 
+                    "ApexCM," the ApexCM logo, and other marks used on this site are trademarks of ApexCM. 
                     Third-party trademarks mentioned are the property of their respective owners.
                   </p>
                 </div>
@@ -256,7 +256,7 @@ const TermsOfUse = () => {
               
               <div className="space-y-4">
                 <p className="text-slate-300 leading-relaxed">
-                  To the fullest extent permitted by law, Apex Capital Management shall not be liable for any indirect, 
+                  To the fullest extent permitted by law, ApexCM shall not be liable for any indirect, 
                   incidental, special, consequential, or punitive damages, including but not limited to loss of profits, 
                   data, or business opportunities.
                 </p>
@@ -339,7 +339,7 @@ const TermsOfUse = () => {
                 <div>
                   <h3 className="text-lg font-semibold text-blue-400 mb-4">Business Address</h3>
                   <div className="space-y-2 text-slate-300">
-                    <p><strong>Apex Capital Management LLC</strong></p>
+                    <p><strong>ApexCM LLC</strong></p>
                     <p>1234 Financial District<br />Wilmington, DE 19801</p>
                     <p><strong>Delaware Registration:</strong> HF-2024-001</p>
                   </div>
@@ -356,7 +356,7 @@ const TermsOfUse = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center">
             <Link to="/" className="text-2xl font-bold text-white mb-4 inline-block">
-              <span className="text-blue-400">Apex</span>Capital
+              <span className="text-blue-400">Apex</span>CM
             </Link>
             <p className="text-slate-400 text-sm mb-4">
               Delaware-registered hedge fund specializing in US stock market intraday trading

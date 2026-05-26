@@ -9,7 +9,7 @@ const PrivacyPolicy = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             <Link to="/" className="text-2xl font-bold text-white">
-              <span className="text-blue-400">Apex</span>Capital
+              <span className="text-blue-400">Apex</span>CM
             </Link>
             <div className="flex items-center space-x-6">
               <Link to="/" className="text-slate-300 hover:text-white transition-colors">
@@ -47,7 +47,7 @@ const PrivacyPolicy = () => {
             <div className="bg-slate-800/50 backdrop-blur-md p-8 rounded-2xl border border-slate-700">
               <h2 className="text-2xl font-bold text-white mb-4">Introduction</h2>
               <p className="text-slate-300 leading-relaxed mb-4">
-                Apex Capital Management ("we," "our," or "us") is committed to protecting your privacy and personal information. 
+                ApexCM ("we," "our," or "us") is committed to protecting your privacy and personal information. 
                 This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you visit our 
                 website or use our investment services.
               </p>
@@ -288,7 +288,7 @@ const PrivacyPolicy = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center">
             <Link to="/" className="text-2xl font-bold text-white mb-4 inline-block">
-              <span className="text-blue-400">Apex</span>Capital
+              <span className="text-blue-400">Apex</span>CM
             </Link>
             <p className="text-slate-400 text-sm mb-4">
               Delaware-registered hedge fund specializing in US stock market intraday trading

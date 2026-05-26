@@ -47,7 +47,7 @@ const LandingPage = () => {
             <div className="flex items-center">
               <div className="flex-shrink-0">
                 <div className="text-2xl font-bold text-white">
-                  <span className="text-blue-400">Apex</span>Capital
+                  <span className="text-blue-400">Apex</span>CM
                 </div>
               </div>
             </div>
@@ -804,7 +804,7 @@ const LandingPage = () => {
             <div className="bg-slate-800/50 backdrop-blur-md p-8 rounded-2xl border border-slate-700 max-w-4xl mx-auto">
               <h3 className="text-2xl font-bold text-white mb-4">Our Trading Philosophy</h3>
               <p className="text-slate-300 text-lg leading-relaxed">
-                At Apex Capital, we believe in combining disciplined risk management with innovative trading strategies. 
+                At ApexCM, we believe in combining disciplined risk management with innovative trading strategies. 
                 Our traders operate within a collaborative framework where individual expertise contributes to collective success. 
                 Investors can choose weekly risk within 0.5%–5% range for each trading period, ensuring sustainable long-term growth 
                 while providing traders with the freedom to execute their proven strategies within our institutional framework.
@@ -1001,7 +1001,7 @@ const LandingPage = () => {
           <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
             <div>
               <div className="text-2xl font-bold text-white mb-4">
-                <span className="text-blue-400">Apex</span>Capital
+                <span className="text-blue-400">Apex</span>CM
               </div>
               <p className="text-slate-300 text-sm mb-4">
                 Delaware-registered hedge fund specializing in US stock market intraday trading with proven risk management strategies.
@@ -1057,7 +1057,7 @@ const LandingPage = () => {
           <div className="border-t border-slate-800 mt-12 pt-8">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-center">
               <div className="text-center md:text-left text-slate-400 text-sm">
-                <p>&copy; 2025 Apex Capital Management. All rights reserved.</p>
+                <p>&copy; 2025 ApexCM. All rights reserved.</p>
                 <p className="mt-1">Delaware Registration: HF-2024-001 | SIPC Member</p>
               </div>
               <div className="text-center md:text-right text-slate-400 text-xs">

@@ -185,7 +185,7 @@ class EmailService:
                 "text": safe_text_content,
                 "subject": safe_subject,
                 "from": {
-                    "name": "Apex Capital Management",
+                    "name": "ApexCM",
                     "email": self.sender_email
                 },
                 "to": [
@@ -196,7 +196,7 @@ class EmailService:
                 ],
                 "headers": {
                     "X-Priority": "1",
-                    "X-Mailer": "Apex Capital Management System"
+                    "X-Mailer": "ApexCM System"
                 }
             }
         }
@@ -234,17 +234,17 @@ class EmailService:
         <html>
         <head>
             <meta charset="UTF-8">
-            <title>Welcome to Apex Capital Management</title>
+            <title>Welcome to ApexCM</title>
         </head>
         <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
             <div style="max-width: 600px; margin: 0 auto; padding: 20px;">
                 <div style="text-align: center; margin-bottom: 30px;">
-                    <h1 style="color: #2563eb;">Apex Capital Management</h1>
+                    <h1 style="color: #2563eb;">ApexCM</h1>
                 </div>
                 
                 <h2 style="color: #1f2937;">Welcome, {{ user_name }}!</h2>
                 
-                <p>Thank you for registering with Apex Capital Management. We are excited to have you join our exclusive investment platform.</p>
+                <p>Thank you for registering with ApexCM. We are excited to have you join our exclusive investment platform.</p>
                 
                 <div style="background: #f3f4f6; padding: 20px; border-radius: 8px; margin: 20px 0;">
                     <h3 style="margin-top: 0; color: #1f2937;">What's Next?</h3>
@@ -266,7 +266,7 @@ class EmailService:
                 <div style="text-align: center; margin-top: 30px; padding-top: 20px; border-top: 1px solid #e5e7eb;">
                     <p style="color: #6b7280; font-size: 14px;">
                         Best regards,<br>
-                        The Apex Capital Management Team<br>
+                        The ApexCM Team<br>
                         <a href="mailto:{{ sender_email }}" style="color: #2563eb;">{{ sender_email }}</a>
                     </p>
                 </div>
@@ -282,7 +282,7 @@ class EmailService:
         
         success = await self.send_email(
             user_email,
-            "Welcome to Apex Capital Management",
+            "Welcome to ApexCM",
             html_content
         )
         
@@ -302,12 +302,12 @@ class EmailService:
         <html>
         <head>
             <meta charset="UTF-8">
-            <title>Your Login Code - Apex Capital</title>
+            <title>Your Login Code - ApexCM</title>
         </head>
         <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
             <div style="max-width: 500px; margin: 0 auto; padding: 20px;">
                 <div style="text-align: center; margin-bottom: 30px;">
-                    <h1 style="color: #2563eb;">Apex Capital Management</h1>
+                    <h1 style="color: #2563eb;">ApexCM</h1>
                 </div>
                 
                 <h2 style="color: #1f2937;">Your Login Code</h2>
@@ -332,7 +332,7 @@ class EmailService:
                 
                 <div style="text-align: center; margin-top: 30px; padding-top: 20px; border-top: 1px solid #e5e7eb;">
                     <p style="color: #6b7280; font-size: 14px;">
-                        Apex Capital Management Security Team
+                        ApexCM Security Team
                     </p>
                 </div>
             </div>
@@ -355,12 +355,12 @@ class EmailService:
         <html>
         <head>
             <meta charset="UTF-8">
-            <title>{{ transaction_type.title() }} {{ status.title() }} - Apex Capital</title>
+            <title>{{ transaction_type.title() }} {{ status.title() }} - ApexCM</title>
         </head>
         <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
             <div style="max-width: 600px; margin: 0 auto; padding: 20px;">
                 <div style="text-align: center; margin-bottom: 30px;">
-                    <h1 style="color: #2563eb;">Apex Capital Management</h1>
+                    <h1 style="color: #2563eb;">ApexCM</h1>
                 </div>
                 
                 <h2 style="color: #1f2937;">{{ transaction_type.title() }} {{ status.title() }}</h2>
@@ -412,7 +412,7 @@ class EmailService:
                 <div style="text-align: center; margin-top: 30px; padding-top: 20px; border-top: 1px solid #e5e7eb;">
                     <p style="color: #6b7280; font-size: 14px;">
                         Best regards,<br>
-                        The Apex Capital Management Team
+                        The ApexCM Team
                     </p>
                 </div>
             </div>
@@ -450,12 +450,12 @@ class EmailService:
         <html>
         <head>
             <meta charset="UTF-8">
-            <title>Weekly Trading Report - Apex Capital</title>
+            <title>Weekly Trading Report - ApexCM</title>
         </head>
         <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
             <div style="max-width: 700px; margin: 0 auto; padding: 20px;">
                 <div style="text-align: center; margin-bottom: 30px;">
-                    <h1 style="color: #2563eb;">Apex Capital Management</h1>
+                    <h1 style="color: #2563eb;">ApexCM</h1>
                     <h2 style="color: #1f2937;">Weekly Trading Report</h2>
                     <p style="color: #6b7280;">{{ report_period }}</p>
                 </div>
@@ -527,7 +527,7 @@ class EmailService:
                 <div style="text-align: center; margin-top: 30px; padding-top: 20px; border-top: 1px solid #e5e7eb;">
                     <p style="color: #6b7280; font-size: 14px;">
                         Best regards,<br>
-                        The Apex Capital Management Team<br>
+                        The ApexCM Team<br>
                         Professional Trading Division
                     </p>
                 </div>
@@ -560,7 +560,7 @@ class EmailService:
         <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
             <div style="max-width: 600px; margin: 0 auto; padding: 20px;">
                 <div style="text-align: center; margin-bottom: 30px;">
-                    <h1 style="color: #dc2626;">Apex Capital Admin Notification</h1>
+                    <h1 style="color: #dc2626;">ApexCM Admin Notification</h1>
                 </div>
                 
                 <h2 style="color: #1f2937;">{{ subject }}</h2>
@@ -571,7 +571,7 @@ class EmailService:
                 
                 <div style="text-align: center; margin-top: 30px; padding-top: 20px; border-top: 1px solid #e5e7eb;">
                     <p style="color: #6b7280; font-size: 14px;">
-                        Automated notification from Apex Capital Management System<br>
+                        Automated notification from ApexCM System<br>
                         {{ current_time }}
                     </p>
                 </div>
@@ -588,7 +588,7 @@ class EmailService:
         
         return await self.send_email(
             self.admin_email,
-            f"[Apex Capital Admin] {subject}",
+            f"[ApexCM Admin] {subject}",
             html_content
         )
 
@@ -1145,7 +1145,7 @@ manager = ConnectionManager()
 # Add your routes to the router instead of directly to app
 @api_router.get("/")
 async def root():
-    return {"message": "Apex Capital Management API"}
+    return {"message": "ApexCM API"}
 
 # WebSocket endpoint for real-time notifications
 @app.websocket("/ws/{user_id}")
@@ -2578,7 +2578,7 @@ async def create_deposit_request(investor_id: str, deposit: DepositRequest):
         # Bank details for the investor
         bank_info = {
             "bank_name": "Charles Schwab Bank",
-            "account_name": "Apex Capital Management LLC",
+            "account_name": "ApexCM LLC",
             "account_number": "****4521",
             "routing_number": "121202211",
             "swift_code": "SCHBUS33",
@@ -2926,7 +2926,7 @@ async def send_email_notification_to_admin(
     Please review and approve/deny this request in the admin panel.
     
     Best regards,
-    Apex Capital Management System
+    ApexCM System
     """
     
     # Simulate email sending
@@ -2971,7 +2971,7 @@ async def send_email_notification_to_admin(
     Please review and approve/deny this request in the admin panel.
     
     Best regards,
-    Apex Capital Management System
+    ApexCM System
     """
     
     # Simulate email sending

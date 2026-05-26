@@ -1428,7 +1428,7 @@ const AdminDashboard = () => {
           <div className="flex items-center justify-between h-16">
             <div className="flex items-center">
               <div className={`text-2xl font-bold ${textClass}`}>
-                <span className="text-blue-400">Apex</span>Capital
+                <span className="text-blue-400">Apex</span>CM
                 <span className="ml-2 text-sm bg-orange-600 px-2 py-1 rounded text-white">Admin</span>
               </div>
             </div>

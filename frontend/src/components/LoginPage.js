@@ -181,7 +181,7 @@ const LoginPage = () => {
       <div className="max-w-md w-full space-y-8">
         <div>
           <Link to="/" className="flex justify-center">
-            <h1 className="text-3xl font-bold text-blue-400">Apex Capital</h1>
+            <h1 className="text-3xl font-bold text-blue-400">ApexCM</h1>
           </Link>
           <h2 className="mt-6 text-center text-3xl font-extrabold text-white">
             Enter Verification Code
@@ -307,7 +307,7 @@ const LoginPage = () => {
         <div>
           <Link to="/" className="flex justify-center">
             <div className="text-3xl font-bold text-white">
-              <span className="text-blue-400">Apex</span>Capital
+              <span className="text-blue-400">Apex</span>CM
             </div>
           </Link>
           <h2 className="mt-6 text-center text-3xl font-bold text-white">
